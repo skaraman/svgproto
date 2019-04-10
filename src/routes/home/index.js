@@ -2,66 +2,72 @@ import { h, Component } from 'preact'
 import style from './style'
 
 import Terminal from 'components/terminal'
+import Button from 'components/ui/button'
+
+import ReelData from 'data/reel'
+import { interpolate } from 'flubber'
 
 import Box from '!!preact-svg-loader!svg/test/box.svg'
-import svgson, { stringify } from 'svgson'
+import Star from '!!preact-svg-loader!svg/test/star.svg'
 
 export default class Home extends Component {
-    constructor(props) {
-        super(props)
-        this.svgsToRender = {
-            box: true,
-            star: true
-        }
-        console.log(Box({}))
+  constructor(props) {
+    super(props)
+    this.svgsToRender = {
+      box: Box({}),
+      star: Star({})
     }
+    this.reelData = ReelData
+    // for character
+    //     for animation
+    //         for fromFrame
+    //             bake timeframe frames to toFrame
+  }
 
-    componentWillMount() {
-        console.log('componentWillMount');
-    }
+  componentWillMount() {
+    console.log('componentWillMount')
+  }
 
-    componentDidMount() {
-        console.log('componentDidMount');
-    }
+  componentDidMount() {
+    console.log('componentDidMount')
+  }
 
-    componentWillUnmount() {
-        console.log('componentWillUnmount');
-    }
+  componentWillUnmount() {
+    console.log('componentWillUnmount')
+  }
 
-    componentWillReceiveProps() {
-        console.log('componentWillReceiveProps');
-    }
+  componentWillReceiveProps() {
+    console.log('componentWillReceiveProps')
+  }
 
-    shouldComponentUpdate() {
-        console.log('shouldComponentUpdate');
-    }
+  shouldComponentUpdate() {
+    console.log('shouldComponentUpdate')
+  }
 
-    componentWillUpdate() {
-        console.log('componentWillUpdate');
-    }
+  componentWillUpdate() {
+    console.log('componentWillUpdate')
+  }
 
-    componentDidUpdate() {
-        console.log('componentDidUpdate');
-    }
+  componentDidUpdate() {
+    console.log('componentDidUpdate')
+  }
 
-    //
-    // shouldComponentUpdate() {
-    //     for (let svgdx in this.svgsToRender) {
-    //         let svg = this[svgdx]
-    //         if (!svg) return false
-    //     }
-    //     return true
-    // }
+  playClick() {
+    console.log('playClick')
+  }
 
-    render({}, {}) {
+  render({}, {}) {
 
-        return (
-            <div class={style.home}>
-                <p>There should be a SVG Box...</p>
-                <Box ref={box => this.box = box}/>
-
-                <Terminal />
-            </div>
-        )
-    }
+    return (
+      <div class={style.home}>
+        <Button
+          text='Play'
+          onClick={this.playClick}
+        />
+        <p>There should be a SVG Box...</p>
+        <Box />
+        <Terminal />
+      </div>
+    )
+  }
 }

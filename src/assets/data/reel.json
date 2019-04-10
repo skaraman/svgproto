@@ -1,0 +1,13 @@
+{
+  "testEntity": {
+    "testAnimation": [
+      {
+        "box": {
+          "star": {
+            "timeframe": 60
+          }
+        }
+      }
+    ]
+  }
+}
