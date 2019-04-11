@@ -1,6 +1,6 @@
-import { h } from 'preact';
-import { Link } from 'preact-router/match';
-import style from './style';
+import { h } from 'preact'
+import { Link } from 'preact-router/match'
+import style from './style'
 
 const DevUI = () => (
     <header class={style.header}>
@@ -13,6 +13,6 @@ const DevUI = () => (
             */}
         </nav>
     </header>
-);
+)
 
-export default DevUI;
+export default DevUI

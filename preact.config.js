@@ -1,8 +1,18 @@
-const path = require('path');
+const path = require('path')
+
+const aliases = {
+    svg: 'src/assets/svg',
+    components: 'src/components',
+    routes: 'src/routes',
+    data: 'src/assets/data'
+}
+
+function setAliases(config) {
+    for (let idx in aliases) {
+        config.resolve.alias[idx] = path.resolve(__dirname, aliases[idx])
+    }
+}
 
 export default function (config, env, helpers) {
-    config.resolve.alias['svg'] = path.resolve(__dirname, 'src/assets/svg');
-    config.resolve.alias['components'] = path.resolve(__dirname, 'src/components/');
-    config.resolve.alias['data'] = path.resolve(__dirname, 'src/assets/data');
-
+    setAliases(config)
 }

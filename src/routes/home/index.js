@@ -1,7 +1,6 @@
 import { h, Component } from 'preact'
 import style from './style'
 
-import Terminal from 'components/terminal'
 import Button from 'components/ui/button'
 
 import ReelData from 'data/reel'
@@ -11,63 +10,74 @@ import Box from '!!preact-svg-loader!svg/test/box.svg'
 import Star from '!!preact-svg-loader!svg/test/star.svg'
 
 export default class Home extends Component {
-  constructor(props) {
-    super(props)
-    this.svgsToRender = {
-      box: Box({}),
-      star: Star({})
+    constructor(props) {
+        super(props)
+        this.svgsToRender = {
+            box: Box({}),
+            star: Star({})
+        }
+        this.reelData = ReelData
+        debugger
+        for (let cdx in this.reelData) {
+            let character = this.reelData[cdx]
+            for (let adx in character) {
+                let animation = character[adx]
+                for (let fdx = 0; fdx < animation.length; fdx++) {
+                    let fromFrame = animation[fdx]
+                    debugger
+                    //bake timeframe frames to toFrame
+                }
+            }
+        }
     }
-    this.reelData = ReelData
-    // for character
-    //     for animation
-    //         for fromFrame
-    //             bake timeframe frames to toFrame
-  }
 
-  componentWillMount() {
-    console.log('componentWillMount')
-  }
+    newThing() {
+        console.log()
+    }
 
-  componentDidMount() {
-    console.log('componentDidMount')
-  }
+    componentWillMount() {
+        console.log('componentWillMount')
+    }
 
-  componentWillUnmount() {
-    console.log('componentWillUnmount')
-  }
+    componentDidMount() {
+        console.log('componentDidMount')
+    }
 
-  componentWillReceiveProps() {
-    console.log('componentWillReceiveProps')
-  }
+    componentWillUnmount() {
+        console.log('componentWillUnmount')
+    }
 
-  shouldComponentUpdate() {
-    console.log('shouldComponentUpdate')
-  }
+    componentWillReceiveProps() {
+        console.log('componentWillReceiveProps')
+    }
 
-  componentWillUpdate() {
-    console.log('componentWillUpdate')
-  }
+    shouldComponentUpdate() {
+        console.log('shouldComponentUpdate')
+    }
 
-  componentDidUpdate() {
-    console.log('componentDidUpdate')
-  }
+    componentWillUpdate() {
+        console.log('componentWillUpdate')
+    }
 
-  playClick() {
-    console.log('playClick')
-  }
+    componentDidUpdate() {
+        console.log('componentDidUpdate')
+    }
 
-  render({}, {}) {
+    playClick() {
+        console.log('playClick')
+    }
 
-    return (
-      <div class={style.home}>
-        <Button
-          text='Play'
-          onClick={this.playClick}
-        />
-        <p>There should be a SVG Box...</p>
-        <Box />
-        <Terminal />
-      </div>
-    )
-  }
+    render({}, {}) {
+
+        return (
+            <div class={style.home}>
+                <Button
+                    text='Play'
+                    onClick={this.playClick}
+                />
+                <p>There should be a SVG Box...</p>
+                <Box />
+            </div>
+        )
+    }
 }

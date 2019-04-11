@@ -1,11 +1,12 @@
-import { h, Component } from 'preact';
-import { Router } from 'preact-router';
+import { h, Component } from 'preact'
+import { Router } from 'preact-router'
 
-import DevUI from './devui';
+import DevUI from 'components/devui'
+import Terminal from 'components/terminal'
 
 // Code-splitting is automated for routes
-import Home from '../routes/home';
-import Profile from '../routes/profile';
+import Home from 'routes/home'
+import Profile from 'routes/profile'
 
 export default class App extends Component {
 
@@ -14,8 +15,8 @@ export default class App extends Component {
      *	@param {string} event.url	The newly routed URL
      */
     handleRoute = e => {
-        this.currentUrl = e.url;
-    };
+        this.currentUrl = e.url
+    }
 
     render() {
         return (
@@ -26,7 +27,8 @@ export default class App extends Component {
                     <Profile path="/profile/" user="me" />
                     <Profile path="/profile/:user" />
                 </Router>
+                <Terminal />
             </div>
-        );
+        )
     }
 }
