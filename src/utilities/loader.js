@@ -16,8 +16,7 @@ export default class Loader {
         for (let i in svgs) {
             this.loadedSVGs[i] = {}
             for (let j in svgs[i]) {
-                let svg = require(`!!preact-svg-loader!svg/${svgs[i][j]}.svg`)
-                this.loadedSVGs[i][j] = svg.default({})
+                this.loadedSVGs[i][j] = require(`!!preact-svg-loader!svg/${svgs[i][j]}.svg`).default({})
             }
         }
         if (init) this.autoBake()
@@ -38,36 +37,46 @@ export default class Loader {
                 let animationData = characterData[animationName]
                 this.bakes[characterName][animationName] = []
                 for (let frameIndex = 0; frameIndex < animationData.length; frameIndex++) {
-                    let fromName = animationData[frameIndex].from
-                    let toName = animationData[frameIndex].to
-                    let timeframe = animationData[frameIndex].timeframe
-                    let fromChildren = this.loadedSVGs[characterName][fromName].children
-                    let toChildren = this.loadedSVGs[characterName][toName].children
-                    let fromPaths
-                    let toPaths
-                    let additionalFromPaths
-                    let remainderToPaths
-                    debugger
-                    fromNameLoop: for (let i = 0; i < fromChildren; i++) {
-                        let fromPathName = fromChildren[i].attributes.id
-                        let fromPath = fromChildren[i].attributes.d
-                        let fromFill = fromChildren[i].attributes.fill
-                        toNameLoop: for (let j = 0; j < toChildren; j++) {
-                            let toPathName = toChildren[i].attributes.id
-                            let toPath = toChildren[i].attributes.d
-                            let toFill = toChildren[i].attributes.fill
+                    let { from: fromName, to: toName, timeframe } = animationData[frameIndex],
+                        fromChildren = this.loadedSVGs[characterName][fromName].children,
+                        toChildren = this.loadedSVGs[characterName][toName].children,
+                        fromPaths = {},
+                        toPaths = {},
+                        additionalFromPaths = {},
+                        remainderToPaths = {}
+                    fromNameLoop: for (let fromIndex = 0; fromIndex < fromChildren.length; fromIndex++) {
+                        let { id: fromPathName, d: fromPath, fill: fromFill } = fromChildren[fromIndex].attributes
+                        toNameLoop: for (let toIndex = 0; toIndex < toChildren.length; toIndex++) {
+                            let { id: toPathName, d: toPath, fill: toFill } = toChildren[toIndex].attributes
                             if (fromPathName === toPathName) {
-                                fromPaths[fromPathName] = fromPath
-                                toPaths[toPathName] = toPath
+                                fromPaths[fromPathName] = {
+                                    fill: fromFill,
+                                    path: fromPath
+                                }
+                                toPaths[toPathName] = {
+                                    fill: toFill,
+                                    path: toPath
+                                }
+                                toChildren.splice(toIndex, 1)
+                                continue fromNameLoop
                             }
                         }
+                        additionalFromPaths[fromPathName] = {
+                            fill: fromFill,
+                            path: fromPath
+                        }
                     }
-                    for (let bakeFrameIndex = 0; bakeFrameIndex < timeframe; bakeFrameIndex++) {
-                        let percentage = (1 / timeframe) * bakeFrameIndex
-                        let bakedFrame = fromFrame[tdx]
+                    for (let remainderIndex = 0; remainderIndex < toChildren.length; remainderIndex++) {
+                        let child = toChildren[remainderIndex]
+                        remainderToPaths[child.attributes.id] = {
+                            fill: child.attributes.fill,
+                            path: child.attributes.d
+                        }
+                    }
+                    debugger
+                    for (let timeframeIndex = 0; timeframeIndex < timeframe; timeframeIndex++) {
 
                     }
-                    //bake timeframe frames to toFrame
                 }
             }
         }
