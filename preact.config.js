@@ -4,7 +4,8 @@ const aliases = {
     svg: 'src/assets/svg',
     components: 'src/components',
     routes: 'src/routes',
-    data: 'src/assets/data'
+    data: 'src/assets/data',
+    util: 'src/utilities'
 }
 
 function setAliases(config) {

@@ -1,38 +1,13 @@
 import { h, Component } from 'preact'
 import style from './style'
 
+import Loader from 'util/loader'
 import Button from 'components/ui/button'
-
-import ReelData from 'data/reel'
-import { interpolate } from 'flubber'
-
-import Box from '!!preact-svg-loader!svg/test/box.svg'
-import Star from '!!preact-svg-loader!svg/test/star.svg'
 
 export default class Home extends Component {
     constructor(props) {
         super(props)
-        this.svgsToRender = {
-            box: Box({}),
-            star: Star({})
-        }
-        this.reelData = ReelData
-        debugger
-        for (let cdx in this.reelData) {
-            let character = this.reelData[cdx]
-            for (let adx in character) {
-                let animation = character[adx]
-                for (let fdx = 0; fdx < animation.length; fdx++) {
-                    let fromFrame = animation[fdx]
-                    debugger
-                    //bake timeframe frames to toFrame
-                }
-            }
-        }
-    }
-
-    newThing() {
-        console.log()
+        this.loader = new Loader(true)
     }
 
     componentWillMount() {
@@ -76,7 +51,6 @@ export default class Home extends Component {
                     onClick={this.playClick}
                 />
                 <p>There should be a SVG Box...</p>
-                <Box />
             </div>
         )
     }

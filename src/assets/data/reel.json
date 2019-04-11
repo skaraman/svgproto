@@ -1,12 +1,10 @@
 {
-  "testEntity": {
+  "test": {
     "testAnimation": [
       {
-        "box": {
-          "star": {
-            "timeframe": 60
-          }
-        }
+        "from": "box",
+        "to": "star",
+        "timeframe": 60
       }
     ]
   }
