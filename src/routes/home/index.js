@@ -1,6 +1,7 @@
 import { h, Component } from 'preact'
 import style from './style'
 
+import Input from 'util/input'
 import Loader from 'util/loader'
 import Button from 'components/ui/button'
 
@@ -38,8 +39,9 @@ export default class Home extends Component {
         console.log('componentDidUpdate')
     }
 
-    playClick() {
+    playClick(event) {
         console.log('playClick')
+        event.stopPropagation()
     }
 
     render({}, {}) {
