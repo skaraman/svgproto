@@ -90,7 +90,7 @@ export default class Loader {
                             fromPath: cache.FILLER_PATH
                         }
                     }
-                    //debugger
+                    debugger
                     let bakedFrames = []
                     // for every path in the frame to frame
                     for (let pathIndex in pathsToBake) {
@@ -113,7 +113,7 @@ export default class Loader {
                             }
                         }
                     }
-                    //debugger
+                    debugger
                     this.bakes[characterName][animationName].push(bakedFrames)
                 }
             }

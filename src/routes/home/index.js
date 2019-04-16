@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'
 import style from './style'
 
-import Input from 'util/input'
+import input from 'util/input'
 import Loader from 'util/loader'
 import Button from 'components/ui/button'
 
@@ -9,38 +9,15 @@ export default class Home extends Component {
     constructor(props) {
         super(props)
         this.loader = new Loader(true)
+        input.registerInput('keydown', 'homeKeydown', this.keydown, this)
     }
 
-    componentWillMount() {
-        console.log('componentWillMount')
+    keydown(event) {
+        console.log('homeKeydown', event)
     }
 
-    componentDidMount() {
-        console.log('componentDidMount')
-    }
-
-    componentWillUnmount() {
-        console.log('componentWillUnmount')
-    }
-
-    componentWillReceiveProps() {
-        console.log('componentWillReceiveProps')
-    }
-
-    shouldComponentUpdate() {
-        console.log('shouldComponentUpdate')
-    }
-
-    componentWillUpdate() {
-        console.log('componentWillUpdate')
-    }
-
-    componentDidUpdate() {
-        console.log('componentDidUpdate')
-    }
-
-    playClick(event) {
-        console.log('playClick')
+    play(event) {
+        console.log('play')
         event.stopPropagation()
     }
 
@@ -50,7 +27,7 @@ export default class Home extends Component {
             <div class={style.home}>
                 <Button
                     text='Play'
-                    onClick={this.playClick}
+                    onClick={this.play}
                 />
                 <p>There should be a SVG Box...</p>
             </div>
