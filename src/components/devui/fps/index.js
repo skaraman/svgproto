@@ -1,27 +1,38 @@
 import { h, Component } from 'preact'
 import style from './style'
 
-import Updater from 'util/updater'
+import updater from 'util/updater'
+
+const second = 1000
+const limiter = 2
 
 export default class FpsMeter extends Component {
     constructor(props) {
         super(props)
-        Updater.register('fpsmeter', this.update, this)
+        updater.register('fpsmeter', this.fpsUpdate, this)
+        //updater.register('cpsmeter', this.cpsUpdate, this)
         this.fps = 0
+        this.calls = 0
         this.updateTime = 0
     }
 
-    update(dt) {
+    cpsUpdate(dt) {
+        this.calls++
+    }
+
+    fpsUpdate(dt) {
         this.fps++
         this.updateTime += dt
-        if (this.updateTime >= 1000) this.setPerformanceState()
+        if (this.updateTime >= second * limiter) this.setPerformanceState()
     }
 
     setPerformanceState() {
         this.setState({
-            fps: this.fps
+            fps: ~~(this.fps / limiter),
+            calls: ~~(this.calls / limiter)
         })
         this.fps = 0
+        this.calls = 0
         this.updateTime = 0
     }
 
@@ -33,7 +44,7 @@ export default class FpsMeter extends Component {
         //console.log(fps)
         return (
             <div class={style.fps}>
-                <p>Current Frames Per Second {fps}</p>
+                <p>FPS: {fps}</p>{/*<p>Calls: </p>*/}
             </div>
         )
     }

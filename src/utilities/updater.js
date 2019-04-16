@@ -1,3 +1,5 @@
+import dispatch from 'util/dispatch'
+
 class Updater {
     constructor() {
         this.perf = window.performance
@@ -8,7 +10,14 @@ class Updater {
         this.lastupdate = 0
         this.callbacks = {}
         this.pause = false
-        this._update()
+        this.allowAsync = false
+        this.asyncTrigger = dispatch.on('allowAsync', this.setAsync, this)
+        this._synchedUpdate()
+    }
+
+    setAsync(value = true) {
+        this.allowAsync = value
+        this._asynchedUpdate()
     }
 
     pause() {
@@ -23,10 +32,11 @@ class Updater {
         this.pause = !activate
     }
 
-    register(id, callback, target) {
+    register(id, callback, target, async = false) {
         this.callbacks[id] = {
             callback,
-            target
+            target,
+            async
         }
     }
 
@@ -34,16 +44,31 @@ class Updater {
         delete this.callbacks[id]
     }
 
-    _update() {
+    _asynchedUpdate() {
         if (this.pause) {
             return
         }
-        window.requestAnimationFrame(this._update.bind(this))
         let deltatime = this._getPerformance() - this.lastupdate
         this.lastupdate = this._getPerformance()
         for (let cbIndex in this.callbacks) {
             let callback = this.callbacks[cbIndex]
-            callback.callback.apply(callback.target, [deltatime])
+            if (callback.async) callback.callback.apply(callback.target, [deltatime, 'async'])
+        }
+
+        // // TODO: find a way to make this work without infinite call stack
+        //this._asynchedUpdate()
+    }
+
+    _synchedUpdate() {
+        if (this.pause) {
+            return
+        }
+        window.requestAnimationFrame(this._synchedUpdate.bind(this))
+        let deltatime = this._getPerformance() - this.lastupdate
+        this.lastupdate = this._getPerformance()
+        for (let cbIndex in this.callbacks) {
+            let callback = this.callbacks[cbIndex]
+            callback.callback.apply(callback.target, [deltatime, 'sync'])
         }
     }
 
@@ -52,4 +77,4 @@ class Updater {
     }
 }
 
-module.exports = new Updater
+export default new Updater
