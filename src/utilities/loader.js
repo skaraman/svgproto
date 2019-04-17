@@ -2,10 +2,10 @@ import cache from 'util/cache'
 import { interpolate } from 'flubber'
 
 // test manifest, tobe defined by scene files
-import manifest from 'data/manifest'
+import testmanifest from 'data/manifest'
 
 // test svgs, tobe defined per manifest
-let svgs = {
+let testsvgs = {
     // character
     'test': {
         // frames
@@ -15,7 +15,7 @@ let svgs = {
 }
 
 export default class Loader {
-    constructor(init = false) {
+    constructor(manifest = testmanifest, svgs = testsvgs, init = false) {
         this.manifestData = manifest
         this.bakes = {}
         this.loadedSVGs = {}

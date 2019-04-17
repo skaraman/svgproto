@@ -3,12 +3,12 @@ import style from './home.css'
 
 import input from 'util/input'
 import Loader from 'util/loader'
-import Button from 'components/ui/button.js'
+import Button from 'components/ui/button'
 
 export default class Home extends Component {
     constructor(props) {
         super(props)
-        this.loader = new Loader(true)
+        this.loader = new Loader(undefined, undefined, true)
         input.registerInput('keydown', 'homeKeydown', this.keydown, this)
     }
 
