@@ -1,5 +1,5 @@
 import { h, Component } from 'preact'
-import style from './style'
+import style from './options.css'
 
 import dispatch from 'util/dispatch'
 

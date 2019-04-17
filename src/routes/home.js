@@ -1,9 +1,9 @@
 import { h, Component } from 'preact'
-import style from './style'
+import style from './home.css'
 
 import input from 'util/input'
 import Loader from 'util/loader'
-import Button from 'components/ui/button'
+import Button from 'components/ui/button.js'
 
 export default class Home extends Component {
     constructor(props) {
