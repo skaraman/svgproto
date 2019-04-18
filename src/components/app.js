@@ -2,12 +2,11 @@ import { h, Component } from 'preact'
 import { Router } from 'preact-router'
 
 import DevUI from 'components/devui'
-import Terminal from 'components/terminal'
+import Terminal from 'components/devui/terminal'
 
-// Code-splitting is automated for routes
-import MainMenu from 'routes/mainmenu'
-import TestScene from 'routes/testscene'
-import Loading from 'routes/loading'
+import MainMenu from 'scenes/mainmenu'
+import TestScene from 'scenes/testscene'
+import Loading from 'scenes/loading'
 
 import cache from 'util/cache'
 
@@ -21,16 +20,28 @@ export default class App extends Component {
         this.currentUrl = e.url
     }
 
-    render() {
+    componentWillMount() {
+        this.setState({
+            isDev: false,
+        })
+    }
+
+    render({}, { isDev }) {
         return (
             <div id='app'>
-                <DevUI />
+                {
+                    isDev &&
+                    <DevUI />
+                }
                 <Router onChange={this.handleRoute}>
                     <Loading path='/' />
                     <TestScene path='/testscene'/>
                     <MainMenu path='/mainmenu' />
                 </Router>
-                <Terminal />
+                {
+                    isDev &&
+                    <Terminal />
+                }
             </div>
         )
     }

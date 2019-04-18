@@ -1,5 +1,5 @@
 import { h } from 'preact'
-import style from './style'
+import style from './terminal.css'
 
 const Terminal = () => (
     <div class={style.terminal}>

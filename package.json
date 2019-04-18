@@ -3,6 +3,10 @@
   "name": "svgproto",
   "version": "0.0.0",
   "license": "MIT",
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ],
   "scripts": {
     "start": "per-env",
     "start:production": "npm run -s serve",

@@ -11,7 +11,7 @@ export default class Loader {
         this.bakes = {}
         this.loadedSVGs = {}
         this.svgs = this.manifestData.objects
-        this.animationData = this.manifestData.animations
+        this.manifestAnimationData = this.manifestData.animations
         updater.register('loaderUpdate', this.update, this)
         // automatically bake up animations (demo, loading scene, main menu, etc)
         if (init) {
@@ -37,7 +37,7 @@ export default class Loader {
                 if (this.svgSetIndex >= this.svgSetKeys.length) {
                     this.loadingSVGs = false
                     console.log(`svg set ${this.svgSetIndex} / ${this.svgSetKeys.length} DONE`)
-                    this._autoBake()
+                    this.autoBake()
                 } else {
                     this._manifestLoop()
                 }
@@ -46,7 +46,26 @@ export default class Loader {
             }
         }
         if (this.baking) {
-
+            this.frameIndex++
+            if (this.frameIndex >= this.animationData.length) {
+                console.log(`frame ${this.frameIndex} / ${this.animationData.length} DONE`)
+                this.animationIndex++
+                if (this.animationIndex >= this.animationKeys.length) {
+                    console.log(`animation ${this.animationIndex} / ${this.animationKeys.length} DONE`)
+                    this.characterIndex++
+                    if (this.characterIndex >= this.characterKeys.length) {
+                        console.log(`character ${this.characterIndex} / ${this.characterKeys.length} DONE`)
+                        this.baking = false
+                        this._cache()
+                    } else {
+                        this._forCharacter()
+                    }
+                } else {
+                    this._forAnimation()
+                }
+            } else {
+                this._forFrame()
+            }
         }
     }
 
@@ -62,7 +81,7 @@ export default class Loader {
     }
 
     _manifestLoop() {
-        console.log(`svgset loading ${this.svgSetIndex} / ${this.svgSetKeys.length}`);
+        console.log(`svgset loading ${this.svgSetIndex} / ${this.svgSetKeys.length}`)
         this.setKey = this.svgSetKeys[this.svgSetIndex]
         this.loadedSVGs[this.setKey] = {}
         this.svgKeys = Object.keys(this.svgs[this.setKey])
@@ -72,7 +91,7 @@ export default class Loader {
     }
 
     _svgLoadLoop() {
-        console.log(`svg loading ${this.svgIndex} / ${this.svgKeys.length}`);
+        console.log(`svg loading ${this.svgIndex} / ${this.svgKeys.length}`)
         for (let svgIndex = this.svgIndex; svgIndex < this.svgIndex + this.svgLimit; svgIndex++) {
             let svgIndexKey = this.svgKeys[svgIndex]
             // preact-svg-loader returns function which .default run returns vNode with all svg+xml as jsobj
@@ -84,49 +103,49 @@ export default class Loader {
 
     autoBake() {
         this.baking = true
-        this.characterKeys = Object.keys(this.animationData)
+        this.characterKeys = Object.keys(this.manifestAnimationData)
         this.characterIndex = 0
         this.characterLimit = 1
         this._forCharacter()
     }
 
     _forCharacter() {
+        console.log(`character loading ${this.characterIndex} / ${this.characterKeys.length}`)
         this.characterName = this.characterKeys[this.characterIndex]
-        for (let characterName in this.animationData) {
-            this.characterName = characterName
-            this.characterData = this.animationData[characterName]
-            this.bakes[characterName] = {}
-            // for every animation the character has
-            this._forAnimation()
-        }
+        this.characterData = this.manifestAnimationData[this.characterName]
+        this.animationKeys = Object.keys(this.characterData)
+        this.animationIndex = 0
+        this.animationLimit = 1
+        this.bakes[this.characterName] = {}
+        this._forAnimation()
     }
 
     _forAnimation() {
-        for (let animationName in this.characterData) {
-            this.animationName = animationName
-            this.animationData = this.characterData[animationName]
-            this.bakes[this.characterName][this.animationName] = []
-            // for every frame of the animation
-            this._forFrame()
-        }
+        console.log(`animation loading ${this.animationIndex} / ${this.animationKeys.length}`)
+        this.animationName = this.animationKeys[this.animationIndex]
+        this.animationData = this.characterData[this.animationName]
+        // this.frameKeys = Object.keys(this.animationData)
+        this.frameIndex = 0
+        this.frameLimit = 1
+        this.bakes[this.characterName][this.animationName] = []
+        this._forFrame()
     }
 
     _forFrame() {
-        for (let frameIndex = 0; frameIndex < this.animationData.length; frameIndex++) {
-            let { from: fromFrameName, to: toFrameName, timeframe } = this.animationData[frameIndex]
-            this.timeframe = timeframe
-            this.fromChildren = this.loadedSVGs[this.characterName][fromFrameName].children
-            this.toChildren = this.loadedSVGs[this.characterName][toFrameName].children
-            this.pathsToBake = {}
-            // for every shapepath defined for the 'from' frame
-            this._forPath()
-        }
+        console.log(`frame loading ${this.frameIndex} / ${this.animationData.length}`)
+        let { from, to, timeframe } = this.animationData[this.frameIndex]
+        this.fromPathName = from
+        this.toPathName = to
+        this.timeframe = timeframe
+        this.fromChildren = this.loadedSVGs[this.characterName][this.fromPathName].children
+        this.toChildren = this.loadedSVGs[this.characterName][this.toPathName].children
+        this.pathsToBake = {}
+        this._forPath()
     }
 
     _forPath() {
         fromNameLoop: for (let fromIndex = 0; fromIndex < this.fromChildren.length; fromIndex++) {
             let { id: fromPathName, d: fromPath, fill: fromFill } = this.fromChildren[fromIndex].attributes
-            // for every shapepath defined for the 'to' frame
             toNameLoop: for (let toIndex = 0; toIndex < this.toChildren.length; toIndex++) {
                 let { id: toPathName, d: toPath, fill: toFill } = this.toChildren[toIndex].attributes
                 if (fromPathName === toPathName) {
@@ -171,13 +190,15 @@ export default class Loader {
             // for the prefered amount of shapeframes between the keyframes
             for (let timeframeIndex = 0; timeframeIndex < this.timeframe; timeframeIndex++) {
                 bakedFrames[timeframeIndex] = bakedFrames[timeframeIndex] || {}
-                let percentage = (1 / this.timeframe) * timeframeIndex
-                let newPath = morph(percentage)
+                let percentage = (1 / this.timeframe) * timeframeIndex,
+                    newPath
                 // strange morph behavior at 0 and 1
                 if (percentage === 0) {
                     newPath = fromPath
                 } else if (percentage === 1) {
                     newPath = toPath
+                } else {
+                    newPath = morph(percentage)
                 }
                 bakedFrames[timeframeIndex][pathIndex] = {
                     path: newPath,
@@ -187,6 +208,4 @@ export default class Loader {
         }
         this.bakes[this.characterName][this.animationName].push(bakedFrames)
     }
-
-
 }
