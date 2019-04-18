@@ -8,12 +8,12 @@ import Button from 'components/ui/button'
 export default class MainMenu extends Component {
     constructor(props) {
         super(props)
-        this.loader = new Loader(undefined, undefined, true)
-        input.registerInput('keydown', 'homeKeydown', this.keydown, this)
+        // this.loader = new Loader(undefined, undefined, true)
+        // input.registerInput('keydown', 'homeKeydown', this.keydown, this)
     }
 
     keydown(event) {
-        console.log('homeKeydown', event)
+        console.log('mainMenuKeydown', event)
     }
 
     play(event) {
@@ -24,12 +24,17 @@ export default class MainMenu extends Component {
     render({}, {}) {
 
         return (
-            <div class={style.home}>
+            <div class={style.mainMenu}>
+                <div class={style.mainMenuText}>Main Menu</div>
                 <Button
-                    text='Play'
+                    text='Start Game'
                     onClick={this.play}
                 />
-                <p>There should be a SVG Box...</p>
+                <Button
+                    text='Settings'
+                    onClick={this.settings}
+                />
+                <p>copyright and trademark stuff</p>
             </div>
         )
     }

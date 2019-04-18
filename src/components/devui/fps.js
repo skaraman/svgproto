@@ -9,18 +9,13 @@ const limiter = 2
 export default class FpsMeter extends Component {
     constructor(props) {
         super(props)
-        updater.register('fpsmeter', this.fpsUpdate, this)
-        //updater.register('cpsmeter', this.cpsUpdate, this)
+        updater.register('fpsmeter', this.update, this)
         this.fps = 0
         this.calls = 0
         this.updateTime = 0
     }
 
-    cpsUpdate(dt) {
-        this.calls++
-    }
-
-    fpsUpdate(dt) {
+    update(dt) {
         this.fps++
         this.updateTime += dt
         if (this.updateTime >= second * limiter) this.setPerformanceState()

@@ -1,5 +1,3 @@
-import dispatch from 'util/dispatch'
-
 class Updater {
     constructor() {
         this.perf = window.performance
@@ -10,14 +8,9 @@ class Updater {
         this.lastupdate = 0
         this.callbacks = {}
         this.pause = false
-        this.allowAsync = false
-        this.asyncTrigger = dispatch.on('allowAsync', this.setAsync, this)
-        this._synchedUpdate()
-    }
-
-    setAsync(value = true) {
-        this.allowAsync = value
-        this._asynchedUpdate()
+        this._step = false
+        this._notRealtimeStep = true
+        this._update()
     }
 
     pause() {
@@ -28,15 +21,21 @@ class Updater {
         this.toggle(true)
     }
 
-    toggle(activate) {
-        this.pause = !activate
+    step() {
+        this._step = true
+        this._update()
     }
 
-    register(id, callback, target, async = false) {
+    toggle(activate = null) {
+        if (activate === null) activate = this.pause
+        this.pause = !activate
+        this._update()
+    }
+
+    register(id, callback, target) {
         this.callbacks[id] = {
             callback,
-            target,
-            async
+            target
         }
     }
 
@@ -44,36 +43,18 @@ class Updater {
         delete this.callbacks[id]
     }
 
-    _asynchedUpdate() {
-        if (this.pause) {
-            return
-        }
-        let deltatime = this._getPerformance() - this.lastupdate
-        this.lastupdate = this._getPerformance()
+    _update() {
+        if (this.pause && !this._step) return
+        let deltatime = this.perf.now() - this.lastupdate
+        if (this._step && this._notRealtimeStep) deltatime = 16
+        this.lastupdate = this.perf.now()
         for (let cbIndex in this.callbacks) {
-            let callback = this.callbacks[cbIndex]
-            if (callback.async) callback.callback.apply(callback.target, [deltatime, 'async'])
+            let cb = this.callbacks[cbIndex]
+            cb.callback.apply(cb.target, [deltatime])
         }
 
-        // // TODO: find a way to make this work without infinite call stack
-        //this._asynchedUpdate()
-    }
-
-    _synchedUpdate() {
-        if (this.pause) {
-            return
-        }
-        window.requestAnimationFrame(this._synchedUpdate.bind(this))
-        let deltatime = this._getPerformance() - this.lastupdate
-        this.lastupdate = this._getPerformance()
-        for (let cbIndex in this.callbacks) {
-            let callback = this.callbacks[cbIndex]
-            callback.callback.apply(callback.target, [deltatime, 'sync'])
-        }
-    }
-
-    _getPerformance() {
-        return this.perf.now()
+        if (this._step) this._step = false
+        window.requestAnimationFrame(this._update.bind(this))
     }
 }
 

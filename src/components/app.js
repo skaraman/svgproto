@@ -9,6 +9,8 @@ import MainMenu from 'routes/mainmenu'
 import TestScene from 'routes/testscene'
 import Loading from 'routes/loading'
 
+import cache from 'util/cache'
+
 export default class App extends Component {
 
     /** Gets fired when the route changes.
@@ -24,9 +26,9 @@ export default class App extends Component {
             <div id='app'>
                 <DevUI />
                 <Router onChange={this.handleRoute}>
-                    <MainMenu path='/' />
+                    <Loading path='/' />
                     <TestScene path='/testscene'/>
-                    <Loading path='/loading' />
+                    <MainMenu path='/mainmenu' />
                 </Router>
                 <Terminal />
             </div>

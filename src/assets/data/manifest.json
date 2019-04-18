@@ -1,11 +1,32 @@
 {
-  "test": {
-    "testAnimation": [
-      {
-        "from": "box",
-        "to": "star",
-        "timeframe": 60
-      }
-    ]
-  }
+    "objects":{
+        "testObject": {
+            "box": "test/box",
+            "star": "test/star"
+        },
+        "testObject2" : {
+            "circle": "test/circle",
+            "triangle": "test/triangle"
+        }
+    },
+    "animations": {
+        "testObject": {
+            "testAnimation": [
+                {
+                    "from": "box",
+                    "to": "star",
+                    "timeframe": 60
+                }
+            ]
+        },
+        "testObject2": {
+            "testAnimation": [
+                {
+                    "from": "circle",
+                    "to": "triangle",
+                    "timeframe": 120
+                }
+            ]
+        }
+    }
 }

@@ -1,5 +1,7 @@
 // new cache
 module.exports = {
+    GAME_DATA: {},
+    USER_PREFERENCES: {},
     SVGS: {},
     SAVES: {},
     STAGE: {

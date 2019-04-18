@@ -1,35 +1,24 @@
 import cache from 'util/cache'
 import { interpolate } from 'flubber'
+import updater from 'util/updater'
 
 // test manifest, tobe defined by scene files
 import testmanifest from 'data/manifest'
 
-// test svgs, tobe defined per manifest
-let testsvgs = {
-    // character
-    'test': {
-        // frames
-        'box': 'test/box',
-        'star': 'test/star'
-    }
-}
-
 export default class Loader {
-    constructor(manifest = testmanifest, svgs = testsvgs, init = false) {
+    constructor(manifest = testmanifest, init = false) {
         this.manifestData = manifest
         this.bakes = {}
         this.loadedSVGs = {}
-        // loop through svgs
-        for (let i in svgs) {
-            this.loadedSVGs[i] = {}
-            for (let j in svgs[i]) {
-                // preact-svg-loader returns function which .default run returns vNode with all svg+xml as jsobj
-                this.loadedSVGs[i][j] = require(`!!preact-svg-loader!svg/${svgs[i][j]}.svg`).default({})
-            }
-        }
+        this.svgs = this.manifestData.objects
+        this.animationData = this.manifestData.animations
+        updater.register('loaderUpdate', this.update, this)
         // automatically bake up animations (demo, loading scene, main menu, etc)
-        if (init) this.autoBake()
-        this._cache()
+        if (init) {
+            this.loadSVGs()
+            this.autoBake()
+            this._cache()
+        }
     }
 
     _cache() { // cache loaded and baked
@@ -39,19 +28,73 @@ export default class Loader {
         }
     }
 
+    update() {
+        if (this.loadingSVGs) {
+            this.svgIndex++
+            if (this.svgIndex >= this.svgKeys.length) {
+                console.log(`svg ${this.svgIndex} / ${this.svgKeys.length} DONE`)
+                this.svgSetIndex++
+                if (this.svgSetIndex >= this.svgSetKeys.length) {
+                    this.loadingSVGs = false
+                    console.log(`svg set ${this.svgSetIndex} / ${this.svgSetKeys.length} DONE`)
+                    this._autoBake()
+                } else {
+                    this._manifestLoop()
+                }
+            } else {
+                this._svgLoadLoop()
+            }
+        }
+        if (this.baking) {
+
+        }
+    }
+
     /***************
      * these loops are broken out to debounce and throttle their performance during loading scenes
-     * TODO:// hook into updater and loading scene
      */
+    loadSVGs() {
+        this.loadingSVGs = true
+        this.svgSetKeys = Object.keys(this.svgs)
+        this.svgSetIndex = 0
+        this.svgSetLimit = 1
+        this._manifestLoop()
+    }
+
+    _manifestLoop() {
+        console.log(`svgset loading ${this.svgSetIndex} / ${this.svgSetKeys.length}`);
+        this.setKey = this.svgSetKeys[this.svgSetIndex]
+        this.loadedSVGs[this.setKey] = {}
+        this.svgKeys = Object.keys(this.svgs[this.setKey])
+        this.svgIndex = 0
+        this.svgLimit = 1
+        this._svgLoadLoop()
+    }
+
+    _svgLoadLoop() {
+        console.log(`svg loading ${this.svgIndex} / ${this.svgKeys.length}`);
+        for (let svgIndex = this.svgIndex; svgIndex < this.svgIndex + this.svgLimit; svgIndex++) {
+            let svgIndexKey = this.svgKeys[svgIndex]
+            // preact-svg-loader returns function which .default run returns vNode with all svg+xml as jsobj
+            this.loadedSVGs[this.setKey][svgIndexKey] = require(`!!preact-svg-loader!svg/${this.svgs[this.setKey][svgIndexKey]}.svg`)
+                .default({})
+            this.svgIndex = svgIndex;
+        }
+    }
+
     autoBake() {
-        // for every character in the manifest (scene definition)
+        this.baking = true
+        this.characterKeys = Object.keys(this.animationData)
+        this.characterIndex = 0
+        this.characterLimit = 1
         this._forCharacter()
     }
 
     _forCharacter() {
-        for (let characterName in this.manifestData) {
+        this.characterName = this.characterKeys[this.characterIndex]
+        for (let characterName in this.animationData) {
             this.characterName = characterName
-            this.characterData = this.manifestData[characterName]
+            this.characterData = this.animationData[characterName]
             this.bakes[characterName] = {}
             // for every animation the character has
             this._forAnimation()
