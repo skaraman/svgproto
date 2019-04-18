@@ -5,8 +5,9 @@ import DevUI from 'components/devui'
 import Terminal from 'components/terminal'
 
 // Code-splitting is automated for routes
-import Home from 'routes/home'
-import Profile from 'routes/profile'
+import MainMenu from 'routes/mainmenu'
+import TestScene from 'routes/testscene'
+import Loading from 'routes/loading'
 
 export default class App extends Component {
 
@@ -23,9 +24,9 @@ export default class App extends Component {
             <div id='app'>
                 <DevUI />
                 <Router onChange={this.handleRoute}>
-                    <Home path='/' />
-                    <Profile path='/profile/' user='me' />
-                    <Profile path='/profile/:user' />
+                    <MainMenu path='/' />
+                    <TestScene path='/testscene'/>
+                    <Loading path='/loading' />
                 </Router>
                 <Terminal />
             </div>

@@ -1,11 +1,11 @@
 import { h, Component } from 'preact'
-import style from './home.css'
+import style from './mainmenu.css'
 
 import input from 'util/input'
 import Loader from 'util/loader'
 import Button from 'components/ui/button'
 
-export default class Home extends Component {
+export default class MainMenu extends Component {
     constructor(props) {
         super(props)
         this.loader = new Loader(undefined, undefined, true)

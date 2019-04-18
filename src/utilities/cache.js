@@ -1,16 +1,3 @@
-// js key bind mapping
-const key = {
-    'left': 'left',
-    'right': 'right',
-    'up': 'up',
-    'down': 'down',
-
-    'space': 'jump',
-    'f': 'rightArm',
-    'd': 'leftArm',
-    's': 'rightLeg',
-    'a': 'leftLeg'
-}
 // new cache
 module.exports = {
     SVGS: {},
@@ -57,16 +44,16 @@ module.exports = {
     },
     KEYBINDS: {
         'gamescene': {
-            [key.left]: 'left',
-            [key.right]: 'right',
-            [key.up]: 'up',
-            [key.down]: 'down',
+            'ArrowLeft': 'left',
+            'ArrowRight': 'right',
+            'ArrowUp': 'up',
+            'ArrowDown': 'down',
 
-            [key.space]: 'jump',
-            [key.f]: 'rightArm',
-            [key.d]: 'leftArm',
-            [key.s]: 'rightLeg',
-            [key.a]: 'leftLeg'
+            ' ': 'jump',
+            'f': 'rightArm',
+            'd': 'leftArm',
+            's': 'rightLeg',
+            'a': 'leftLeg'
         }
     },
     ANIMATION_KEYWORDS: {

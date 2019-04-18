@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'
-import style from './profile.css'
+import style from './testscene.css'
 
-export default class Profile extends Component {
+export default class TestScene extends Component {
     state = {
         time: Date.now(),
         count: 10
