@@ -2,7 +2,10 @@ import { h, Component } from 'preact'
 import style from './loading.css'
 
 import input from 'util/input'
+import updater from 'util/updater'
 import Loader from 'util/loader'
+import dispatch from 'util/dispatch'
+
 
 
 export default class Loading extends Component {
@@ -10,6 +13,20 @@ export default class Loading extends Component {
         super(props)
         this.loader = new Loader(undefined, false)
         input.registerInput('keydown', 'homeKeydown', this.keydown, this)
+        updater.register('loadingUpdate', this.update, this)
+        this.on = [
+            dispatch.on('loadingComplete', this.loadingComplete, this)
+        ]
+        this.deltaTime = 0
+        this.it = 0
+        this.loadingTextArr = [
+            'Loading...',
+            'Loading ..',
+            'Loading  .',
+            'Loading   ',
+            'Loading.  ',
+            'Loading.. ',
+        ]
     }
 
     keydown(event) {
@@ -22,15 +39,30 @@ export default class Loading extends Component {
     }
 
     componentWillMount() {
-        debugger
         this.loader.loadSVGs()
     }
 
-    render({}, {}) {
+    update(dt) {
+        this.deltaTime += dt
+        if (this.deltaTime > 500) {
+            let loadingText = this.loadingTextArr[this.it]
+            this.setState({
+                loadingText
+            })
+            this.it++
+            if (this.it >= this.loadingTextArr.length) this.it = 0
+            this.deltaTime = 0
+        }
+    }
 
+    loadingComplete() {
+        console.log('Loading Completed')
+    }
+
+    render({}, { loadingText }) {
         return (
             <div class={style.loading}>
-                <p>Loading...</p>
+                <p>{loadingText}</p>
             </div>
         )
     }

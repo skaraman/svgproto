@@ -22,7 +22,7 @@ export default class App extends Component {
 
     componentWillMount() {
         this.setState({
-            isDev: false,
+            isDev: true,
         })
     }
 

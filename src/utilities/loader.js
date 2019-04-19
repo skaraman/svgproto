@@ -1,6 +1,7 @@
 import cache from 'util/cache'
 import { interpolate } from 'flubber'
 import updater from 'util/updater'
+import dispatch from 'util/dispatch'
 
 // test manifest, tobe defined by scene files
 import testmanifest from 'data/manifest'
@@ -26,6 +27,7 @@ export default class Loader {
             rawsvgs: this.loadedSVGs,
             bakes: this.bakes
         }
+        dispatch.send('loadingComplete')
     }
 
     update() {

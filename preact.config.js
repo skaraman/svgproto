@@ -17,6 +17,12 @@ function setAliases(config) {
 export default function (config, env, helpers) {
     setAliases(config)
 
+
+    console.log(config.module.loaders);
+    // config.module.loaders.push({
+    //     test: /\.css$/,
+    //     loader: 'style-loader',
+    // });
     // // modify css loaders
     // helpers.getLoadersByName(config, 'postcss-loader').forEach(({ loader }) => {
     //     loader.options = {
