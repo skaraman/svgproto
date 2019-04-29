@@ -1,13 +1,13 @@
 .header {
-    position: fixed;
+    position: relative;
     left: 0;
     top: 0;
     width: 100%;
     height: 56px;
     padding: 0;
-    background: rgba(16, 142, 8, 1);
+    background: rgba(16, 142, 8, 0.3);
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-    z-index: 50;
+    z-index: 1001;
 }
 
 .header h1 {
@@ -23,6 +23,7 @@
 .header nav {
     float: right;
     font-size: 100%;
+
 }
 
 .header nav a {
@@ -34,7 +35,7 @@
     text-align: center;
     background: rgba(255,255,255,0);
     text-decoration: none;
-    color: rgba(27, 27, 27, 1);
+    color: white;
     will-change: background-color;
 }
 

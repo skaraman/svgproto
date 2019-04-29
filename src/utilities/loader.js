@@ -2,31 +2,35 @@ import cache from 'util/cache'
 import { interpolate } from 'flubber'
 import updater from 'util/updater'
 import dispatch from 'util/dispatch'
+import { lerpColor, objectAssignAll } from 'util/helpers'
 
 // test manifest, tobe defined by scene files
 import testmanifest from 'data/manifest'
 
-export default class Loader {
-    constructor(manifest = testmanifest, init = false) {
-        this.manifestData = manifest
-        this.bakes = {}
-        this.loadedSVGs = {}
-        this.svgs = this.manifestData.objects
-        this.manifestAnimationData = this.manifestData.animations
+const detail = 8
+
+class Loader {
+    constructor() {
         updater.register('loaderUpdate', this.update, this)
-        // automatically bake up animations (demo, loading scene, main menu, etc)
-        if (init) {
-            this.loadSVGs()
-            this.autoBake()
-            this._cache()
-        }
+        this.svgCache = cache.SVGS = { loadedSVGs: {}, bakes: {}, statics: {} }
     }
 
-    _cache() { // cache loaded and baked
-        cache.SVGS = {
-            rawsvgs: this.loadedSVGs,
-            bakes: this.bakes
-        }
+    load(manifest) {
+        // // TODO: add dynamic json loading
+        this.manifestData = testmanifest[manifest]
+        //.default({})
+        this.bakes = {}
+        this.loadedSVGs = {}
+        this.statics = {}
+        this.svgs = this.manifestData.objects
+        this.manifestAnimData = this.manifestData.animations
+        this.loadSVGs()
+    }
+
+    _cache() {
+        this.svgCache.loadedSVGs = objectAssignAll(this.svgCache.loadedSVGs, this.loadedSVGs)
+        this.svgCache.bakes = objectAssignAll(this.svgCache.bakes, this.bakes)
+        this.svgCache.statics = objectAssignAll(this.svgCache.statics, this.statics)
         dispatch.send('loadingComplete')
     }
 
@@ -49,21 +53,21 @@ export default class Loader {
         }
         if (this.baking) {
             this.frameIndex++
-            if (this.frameIndex >= this.animationData.length) {
-                console.log(`frame ${this.frameIndex} / ${this.animationData.length} DONE`)
-                this.animationIndex++
-                if (this.animationIndex >= this.animationKeys.length) {
-                    console.log(`animation ${this.animationIndex} / ${this.animationKeys.length} DONE`)
-                    this.characterIndex++
-                    if (this.characterIndex >= this.characterKeys.length) {
-                        console.log(`character ${this.characterIndex} / ${this.characterKeys.length} DONE`)
+            if (this.frameIndex >= this.animData.length) {
+                console.log(`frame ${this.frameIndex} / ${this.animData.length} DONE`)
+                this.animIndex++
+                if (this.animIndex >= this.animKeys.length) {
+                    console.log(`anim ${this.animIndex} / ${this.animKeys.length} DONE`)
+                    this.charIndex++
+                    if (this.charIndex >= this.charKeys.length) {
+                        console.log(`char ${this.charIndex} / ${this.charKeys.length} DONE`)
                         this.baking = false
                         this._cache()
                     } else {
-                        this._forCharacter()
+                        this._forChar()
                     }
                 } else {
-                    this._forAnimation()
+                    this._forAnim()
                 }
             } else {
                 this._forFrame()
@@ -73,6 +77,7 @@ export default class Loader {
 
     /***************
      * these loops are broken out to debounce and throttle their performance during loading scenes
+     * allowing for animating and interactible loading screens without render blocking
      */
     loadSVGs() {
         this.loadingSVGs = true
@@ -95,52 +100,110 @@ export default class Loader {
     _svgLoadLoop() {
         console.log(`svg loading ${this.svgIndex} / ${this.svgKeys.length}`)
         for (let svgIndex = this.svgIndex; svgIndex < this.svgIndex + this.svgLimit; svgIndex++) {
-            let svgIndexKey = this.svgKeys[svgIndex]
-            // preact-svg-loader returns function which .default run returns vNode with all svg+xml as jsobj
-            this.loadedSVGs[this.setKey][svgIndexKey] = require(`!!preact-svg-loader!svg/${this.svgs[this.setKey][svgIndexKey]}.svg`)
+            let svgKey = this.svgKeys[svgIndex]
+            let name = this.svgs[this.setKey][svgKey]
+            if (this.svgCache.loadedSVGs[this.setKey] && this.svgCache.loadedSVGs[this.setKey][svgKey]) {
+                this.svgIndex++
+                console.log(`already cached svg ${this.svgIndex} / ${this.svgKeys.length}`)
+                if (this.svgIndex >= this.svgKeys.length) {
+                    this.svgSetIndex++
+                    console.log(`already cached svgset ${this.svgSetIndex} / ${this.svgSetKeys.length}`)
+                    if (this.svgSetIndex >= this.svgSetKeys.length) {
+                        this.loadingSVGs = false
+                        this.autoBake()
+                        break
+                    }
+                    this._manifestLoop()
+                    break
+                }
+                this._svgLoadLoop()
+                break
+            }
+            let svg = this.loadedSVGs[this.setKey][svgKey] = require(`!!preact-svg-loader!svg/${name}.svg`)
                 .default({})
-            this.svgIndex = svgIndex;
+            this.loadedSVGs[this.setKey][svgKey].id = this.setKey
+            this.svgIndex = svgIndex
+            svg.childrenById = {}
+            //// // TODO:
+            // adobe illustrator = .children[2].children[0].children
+            // desired = .children
+            for (let pathIndex = 0; pathIndex < svg.children[2].children[0].children.length; pathIndex++) {
+                let path = svg.children[2].children[0].children[pathIndex]
+                svg.childrenById[path.attributes.id] = path
+            }
         }
     }
 
     autoBake() {
         this.baking = true
-        this.characterKeys = Object.keys(this.manifestAnimationData)
-        this.characterIndex = 0
-        this.characterLimit = 1
-        this._forCharacter()
+        this.charKeys = Object.keys(this.manifestAnimData)
+        this.charIndex = 0
+        this.charLimit = 1
+        this._forChar()
     }
 
-    _forCharacter() {
-        console.log(`character loading ${this.characterIndex} / ${this.characterKeys.length}`)
-        this.characterName = this.characterKeys[this.characterIndex]
-        this.characterData = this.manifestAnimationData[this.characterName]
-        this.animationKeys = Object.keys(this.characterData)
-        this.animationIndex = 0
-        this.animationLimit = 1
-        this.bakes[this.characterName] = {}
-        this._forAnimation()
+    _forChar() {
+        console.log(`char loading ${this.charIndex} / ${this.charKeys.length}`)
+        this.charName = this.charKeys[this.charIndex]
+        this.charData = this.manifestAnimData[this.charName]
+        this.statics[this.charName] = this.statics[this.charName] || {}
+        this.animKeys = Object.keys(this.charData)
+        this.animIndex = 0
+        this.animLimit = 1
+        this.bakes[this.charName] = {}
+        this._forAnim()
     }
 
-    _forAnimation() {
-        console.log(`animation loading ${this.animationIndex} / ${this.animationKeys.length}`)
-        this.animationName = this.animationKeys[this.animationIndex]
-        this.animationData = this.characterData[this.animationName]
-        // this.frameKeys = Object.keys(this.animationData)
+    _forAnim() {
+        console.log(`anim loading ${this.animIndex} / ${this.animKeys.length}`)
+        this.animName = this.animKeys[this.animIndex]
+        this.animData = this.charData[this.animName]
+        // this.frameKeys = Object.keys(this.animData)
         this.frameIndex = 0
         this.frameLimit = 1
-        this.bakes[this.characterName][this.animationName] = []
+        if (this.svgCache.bakes[this.charName] && this.svgCache.bakes[this.charName][this.animName]) {
+            this.animIndex++
+            console.log(`already cached anim ${this.animIndex} / ${this.animKeys.length}`)
+            if (this.animIndex >= this.animKeys.length) {
+                this.charIndex++
+                console.log(`already cached char ${this.charIndex} / ${this.charKeys.length}`)
+                if (this.charIndex >= this.charKeys.length) {
+                    this.baking = false
+                    this._cache()
+                    return
+                }
+                this._forChar()
+                return
+            }
+            this._forAnim()
+            return
+        }
+        this.bakes[this.charName][this.animName] = []
         this._forFrame()
     }
 
     _forFrame() {
-        console.log(`frame loading ${this.frameIndex} / ${this.animationData.length}`)
-        let { from, to, timeframe } = this.animationData[this.frameIndex]
-        this.fromPathName = from
-        this.toPathName = to
+        console.log(`frame loading ${this.frameIndex} / ${this.animData.length}`)
+        let { from, to, timeframe } = this.animData[this.frameIndex]
+        this.fromName = from
+        this.toName = to
         this.timeframe = timeframe
-        this.fromChildren = this.loadedSVGs[this.characterName][this.fromPathName].children
-        this.toChildren = this.loadedSVGs[this.characterName][this.toPathName].children
+        // // TODO:
+        // adobe illustrator = .children[2].children[0].children
+        // desired = .children
+        this.fromChildren = this.loadedSVGs[this.charName][this.fromName].children[2].children[0].children
+        this.fromViewBox = {
+            x: this.loadedSVGs[this.charName][this.fromName].attributes.viewBox.split(' ')[2] * 1,
+            y: this.loadedSVGs[this.charName][this.fromName].attributes.viewBox.split(' ')[3] * 1
+        }
+
+        this.toChildren = this.loadedSVGs[this.charName][this.toName].children[2].children[0].children
+        this.toViewBox = {
+            x: this.loadedSVGs[this.charName][this.toName].attributes.viewBox.split(' ')[2] * 1,
+            y: this.loadedSVGs[this.charName][this.toName].attributes.viewBox.split(' ')[3] * 1
+        }
+        this.statics[this.charName][this.fromName] = this.statics[this.charName][this.fromName] || {}
+        this.statics[this.charName][this.toName] = this.statics[this.charName][this.toName] || {}
         this.pathsToBake = {}
         this._forPath()
     }
@@ -158,27 +221,67 @@ export default class Loader {
                         toFill,
                         toPath
                     }
+                    if (!this.statics[this.charName][this.fromName].viewBox)
+                        this.statics[this.charName][this.fromName][fromPathName] = {
+                            fill: fromFill,
+                            path: fromPath
+                        }
+                    if (!this.statics[this.charName][this.toName].viewBox)
+                        this.statics[this.charName][this.toName][toPathName] = {
+                            fill: toFill,
+                            path: toPath
+                        }
                     this.toChildren.splice(toIndex, 1)
                     continue fromNameLoop
                 }
             }
-            // addtional From paths - fade out
+            // additional From paths - fade out
+            let reMreplace = /M(\d*\.?\d*,\d*\.?\d*)[a-zA-Z,.]/g
+            let test = reMreplace.exec(fromPath)
+            if (test === null) {
+                reMreplace = /M(\d*\.?\d*\.?\d*)[a-zA-Z,.]/g
+                test = reMreplace.exec(fromPath)
+            }
+            let mReplace = `M${test[1]}`
+            let fillerPath = cache.FILLER_PATH.replace('M -0.1 -0.1', mReplace)
             this.pathsToBake[fromPathName] = {
                 fromFill,
                 fromPath,
-                toPath: cache.FILLER_PATH,
-                toFill: cache.WHITE
+                toPath: fillerPath,
+                toFill: fromFill,
+                additional: true
             }
+            if (!this.statics[this.charName][this.fromName].viewBox)
+                this.statics[this.charName][this.fromName][fromPathName] = {
+                    fill: fromFill,
+                    path: fromPath,
+                    additional: true
+                }
         }
         // remaining To paths - fade in
         for (let remainderIndex = 0; remainderIndex < this.toChildren.length; remainderIndex++) {
             let child = this.toChildren[remainderIndex]
+            let reMreplace = /M(\d*\.?\d*,\d*\.?\d*)[a-zA-Z,.]/g
+            let test = reMreplace.exec(child.attributes.d)
+            if (test === null) {
+                reMreplace = /M(\d*\.?\d*\.?\d*)[a-zA-Z,.]/g
+                test = reMreplace.exec(child.attributes.d)
+            }
+            let mReplace = `M${test[1]}`
+            let fillerPath = cache.FILLER_PATH.replace('M -0.1 -0.1', mReplace)
             this.pathsToBake[child.attributes.id] = {
                 toFill: child.attributes.fill,
                 toPath: child.attributes.d,
-                fromFill: cache.WHITE,
-                fromPath: cache.FILLER_PATH
+                fromFill: child.attributes.fill,
+                fromPath: fillerPath,
+                remainder: true
             }
+            if (!this.statics[this.charName][this.toName].viewBox)
+                this.statics[this.charName][this.toName][child.attributes.id] = {
+                    fill: child.attributes.fill,
+                    path: child.attributes.d,
+                    remainder: true
+                }
         }
         this._bakeLoop()
     }
@@ -187,27 +290,45 @@ export default class Loader {
         let bakedFrames = []
         // for every path in the frame to frame
         for (let pathIndex in this.pathsToBake) {
-            let { fromPath, toPath, fromFill, toFill } = this.pathsToBake[pathIndex]
-            let morph = interpolate(fromPath, toPath, { maxSegmentLength: 8 })
+            let { fromPath, toPath, fromFill, toFill, remainder, additional } = this.pathsToBake[pathIndex]
+            let morph = interpolate(fromPath, toPath, { maxSegmentLength: detail })
             // for the prefered amount of shapeframes between the keyframes
             for (let timeframeIndex = 0; timeframeIndex < this.timeframe; timeframeIndex++) {
                 bakedFrames[timeframeIndex] = bakedFrames[timeframeIndex] || {}
-                let percentage = (1 / this.timeframe) * timeframeIndex,
-                    newPath
+                let percentage = (1 / (this.timeframe - 1)) * timeframeIndex,
+                    newPath, viewBox, fill
                 // strange morph behavior at 0 and 1
                 if (percentage === 0) {
                     newPath = fromPath
+                    viewBox = `0 0 ${this.fromViewBox.x} ${this.fromViewBox.y}`
+                    fill = fromFill
+                    if (!this.statics[this.charName][this.fromName].viewBox)
+                        this.statics[this.charName][this.fromName].viewBox = viewBox
                 } else if (percentage === 1) {
                     newPath = toPath
+                    viewBox = `0 0 ${this.toViewBox.x} ${this.toViewBox.y}`
+                    fill = toFill
+                    if (!this.statics[this.charName][this.toName].viewBox)
+                        this.statics[this.charName][this.toName].viewBox = viewBox
                 } else {
                     newPath = morph(percentage)
+                    let x = this.fromViewBox.x + ((this.toViewBox.x - this.fromViewBox.x) * percentage)
+                    let y = this.fromViewBox.y + ((this.toViewBox.y - this.fromViewBox.y) * percentage)
+                    viewBox = `0 0 ${x} ${y}`
+                    fill = lerpColor(fromFill, toFill, percentage)
                 }
                 bakedFrames[timeframeIndex][pathIndex] = {
                     path: newPath,
-                    fill: ''
+                    fill,
+                    remainder,
+                    additional
                 }
+                bakedFrames[timeframeIndex].viewBox = viewBox
             }
         }
-        this.bakes[this.characterName][this.animationName].push(bakedFrames)
+        this.bakes[this.charName][this.animName].push(bakedFrames)
+
     }
 }
+
+export default new Loader

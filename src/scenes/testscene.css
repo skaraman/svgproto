@@ -1,5 +1,27 @@
-.profile {
-	padding: 56px 20px;
-	min-height: 100%;
-	width: 100%;
+/* body {
+    background: rgba(0, 0, 0, 0);
+} */
+.scene {
+
+}
+
+.effects {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 15;
+    padding: 56px 20px;
+    color: black;
+}
+
+.stage {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    background: #00605D;
+    z-index: 10;
 }

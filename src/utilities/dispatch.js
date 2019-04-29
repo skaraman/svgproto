@@ -14,7 +14,7 @@ class Dispatch {
         return {
             off: function () {
                 delete this.notices[notice][name]
-            },
+            }.bind(this),
             notice: notice
         }
     }

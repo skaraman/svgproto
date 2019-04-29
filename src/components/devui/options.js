@@ -5,8 +5,6 @@ import updater from 'util/updater'
 
 import Button from 'components/ui/button'
 
-let self;
-
 export default class Options extends Component {
     constructor(props) {
         super(props)

@@ -35,12 +35,12 @@ module.exports = (function () {
             }
         }
 
-        registerInput(eventId, regId, callback, target) {
+        register(eventId, regId, callback, target) {
             this._listeners[eventId][regId] = { callback, target }
         }
 
-        unregisterInput(eventId, regId) {
-            delete this._listeners[`_${eventId}`][regId]
+        unregister(eventId, regId) {
+            delete this._listeners[eventId][regId]
         }
 
         __applyEvent(id, event) {
