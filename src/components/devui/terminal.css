@@ -1,17 +1,15 @@
 .terminal {
-    border: 1px solid red;
-    width: 100px;
-    height: 40px;
-    position: absolute;
-    bottom: 0;
-    left: 0;
+  border: 1px solid red;
+  width: 100px;
+  height: 40px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
 }
 
-.terminal .output {
-
-}
+.terminal .output {}
 
 .terminal .input {
-    color: #ddd;
-    background-color: transparent;
+  color: #ddd;
+  background-color: transparent;
 }

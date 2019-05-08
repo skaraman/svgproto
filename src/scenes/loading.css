@@ -1,4 +1,25 @@
 .loading {
-    font-size: 30px;
-    line-height: 50px;
+  font-size: 30px;
+  line-height: 50px;
+}
+
+.stage {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background: #010101;
+  z-index: 10;
+}
+
+.effects {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 15;
+  padding: 56px 20px;
+  color: white;
 }

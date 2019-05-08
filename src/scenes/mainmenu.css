@@ -1,24 +1,24 @@
 .mainWrap {
-    position: relative;
-    height: 100%;
-    overflow: hidden;
+  position: relative;
+  height: 100%;
+  overflow: hidden;
 }
 
 .mainMenu {
-    padding: 56px 20px;
-    height: 170px;
-    width: 100%;
+  padding: 56px 20px;
+  height: 170px;
+  width: 100%;
 }
 
 .mainMenuText {
-    font-size: 22px;
+  font-size: 22px;
 }
 
-.stage{
-    background: #444;
-    height: calc(100% - 170px)
+.stage {
+  background: #444;
+  height: calc(100% - 170px)
 }
 
 .box {
-    width: 300px;
+  width: 300px;
 }

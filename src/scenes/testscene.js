@@ -5,103 +5,167 @@ import cache from 'util/cache'
 import dispatch from 'util/dispatch'
 import updater from 'util/updater'
 import input from 'util/input'
+import animator from 'util/animator'
 
 import SVGWrap from 'components/game/svgwrap'
 
 export default class TestScene extends Component {
-    constructor(props) {
-        super(props)
-        this.updateTime = this.updateTime.bind(this)
-        this.increment = this.increment.bind(this)
-        this.sceneCache = cache.GAME_DATA.testscene = cache.GAME_DATA.testscene || {}
-        this.svgCache = cache.SVGS
-        updater.register('testsceneUpdate', this.update, this)
-        this.deltaTime = 0
-        // TODO: rig up player input control
-        // TODO: figure out mutltiple keystrokes at once
-        input.register('keydown', 'testsceneKeydown', this.keydown, this)
-    }
+  constructor(props) {
+    super(props)
+    this.updateTime = this.updateTime.bind(this)
+    this.increment = this.increment.bind(this)
+    cache.GAME_DATA.testscene = cache.GAME_DATA.testscene || {}
+    updater.register('testsceneUpdate', this.update, this)
+    this.deltaTime = 0
+    // TODO: rig up player input control
+    // TODO: figure out mutltiple keystrokes at once
+    input.register('keydown', 'testsceneKeydown', this.keydown, this)
+    input.register('keyup', 'testsceneKeyup', this.keyup, this)
+    // input.register('keypress', 'testsceneKeypress', this.keypress, this)
+    this._setAnimationState = this._setAnimationState.bind(this)
 
-    keydown(event) {
-        console.log('testsceneKeydown', event)
-    }
-    // update the current time
-    updateTime() {
-        this.setState({
-            time: Date.now()
-        })
-        this.deltaTime = 0
-    }
+  }
 
-    increment() {
-        this.setState({
-            count: this.sceneCache.count = this.state.count + 1
-        })
+  keydown(event) {
+    console.log('testsceneKeydown', event)
+    switch (event.code) {
+    case 'KeyD':
+      animator.play(this.state.esperanza.svg, this._setAnimationState, 'leftPunch', 'regular')
+      break;
+    case 'KeyF':
+      animator.play(this.state.esperanza.svg, this._setAnimationState, 'rightPunch', 'regular')
+      break;
     }
+  }
+  keyup(event) {
+    console.log('testsceneKeyup', event)
 
-    update(dt) {
-        if (!this.timer) return
-        this.deltaTime += dt
-        if (this.deltaTime > 1000) this.updateTime()
+  }
+  // keypress(event) {
+  //     console.log('testsceneKeypress', event)
+  // }
+  // update the current time
+  updateTime() {
+    this.setState({
+      time: Date.now()
+    })
+    this.deltaTime = 0
+  }
 
+  increment() {
+    this.setState({
+      count: cache.GAME_DATA.testscene.count = this.state.count + 1
+    })
+  }
+
+  update(dt) {
+    // if (!this.timer) return
+    // this.deltaTime += dt
+    // if (this.deltaTime > 1000) this.updateTime()
+
+  }
+
+  _setAnimationState(svg, fitToSize) {
+    let stateSvg = this.state[svg.id]
+    let width = stateSvg.width
+    let top = stateSvg.top
+    if (fitToSize) {
+      let viewBox = svg.attributes.viewBox.split(' ')
+      let oldViewBox = svg.attributes.oldViewBox.split(' ')
+      let newViewBoxHeight = viewBox[3] * 1
+      let newViewBoxWidth = viewBox[2] * 1
+      let oldViewBoxWidth = oldViewBox[2] * 1
+      let oldViewBoxHeight = oldViewBox[3] * 1
+      let oldWidth = stateSvg.width.replace('px', '') * 1
+      let oldHeight = Math.trunc(((oldViewBoxHeight * oldWidth) / oldViewBoxWidth) * 100) / 100
+      width = (newViewBoxWidth * oldWidth) / oldViewBoxWidth + 'px'
+      let height = (newViewBoxHeight * oldHeight) / oldViewBoxHeight
+      let hDiff = height - oldHeight
+      top = (top.replace('px', '') * 1) - hDiff
+      top = top + 'px'
     }
+    this.setState({
+      [svg.id]: {
+        ...stateSvg,
+        svg,
+        width,
+        top
+      }
+    })
+  }
 
-    componentWillMount() {
-        this.setState({
-            esperanza: {
-                svg: this.svgCache.loadedSVGs.esperanza.stand,
-                width: 250,
-                y: 400,
-                x: 400,
-                rotation: 0
-            },
-            time: Date.now(),
-            count: this.sceneCache.count = this.sceneCache.count || 10
-        })
-        // TODO: move esperanza to 'GROUND_LEVEL'
-        // // TODO:  add basic collision detection
-    }
+  componentWillMount() {
+    this.setState({
+      esperanza: {
+        svg: cache.SVGS.loadedSVGs.esperanza.stand,
+        width: '500px',
+        left: '10px',
+        top: '100px',
+        rotation: 0
+      },
+      test: {
+        svg: cache.SVGS.loadedSVGs.testObject2.circle,
+        width: '100px',
+        left: '600px',
+        top: '250px',
+        rotation: 0
+      },
+      time: Date.now(),
+      count: cache.GAME_DATA.testscene.count = cache.GAME_DATA.testscene.count || 10
+    })
+    animator.setStaticFrame(this.state.esperanza.svg, this._setAnimationState, 'stand')
+    // TODO: move esperanza to 'GROUND_LEVEL'
+    // // TODO:  add basic collision detection
+  }
 
-    // gets called when this route is navigated to
-    componentDidMount() {
-        // start a timer for the clock:
-        this.timer = true
-        dispatch.send('fadeOutBS')
-    }
+  // gets called when this route is navigated to
+  componentDidMount() {
+    // start a timer for the clock:
+    this.timer = true
+    dispatch.send('fadeOutBS')
+  }
 
-    // gets called just before navigating away from the route
-    componentWillUnmount() {
-        updater.unregister('testsceneUpdate')
-    }
+  // gets called just before navigating away from the route
+  componentWillUnmount() {
+    updater.unregister('testsceneUpdate')
+  }
 
-    // Note: `user` comes from the URL, courtesy of our router
-    render({ user }, { time, count, esperanza }) {
-        return (
-            <div class={style.scene}>
-                {
-                    esperanza &&
-                    <div class={style.stage}>
-                        <SVGWrap
-                            x={esperanza.x}
-                            y={esperanza.y}
-                            width={esperanza.width}
-                            rotation={esperanza.rotation}
-                        >
-                            {esperanza.svg}
-                        </SVGWrap>
-                    </div>
-                }
-                <div class={style.effects}>
-                    <h1>Profile: {user}</h1>
-                    <p>This is the user profile for a user named { user }.</p>
-                    <div>Current time: {new Date(time).toLocaleString()}</div>
-                    <p>
-                        <button onClick={this.increment}>Click Me</button>
-                        {' '}
-                        Clicked {count} times.
-                    </p>
-                </div>
-            </div>
-        )
-    }
+  // Note: `user` comes from the URL, courtesy of our router
+  render({ user }, { time, count, esperanza, test }) {
+    return (
+      <div class={style.scene}>
+        {
+          (esperanza && test) &&
+          <div class={style.stage}>
+            <SVGWrap
+              left={esperanza.left}
+              top={esperanza.top}
+              width={esperanza.width}
+              rotation={esperanza.rotation}
+            >
+              {esperanza.svg}
+            </SVGWrap>
+            <SVGWrap
+              left={test.left}
+              top={test.top}
+              width={test.width}
+              rotation={test.rotation}
+            >
+              {test.svg}
+            </SVGWrap>
+          </div>
+        }
+        <div class={style.effects}>
+          <h1>Profile: {user}</h1>
+          <p>This is the user profile for a user named { user }.</p>
+          <div>Current time: {new Date(time).toLocaleString()}</div>
+          <p>
+            <button onClick={this.increment}>Click Me</button>
+            {' '}
+            Clicked {count} times.
+          </p>
+        </div>
+      </div>
+    )
+  }
 }
