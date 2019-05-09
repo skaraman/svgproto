@@ -127,30 +127,30 @@ class Animator {
         ani.loopIndex = 0
         if (ani.frameIndex >= ani.bakes.length) {
           switch (ani.type) {
-          case 'loop':
-          case 'pingpong':
-            ani.frameIndex = 0
-            break
-          case 'repeat':
-            ani.frameIndex = 0
-            if (ani.repeatLimit) {
-              ani.repeatIndex++
-              if (ani.repeatIndex < ani.repeatLimit) {
-                break
+            case 'loop':
+            case 'pingpong':
+              ani.frameIndex = 0
+              break
+            case 'repeat':
+              ani.frameIndex = 0
+              if (ani.repeatLimit) {
+                ani.repeatIndex++
+                if (ani.repeatIndex < ani.repeatLimit) {
+                  break
+                }
               }
-            }
-          case 'regular':
-          case 'reverse':
-            this.animations.splice(i, 1)
-            i--
-            break
+            case 'regular':
+            case 'reverse':
+              this.animations.splice(i, 1)
+              i--
+              break
           }
         }
       }
     }
   }
 
-  play(svg, stateCallback, name = 'default', type = 'regular', fitToWidth = true) {
+  play({ svg, stateCallback, name = 'default', type = 'regular', fitToWidth = true, from, to }) {
     let repeat = 0
     let bakes = cache.SVGS.bakes[svg.id][name]
     if (type === 'reverse') {
@@ -167,6 +167,10 @@ class Animator {
     } else if (type.startsWith('repeat')) {
       repeat = ~~type.replace('repeat', '')
       type = 'repeat'
+    } else if (type === 'frame') {
+      from = ~~from
+      to = ~~to
+      bakes = bakes.slice(from, to)
     }
     this.animationsById[name] = {
       stateCallback,

@@ -29,12 +29,22 @@ export default class TestScene extends Component {
   keydown(event) {
     console.log('testsceneKeydown', event)
     switch (event.code) {
-    case 'KeyD':
-      animator.play(this.state.esperanza.svg, this._setAnimationState, 'leftPunch', 'regular')
-      break;
-    case 'KeyF':
-      animator.play(this.state.esperanza.svg, this._setAnimationState, 'rightPunch', 'regular')
-      break;
+      case 'KeyD':
+        animator.play({
+          svg: this.state.esperanza.svg,
+          stateCallback: this._setAnimationState,
+          name: 'leftPunch',
+          type: 'regular'
+        })
+        break;
+      case 'KeyF':
+        animator.play({
+          svg: this.state.esperanza.svg,
+          stateCallback: this._setAnimationState,
+          name: 'rightPunch',
+          type: 'regular'
+        })
+        break;
     }
   }
   keyup(event) {

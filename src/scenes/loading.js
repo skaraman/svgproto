@@ -66,7 +66,12 @@ export default class Loading extends Component {
     dispatch.send('fadeOutBS')
     if (cache.META_DATA.manifest && cache.META_DATA.exitRoute) {
       if (this.state.loadingCircle)
-        animator.play(this.state.loadingCircle.svg, this._setAnimationState, 'loadingAnimation', 'loop')
+        animator.play({
+          svg: this.state.loadingCircle.svg,
+          stateCallback: this._setAnimationState,
+          name: 'loadingAnimation',
+          type: 'loop'
+        })
       loader.load(cache.META_DATA.manifest)
     }
   }

@@ -36,7 +36,12 @@ export default class MainMenu extends Component {
 
   play(event) {
     event.stopPropagation()
-    animator.play(this.state.box.svg, this._setAnimationState, 'testAnimation', 'pingpong')
+    animator.play({
+      svg: this.state.box.svg,
+      stateCallback: this._setAnimationState,
+      name: 'testAnimation',
+      type: 'pingpong'
+    })
     this.playMotions = true
     // // TODO: remove entity from scene, possibly send over state callback?
     // dispatch.send('saveEntity', 'mainMenuBox', this.state.box)

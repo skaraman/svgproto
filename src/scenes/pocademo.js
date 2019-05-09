@@ -25,12 +25,17 @@ export default class TestScene extends Component {
   keydown(event) {
     console.log('pocaDemoKeyDown', event)
     switch (event.code) {
-    case 'KeyD':
-      animator.play(this.state.poca.svg, this._setAnimationState, 'fullTurn', 'regular')
-      break;
-      // case 'KeyF':
-      //   animator.play(this.state.poca.svg, this._setAnimationState, 'rightPunch', 'regular')
-      //   break;
+      case 'KeyD':
+        animator.play({
+          svg: this.state.poca.svg,
+          stateCallback: this._setAnimationState,
+          name: 'fullTurn',
+          type: 'regular'
+        })
+        break;
+        // case 'KeyF':
+        //   animator.play(this.state.poca.svg, this._setAnimationState, 'rightPunch', 'regular')
+        //   break;
     }
   }
   keyup(event) {
@@ -100,7 +105,14 @@ export default class TestScene extends Component {
   }
 
   playFrame(from, to) {
-
+    animator.play({
+      svg: this.state.poca.svg,
+      stateCallback: this._setAnimationState,
+      name: 'fullTurn',
+      type: 'frame',
+      from,
+      to
+    })
   }
 
   // Note: `user` comes from the URL, courtesy of our router
