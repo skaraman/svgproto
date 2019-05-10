@@ -393,7 +393,7 @@ class Loader {
           newPath = fromPath
           viewBox = `0 0 ${this.fromViewBox.x} ${this.fromViewBox.y}`
           if (fromGrad || toGrad) {
-            fill = lerpGradient(fromGrad, toGrad, percentage)
+            fill = lerpGradient(fromGrad || fromFill, toGrad || toFIll, percentage)
           } else {
             fill = fromFill
           }
@@ -403,7 +403,7 @@ class Loader {
           newPath = toPath
           viewBox = `0 0 ${this.toViewBox.x} ${this.toViewBox.y}`
           if (fromGrad || toGrad) {
-            fill = lerpGradient(fromGrad, toGrad, percentage)
+            fill = lerpGradient(fromGrad || fromFill, toGrad || toFIll, percentage)
           } else {
             fill = toFill
           }
@@ -414,7 +414,7 @@ class Loader {
           let y = this.fromViewBox.y + ((this.toViewBox.y - this.fromViewBox.y) * percentage)
           viewBox = `0 0 ${x} ${y}`
           if (fromGrad || toGrad) {
-            fill = lerpGradient(fromGrad, toGrad, percentage)
+            fill = lerpGradient(fromGrad || fromFill, toGrad || toFIll, percentage)
           } else {
             fill = lerpColor(fromFill, toFill, percentage)
           }
