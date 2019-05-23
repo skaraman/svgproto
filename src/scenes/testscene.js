@@ -7,7 +7,7 @@ import updater from 'util/updater'
 import input from 'util/input'
 import animator from 'util/animator'
 
-import SVGWrap from 'components/game/svgwrap'
+import Stage from 'components/game/stage'
 
 export default class TestScene extends Component {
   constructor(props) {
@@ -142,28 +142,14 @@ export default class TestScene extends Component {
 
   // Note: `user` comes from the URL, courtesy of our router
   render({ user }, { time, count, esperanza, test }) {
+    let data = { esperanza, test }
     return (
       <div class={style.scene}>
         {
           (esperanza && test) &&
-          <div class={style.stage}>
-            <SVGWrap
-              left={esperanza.left}
-              top={esperanza.top}
-              width={esperanza.width}
-              rotation={esperanza.rotation}
-            >
-              {esperanza.svg}
-            </SVGWrap>
-            <SVGWrap
-              left={test.left}
-              top={test.top}
-              width={test.width}
-              rotation={test.rotation}
-            >
-              {test.svg}
-            </SVGWrap>
-          </div>
+          <Stage class={style.stage}>
+            {data}
+          </Stage>
         }
         <div class={style.effects}>
           <h1>Profile: {user}</h1>

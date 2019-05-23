@@ -54,7 +54,7 @@ function lerpColor(color1, color2, amount) {
 }
 
 // Gradient
-function lerpGradient(grad1, grad2, amount) {
+function lerpGradient(grad1, grad2, amount, idMod = '') {
   if (!grad1.attributes || !grad2.attributes) {
     let grads = _fixGrads(grad1, grad2)
     grad1 = grads.grad1
@@ -64,7 +64,7 @@ function lerpGradient(grad1, grad2, amount) {
   let x2 = ((grad2.attributes.x2 - grad1.attributes.x2) * amount) + (grad1.attributes.x2 * 1)
   let y1 = ((grad2.attributes.y1 - grad1.attributes.y1) * amount) + (grad1.attributes.y1 * 1)
   let y2 = ((grad2.attributes.y2 - grad1.attributes.y2) * amount) + (grad1.attributes.y2 * 1)
-  let id = grad1.attributes.id
+  let id = grad1.attributes.id + (idMod ? '_' + idMod : '')
   let color1 = null
   if (grad1.children[0]) color1 = lerpColor(
     grad1.children[0].attributes['stop-color'] || '#000',

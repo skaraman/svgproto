@@ -15,6 +15,8 @@ function setAliases(config) {
 export default function (config, env, helpers) {
   setAliases(config)
   //console.log(config.module.loaders);
+  // config.output.libraryExport = 'default'
+  // console.log(config.output)
   config.module.loaders[4].include.push(path.resolve(__dirname, 'src/scenes'))
   config.module.loaders[5].exclude.push(path.resolve(__dirname, 'src/scenes'))
 }
