@@ -27,6 +27,7 @@ function objectAssignAll(target, source) {
 //HEX Color
 function lerpColor(color1, color2, amount) {
   if (!color1.startsWith('#') && !color2.startsWith('#')) {
+    if (color1 === 'none' || color2 === 'none') return 'none'
     console.warn('use #HEXFMT')
     return color1
   }

@@ -5,9 +5,9 @@ import dispatch from 'util/dispatch'
 import { lerpColor, lerpGradient, objectAssignAll } from 'util/helpers'
 
 // test manifest, tobe defined by scene files
-import testmanifest from 'data/manifest'
+import mainManifest from 'data/_manifest'
 
-const detail = 10
+const detail = 4
 
 class Loader {
   constructor() {
@@ -17,7 +17,7 @@ class Loader {
 
   load(manifest) {
     // // TODO: add dynamic json loading
-    this.manifestData = testmanifest[manifest]
+    this.manifestData = mainManifest[manifest]
     //.default({})
     this.bakes = {}
     this.loadedSVGs = {}

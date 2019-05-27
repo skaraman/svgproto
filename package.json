@@ -35,6 +35,7 @@
     "style-loader": "^0.23.1"
   },
   "dependencies": {
+    "classnames": "^2.2.6",
     "flubber": "^0.4.2",
     "preact": "^8.2.6",
     "preact-compat": "^3.17.0",

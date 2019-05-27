@@ -9,7 +9,7 @@ import dispatch from 'util/dispatch'
 import updater from 'util/updater'
 
 import Button from 'components/ui/button'
-import SVGWrap from 'components/game/svgwrap'
+import Stage from 'components/game/stage'
 
 export default class MainMenu extends Component {
   constructor(props) {
@@ -37,19 +37,25 @@ export default class MainMenu extends Component {
   play(event) {
     event.stopPropagation()
     animator.play({
-      svg: this.state.box.svg,
+      svg: this.state.actors.testObject.svg,
       stateCallback: this._setAnimationState,
       name: 'testAnimation',
       type: 'pingpong'
     })
-    this.playMotions = true
+    // this.playMotions = true
     // // TODO: remove entity from scene, possibly send over state callback?
     // dispatch.send('saveEntity', 'mainMenuBox', this.state.box)
   }
 
   _setAnimationState(svg) {
+    let rSvg = this.state.actors[svg.id]
     this.setState({
-      [svg.id]: svg
+      actors: {
+        [svg.id]: {
+          ...rSvg,
+          svg
+        }
+      }
     })
   }
 
@@ -86,12 +92,14 @@ export default class MainMenu extends Component {
       y = ((this.deltaTime % 9000) / 12) % 200
       rotation = (this.deltaTime % 1440) / 4
       this.setState({
-        box: {
-          svg: this.state.box.svg,
-          width: width + 'px',
-          x: x + 'px',
-          y: y + 'px',
-          rotation
+        actors: {
+          testObject: {
+            svg: this.state.actors.testObject.svg,
+            width: width + 'px',
+            x: x + 'px',
+            y: y + 'px',
+            rotation
+          }
         }
       })
     }
@@ -100,18 +108,20 @@ export default class MainMenu extends Component {
   componentWillMount() {
     dispatch.send('fadeOutBS')
     this.setState({
-      box: {
-        svg: cache.SVGS.loadedSVGs.testObject.box,
-        width: 300,
-        x: 0,
-        y: 0,
-        rotation: 0
+      actors: {
+        testObject: {
+          svg: cache.SVGS.loadedSVGs.testObject.box,
+          width: 300,
+          x: 0,
+          y: 0,
+          rotation: 0
+        }
       }
     })
-    animator.setStaticFrame(this.state.box.svg, this._setAnimationState, 'box')
+    animator.setStaticFrame(this.state.actors.testObject.svg, this._setAnimationState, 'box')
   }
 
-  render({}, { box }) {
+  render({}, { actors }) {
     return (
       <div class={style.mainWrap}>
         <div class={style.mainMenu}>
@@ -135,12 +145,10 @@ export default class MainMenu extends Component {
           <p>copyright and trademark stuff</p>
         </div>
         {
-          box &&
-          <div class={style.stage}>
-            <SVGWrap x={box.x} y={box.y} width={box.width} rotation={box.rotation}>
-              {box.svg}
-            </SVGWrap>
-          </div>
+          actors &&
+          <Stage class={style.stage}>
+            {actors}
+          </Stage>
         }
       </div>
     )

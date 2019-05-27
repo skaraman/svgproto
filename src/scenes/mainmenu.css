@@ -14,9 +14,12 @@
   font-size: 22px;
 }
 
-.stage {
+div.stage {
   background: #444;
-  height: calc(100% - 170px)
+  height: calc(100% - 170px);
+  position: relative;
+  top: auto;
+  left: auto;
 }
 
 .box {

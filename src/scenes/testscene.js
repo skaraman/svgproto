@@ -23,7 +23,6 @@ export default class TestScene extends Component {
     input.register('keyup', 'testsceneKeyup', this.keyup, this)
     // input.register('keypress', 'testsceneKeypress', this.keypress, this)
     this._setAnimationState = this._setAnimationState.bind(this)
-
   }
 
   keydown(event) {
@@ -31,30 +30,31 @@ export default class TestScene extends Component {
     switch (event.code) {
       case 'KeyD':
         animator.play({
-          svg: this.state.esperanza.svg,
+          svg: this.state.actors.esperanza.svg,
           stateCallback: this._setAnimationState,
           name: 'leftPunch',
           type: 'regular'
         })
-        break;
+        break
       case 'KeyF':
         animator.play({
-          svg: this.state.esperanza.svg,
+          svg: this.state.actors.esperanza.svg,
           stateCallback: this._setAnimationState,
           name: 'rightPunch',
           type: 'regular'
         })
-        break;
+        break
     }
   }
   keyup(event) {
     console.log('testsceneKeyup', event)
 
   }
+
   // keypress(event) {
   //     console.log('testsceneKeypress', event)
   // }
-  // update the current time
+
   updateTime() {
     this.setState({
       time: Date.now()
@@ -76,54 +76,48 @@ export default class TestScene extends Component {
   }
 
   _setAnimationState(svg, fitToSize) {
-    let stateSvg = this.state[svg.id]
-    let width = stateSvg.width
-    let top = stateSvg.top
-    if (fitToSize) {
-      let viewBox = svg.attributes.viewBox.split(' ')
-      let oldViewBox = svg.attributes.oldViewBox.split(' ')
-      let newViewBoxHeight = viewBox[3] * 1
-      let newViewBoxWidth = viewBox[2] * 1
-      let oldViewBoxWidth = oldViewBox[2] * 1
-      let oldViewBoxHeight = oldViewBox[3] * 1
-      let oldWidth = stateSvg.width.replace('px', '') * 1
-      let oldHeight = Math.trunc(((oldViewBoxHeight * oldWidth) / oldViewBoxWidth) * 100) / 100
-      width = (newViewBoxWidth * oldWidth) / oldViewBoxWidth + 'px'
-      let height = (newViewBoxHeight * oldHeight) / oldViewBoxHeight
-      let hDiff = height - oldHeight
-      top = (top.replace('px', '') * 1) - hDiff
-      top = top + 'px'
-    }
+    let stateSvg = this.state.actors[svg.id]
+    let state = this.state
+    let actors = this.state.actors
     this.setState({
-      [svg.id]: {
-        ...stateSvg,
-        svg,
-        width,
-        top
+      ...state,
+      actors: {
+        ...actors,
+        [svg.id]: {
+          ...stateSvg,
+          svg
+        }
       }
     })
   }
 
   componentWillMount() {
     this.setState({
-      esperanza: {
-        svg: cache.SVGS.loadedSVGs.esperanza.stand,
-        width: '500px',
-        left: '10px',
-        top: '100px',
-        rotation: 0
-      },
-      test: {
-        svg: cache.SVGS.loadedSVGs.testObject2.circle,
-        width: '100px',
-        left: '600px',
-        top: '250px',
-        rotation: 0
+      actors: {
+        esperanza: {
+          svg: cache.SVGS.loadedSVGs.esperanza.stand,
+          scale: 0.6,
+          x: '0px',
+          y: '0px',
+          rotation: '0deg'
+        },
+        hitObject: {
+          svg: cache.SVGS.loadedSVGs.hitObject.circle,
+          scale: 0.4,
+          x: '260px',
+          y: '300px'
+        }
       },
       time: Date.now(),
       count: cache.GAME_DATA.testscene.count = cache.GAME_DATA.testscene.count || 10
     })
-    animator.setStaticFrame(this.state.esperanza.svg, this._setAnimationState, 'stand')
+    let names = [
+      'stand',
+      'circle'
+    ]
+    for (let adx in this.state.actors) {
+      animator.setStaticFrame(this.state.actors[adx].svg, this._setAnimationState, names[adx])
+    }
     // TODO: move esperanza to 'GROUND_LEVEL'
     // // TODO:  add basic collision detection
   }
@@ -141,14 +135,13 @@ export default class TestScene extends Component {
   }
 
   // Note: `user` comes from the URL, courtesy of our router
-  render({ user }, { time, count, esperanza, test }) {
-    let data = { esperanza, test }
+  render({ user }, { time, count, actors }) {
     return (
       <div class={style.scene}>
         {
-          (esperanza && test) &&
+          (actors) &&
           <Stage class={style.stage}>
-            {data}
+            {actors}
           </Stage>
         }
         <div class={style.effects}>
