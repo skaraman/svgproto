@@ -7,7 +7,7 @@ import updater from 'util/updater'
 import input from 'util/input'
 import animator from 'util/animator'
 
-import SVGWrap from 'components/game/svgwrap'
+import SVGWrap from 'components/ui/svgwrap'
 import Button from 'components/ui/button'
 
 export default class TestScene extends Component {

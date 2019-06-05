@@ -42,7 +42,7 @@ export default class MainMenu extends Component {
       name: 'testAnimation',
       type: 'pingpong'
     })
-    // this.playMotions = true
+    this.playMotions = true
     // // TODO: remove entity from scene, possibly send over state callback?
     // dispatch.send('saveEntity', 'mainMenuBox', this.state.box)
   }

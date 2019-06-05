@@ -6,7 +6,7 @@ import cache from 'util/cache'
 import input from 'util/input'
 
 import Button from 'components/ui/button'
-import SVGWrap from 'components/game/svgwrap'
+import SVGWrap from 'components/ui/svgwrap'
 
 export default class MainMenu extends Component {
   constructor(props) {

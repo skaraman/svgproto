@@ -11,6 +11,11 @@ module.exports = {
     'hitObject': {
       'circle': 'test/circle',
       'triangle': 'test/triangle'
+    },
+    'testObject': {
+      'test1': 'test/test1',
+      'test2': 'test/test2'
+
     }
   },
   'animations': {
@@ -74,6 +79,15 @@ module.exports = {
         'to': 'circle',
         'timeframe': 15
       }]
+    },
+    'testObject': {
+      'testObjAni': [
+        {
+          to: 'test2',
+          from: 'test1',
+          timeframe: 30
+        }
+      ]
     }
   }
 }

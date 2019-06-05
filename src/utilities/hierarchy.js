@@ -1,5 +1,10 @@
 class Hierarchy {
   constructor() {
+    this.clear()
+  }
+
+
+  clear() {
     this.paths = []
     this.entities = {}
     this.gradients = []
@@ -26,10 +31,9 @@ class Hierarchy {
   }
 
   update(nodes) {
-    for (let ndx in nodes) {
-      let node = nodes[ndx]
-      debugger
-    }
+    this.paths = []
+    this.gradients = []
+    this.add(nodes)
   }
 
   getPaths() {

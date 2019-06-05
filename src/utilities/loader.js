@@ -1,5 +1,6 @@
 import cache from 'util/cache'
 import { interpolate } from 'flubber'
+import * as Rematrix from 'rematrix'
 import updater from 'util/updater'
 import dispatch from 'util/dispatch'
 import { lerpColor, lerpGradient, objectAssignAll } from 'util/helpers'
@@ -7,7 +8,7 @@ import { lerpColor, lerpGradient, objectAssignAll } from 'util/helpers'
 // test manifest, tobe defined by scene files
 import mainManifest from 'data/_manifest'
 
-const detail = 4
+const detail = 10
 
 class Loader {
   constructor() {

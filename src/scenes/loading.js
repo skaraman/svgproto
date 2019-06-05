@@ -9,7 +9,7 @@ import dispatch from 'util/dispatch'
 import animator from 'util/animator'
 import cache from 'util/cache'
 
-import SVGWrap from 'components/game/svgwrap'
+import SVGWrap from 'components/ui/svgwrap'
 
 export default class Loading extends Component {
   constructor(props) {

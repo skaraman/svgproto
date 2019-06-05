@@ -3,6 +3,7 @@ import style from './stage.css'
 import classnames from 'classnames'
 
 import hierarchy from 'util/hierarchy'
+import SvgWrap from 'components/ui/svgwrap'
 
 export default class Stage extends Component {
   constructor(props) {
@@ -29,6 +30,7 @@ export default class Stage extends Component {
 
   render({ children, class: additionalClass }, { paths, grads }) {
     if (this.initialRender === false) {
+      hierarchy.clear()
       hierarchy.add(children[0])
       this._setState()
       this.initialRender = true
@@ -67,7 +69,7 @@ export default class Stage extends Component {
               let scale = `scale(${data.scale})`
               let rotate = `rotate(${data.rotation})`
               return (
-                <g class={style.translate} style={{transform: translate}}>
+                <g id={v.attributes.id} class={style.translate} style={{transform: translate}}>
                   <g class={style.scale} style={{transform: scale}}>
                     <g class={style.rotate} style={{transform: rotate}}>
                       <path

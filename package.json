@@ -40,6 +40,7 @@
     "preact": "^8.2.6",
     "preact-compat": "^3.17.0",
     "preact-router": "^2.5.7",
+    "rematrix": "^0.3.0",
     "svgson": "^3.1.0"
   },
   "jest": {
