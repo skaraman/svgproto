@@ -4,12 +4,15 @@ import style from './loading.css'
 
 import input from 'util/input'
 import updater from 'util/updater'
-import loader from 'util/loader'
+import loader from 'util/workers/loaderWorker'
+import WebWorker from 'util/workers/workerSetup'
 import dispatch from 'util/dispatch'
 import animator from 'util/animator'
 import cache from 'util/cache'
 
 import SVGWrap from 'components/ui/svgwrap'
+
+let loaderWorker = new Worker(new loader)
 
 export default class Loading extends Component {
   constructor(props) {
@@ -72,7 +75,15 @@ export default class Loading extends Component {
           name: 'loadingAnimation',
           type: 'loop'
         })
-      loader.load(cache.META_DATA.manifest)
+      setTimeout(() => {
+        self.postMessage('load')
+        loaderWorker.addEventListener('message', event => {
+          debugger
+          this.setState({
+            count: event.data.length
+          })
+        })
+      }, 250)
     }
   }
 

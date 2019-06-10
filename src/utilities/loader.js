@@ -17,7 +17,6 @@ class Loader {
   }
 
   load(manifest) {
-    // // TODO: add dynamic json loading
     this.manifestData = mainManifest[manifest]
     //.default({})
     this.bakes = {}
@@ -29,6 +28,7 @@ class Loader {
   }
 
   _cache() {
+    // TODO - fix 'default' in statics in loader.js
     cache.SVGS.loadedSVGs = objectAssignAll(cache.SVGS.loadedSVGs, this.loadedSVGs)
     cache.SVGS.bakes = objectAssignAll(cache.SVGS.bakes, this.bakes)
     cache.SVGS.statics = objectAssignAll(cache.SVGS.statics, this.statics)
@@ -142,14 +142,17 @@ class Loader {
       this.loadedSVGs[this.setKey][svgKey].id = this.setKey
       this.svgIndex = svgIndex
       svg.childrenById = {}
-      // TODO: adobe illustrator = .children[2].children[0].children
+      // TODO: adobe illustrator = .children[svg.children.length - 1].children[0].children
       // desired = .children
-      for (let pathIndex = 0; pathIndex < svg.children[2].children[0].children.length; pathIndex++) {
-        let path = svg.children[2].children[0].children[pathIndex]
+      for (let pathIndex = 0; pathIndex < svg.children[svg.children.length - 1].children[0].children.length; pathIndex++) {
+        let path = svg.children[svg.children.length - 1].children[0].children[pathIndex]
         svg.childrenById[path.attributes.id] = path
         svg.childrenById[path.attributes.id].index = pathIndex
       }
       svg.gradientById = {}
+      if (svg.children.length < 3) {
+        continue
+      }
       for (let gradIndex = 0; gradIndex < svg.children[0].children.length; gradIndex++) {
         let grad = svg.children[0].children[gradIndex]
         if (!grad.children[0] && grad.attributes['xlink:href']) {
@@ -236,16 +239,16 @@ class Loader {
     this.fromName = from
     this.toName = to
     this.timeframe = timeframe
-    // TODO: adobe illustrator = .children[2].children[0].children
+    // TODO: adobe illustrator = .children[svg.children.length - 1].children[0].children
     // desired = .children
-    this.fromChildren = this.loadedSVGs[this.charName][this.fromName].children[2].children[0].children.copy()
+    this.fromChildren = this.loadedSVGs[this.charName][this.fromName].children[this.loadedSVGs[this.charName][this.fromName].children.length - 1].children[0].children.copy()
     this.fromIndex = 0
     this.fromLimit = 2
     this.fromViewBox = {
       x: this.loadedSVGs[this.charName][this.fromName].attributes.viewBox.split(' ')[2] * 1,
       y: this.loadedSVGs[this.charName][this.fromName].attributes.viewBox.split(' ')[3] * 1
     }
-    this.toChildren = this.loadedSVGs[this.charName][this.toName].children[2].children[0].children.copy()
+    this.toChildren = this.loadedSVGs[this.charName][this.toName].children[this.loadedSVGs[this.charName][this.toName].children.length - 1].children[0].children.copy()
     this.toViewBox = {
       x: this.loadedSVGs[this.charName][this.toName].attributes.viewBox.split(' ')[2] * 1,
       y: this.loadedSVGs[this.charName][this.toName].attributes.viewBox.split(' ')[3] * 1

@@ -111,7 +111,6 @@ export default class TestScene extends Component {
       time: Date.now(),
       count: cache.GAME_DATA.testscene.count = cache.GAME_DATA.testscene.count || 10
     })
-    // TODO - fix 'default' in statics in loader.js
     let names = {
       esperanza: 'stand',
       hitObject: 'circle'

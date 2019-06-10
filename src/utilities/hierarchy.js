@@ -14,7 +14,7 @@ class Hierarchy {
     for (let ndx in nodes) {
       let node = nodes[ndx]
       this.entities[ndx] = node
-      let paths = node.svg.children[2].children[0].children
+      let paths = node.svg.children[node.svg.children.length - 1].children[0].children
       for (let cdx = 0; cdx < paths.length; cdx++) {
         let fill = paths[cdx].attributes.fill
         if (fill.startsWith('url')) {
@@ -23,6 +23,7 @@ class Hierarchy {
         }
         this.paths.push({ entity: ndx, ...paths[cdx] })
       }
+      if (node.svg.children.length < 3) continue
       let grads = node.svg.children[0].children
       for (let cdx = 0; cdx < grads.length; cdx++) {
         this.gradients.push({ entity: ndx, ...grads[cdx] })

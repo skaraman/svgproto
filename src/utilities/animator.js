@@ -24,9 +24,9 @@ class Animator {
       for (let pathKey in ani.bakes[ani.frameIndex][ani.loopIndex]) {
         if (pathKey === 'viewBox') continue
         let path = ani.bakes[ani.frameIndex][ani.loopIndex][pathKey],
-          // TODO: adobe illustrator = .children[2].children[0].children
+          // TODO: adobe illustrator = .children[svg.children.length - 1].children[0].children
           // desired = .children
-          children = ani.svg.children[2].children[0].children,
+          children = ani.svg.children[svg.children.length - 1].children[0].children,
           childrenById = ani.svg.childrenById,
           child
         if (path.remainder && !this.remaindersRendered[ani.name][pathKey]) {
