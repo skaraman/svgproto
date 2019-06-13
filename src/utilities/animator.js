@@ -26,7 +26,7 @@ class Animator {
         let path = ani.bakes[ani.frameIndex][ani.loopIndex][pathKey],
           // TODO: adobe illustrator = .children[svg.children.length - 1].children[0].children
           // desired = .children
-          children = ani.svg.children[svg.children.length - 1].children[0].children,
+          children = ani.svg.children[ani.svg.children.length - 1].children[0].children,
           childrenById = ani.svg.childrenById,
           child
         if (path.remainder && !this.remaindersRendered[ani.name][pathKey]) {
@@ -127,23 +127,23 @@ class Animator {
         ani.loopIndex = 0
         if (ani.frameIndex >= ani.bakes.length) {
           switch (ani.type) {
-            case 'loop':
-            case 'pingpong':
-              ani.frameIndex = 0
-              break
-            case 'repeat':
-              ani.frameIndex = 0
-              if (ani.repeatLimit) {
-                ani.repeatIndex++
-                if (ani.repeatIndex < ani.repeatLimit) {
-                  break
-                }
+          case 'loop':
+          case 'pingpong':
+            ani.frameIndex = 0
+            break
+          case 'repeat':
+            ani.frameIndex = 0
+            if (ani.repeatLimit) {
+              ani.repeatIndex++
+              if (ani.repeatIndex < ani.repeatLimit) {
+                break
               }
-            case 'regular':
-            case 'reverse':
-              this.animations.splice(i, 1)
-              i--
-              break
+            }
+          case 'regular':
+          case 'reverse':
+            this.animations.splice(i, 1)
+            i--
+            break
           }
         }
       }

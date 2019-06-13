@@ -10,18 +10,19 @@ import mainManifest from 'data/_manifest'
 
 const detail = 1
 
-export default class Loader {
+class Loader {
   constructor() {
-    self.addEventListener('message', (e) => this.onmessage(e, this))
-    updater.register('loaderUpdate', this.update, this)
+    //self.addEventListener('message', (e) => this.onmessage(e, this))
     cache.SVGS = { loadedSVGs: {}, bakes: {}, statics: {} }
   }
 
-  onmessage(event, target) {
-    console.log('Worker: Message received from main script')
-    let args = event.data
-    if (!args.type) this[args](cache.META_DATA.manifest)
-  }
+  // onmessage(event, target) {
+  //   console.log('Worker: Message received from main script')
+  //   let args = event.data
+  //   if (!args.type && this[args]) {
+  //     if (args === 'load') this.load(cache.META_DATA.manifest)
+  //   }
+  // }
 
   load(manifest) {
     this.manifestData = mainManifest[manifest]
@@ -32,6 +33,7 @@ export default class Loader {
     this.manifestAnimData = this.manifestData.animations
     this.loadSVGs()
     this.autoBake()
+    this._cache()
   }
 
   _cache() {
@@ -39,7 +41,7 @@ export default class Loader {
     cache.SVGS.loadedSVGs = objectAssignAll(cache.SVGS.loadedSVGs, this.loadedSVGs)
     cache.SVGS.bakes = objectAssignAll(cache.SVGS.bakes, this.bakes)
     cache.SVGS.statics = objectAssignAll(cache.SVGS.statics, this.statics)
-    dispatch.send('loadingComplete')
+    postMessage('loadingComplete')
   }
 
   loadSVGs() {
@@ -90,98 +92,56 @@ export default class Loader {
   }
 
   autoBake() {
-      for (let charName in this.manifestAnimData) {
-        let animations = this.manifestAnimData[charName]
-        this.statics[charName] = this.statics[charName] || {}
-        this.animKeys = Object.keys(this.charDmjn nj, 98, ., /ata)
-          this.animIndex = 0 this.animLimit = 1 this._forAnim()
-        }
-
-        _forAnim() {
-          console.log(`anim loading ${this.animIndex} / ${this.animKeys.length}`)
-          this.animName = this.animKeys[this.animIndex]
-          this.animData = this.charData[this.animName]
-          this.frameIndex = 0
-          this.frameLimit = 1
-          if (cache.SVGS.bakes[this.charName] && cache.SVGS.bakes[this.charName][this.animName]) {
-            this.animIndex++
-            console.log(`already cached anim ${this.animIndex} / ${this.animKeys.length}`)
-            if (this.animIndex >= this.animKeys.length) {
-              this.charIndex++
-              console.log(`already cached char ${this.charIndex} / ${this.charKeys.length}`)
-              if (this.charIndex >= this.charKeys.length) {
-                this.baking = false
-                this._cache()
-                return
-              }
-              this._forChar()
-              return
-            }
-            this._forAnim()
-            return
+    for (let charName in this.manifestAnimData) {
+      let anims = this.manifestAnimData[charName]
+      this.bakes[charName] = {}
+      this.statics[charName] = this.statics[charName] || {}
+      for (let animName in anims) {
+        this.bakes[charName][animName] = []
+        let frames = anims[animName]
+        for (let frameIndex = 0; frameIndex < frames.length; frameIndex++) {
+          let { from: fromName, to: toName, timeframe } = frames[frameIndex]
+          let fromChildren = this.loadedSVGs[charName][fromName].children[this.loadedSVGs[charName][fromName].children.length - 1].children[0].children.copy()
+          let fromViewBox = {
+            x: this.loadedSVGs[charName][fromName].attributes.viewBox.split(' ')[2] * 1,
+            y: this.loadedSVGs[charName][fromName].attributes.viewBox.split(' ')[3] * 1
           }
-          this.bakes[this.charName][this.animName] = []
-          this._forFrame()
-        }
-
-        _forFrame() {
-          console.log(`frame loading ${this.frameIndex} / ${this.animData.length}`)
-          let { from, to, timeframe } = this.animData[this.frameIndex]
-          this.fromName = from
-          this.toName = to
-          this.timeframe = timeframe
-          // TODO: adobe illustrator = .children[svg.children.length - 1].children[0].children
-          // desired = .children
-          this.fromChildren = this.loadedSVGs[this.charName][this.fromName].children[this.loadedSVGs[this.charName][this.fromName].children.length - 1].children[0].children.copy()
-          this.fromIndex = 0
-          this.fromLimit = 2
-          this.fromViewBox = {
-            x: this.loadedSVGs[this.charName][this.fromName].attributes.viewBox.split(' ')[2] * 1,
-            y: this.loadedSVGs[this.charName][this.fromName].attributes.viewBox.split(' ')[3] * 1
+          let toChildren = this.loadedSVGs[charName][toName].children[this.loadedSVGs[charName][toName].children.length - 1].children[0].children.copy()
+          let toViewBox = {
+            x: this.loadedSVGs[charName][toName].attributes.viewBox.split(' ')[2] * 1,
+            y: this.loadedSVGs[charName][toName].attributes.viewBox.split(' ')[3] * 1
           }
-          this.toChildren = this.loadedSVGs[this.charName][this.toName].children[this.loadedSVGs[this.charName][this.toName].children.length - 1].children[0].children.copy()
-          this.toViewBox = {
-            x: this.loadedSVGs[this.charName][this.toName].attributes.viewBox.split(' ')[2] * 1,
-            y: this.loadedSVGs[this.charName][this.toName].attributes.viewBox.split(' ')[3] * 1
-          }
-          this.statics[this.charName][this.fromName] = this.statics[this.charName][this.fromName] || {}
-          this.statics[this.charName][this.toName] = this.statics[this.charName][this.toName] || {}
-          this.pathsToBake = {}
-          this._forPath()
-        }
-
-        _forPath() {
-          this.forPathLooping = true
-          let limit = this.fromIndex + this.fromLimit - 1
-          fromNameLoop: for (let fromIndex = this.fromIndex; fromIndex <= limit && fromIndex < this.fromChildren.length; fromIndex++) {
-            let { id: fromPathName, d: fromPath, fill: fromFill } = this.fromChildren[fromIndex].attributes
-            toNameLoop: for (let toIndex = 0; toIndex < this.toChildren.length; toIndex++) {
-              let { id: toPathName, d: toPath, fill: toFill } = this.toChildren[toIndex].attributes
+          this.statics[charName][fromName] = this.statics[charName][fromName] || {}
+          this.statics[charName][toName] = this.statics[charName][toName] || {}
+          let pathsToBake = {}
+          fromNameLoop: for (let fromIndex = 0; fromIndex < fromChildren.length; fromIndex++) {
+            let { id: fromPathName, d: fromPath, fill: fromFill } = fromChildren[fromIndex].attributes
+            for (let toIndex = 0; toIndex < toChildren.length; toIndex++) {
+              let { id: toPathName, d: toPath, fill: toFill } = toChildren[toIndex].attributes
               if (fromPathName === toPathName) {
                 // matching paths
-                this.pathsToBake[fromPathName] = {
+                pathsToBake[fromPathName] = {
                   fromFill,
                   fromPath,
                   toFill,
                   toPath,
-                  index: this.loadedSVGs[this.charName][this.fromName].childrenById[fromPathName].index
+                  index: this.loadedSVGs[charName][fromName].childrenById[fromPathName].index
                 }
-                if (!this.statics[this.charName][this.fromName].viewBox) {
-                  this.statics[this.charName][this.fromName][fromPathName] = {
+                if (!this.statics[charName][fromName].viewBox) {
+                  this.statics[charName][fromName][fromPathName] = {
                     fill: fromFill,
                     path: fromPath,
-                    index: this.loadedSVGs[this.charName][this.fromName].childrenById[fromPathName].index
+                    index: this.loadedSVGs[charName][fromName].childrenById[fromPathName].index
                   }
                 }
-                if (!this.statics[this.charName][this.toName].viewBox) {
-                  this.statics[this.charName][this.toName][toPathName] = {
+                if (!this.statics[charName][toName].viewBox) {
+                  this.statics[charName][toName][toPathName] = {
                     fill: toFill,
                     path: toPath,
-                    index: this.loadedSVGs[this.charName][this.toName].childrenById[toPathName].index
+                    index: this.loadedSVGs[charName][toName].childrenById[toPathName].index
                   }
                 }
-                this.toChildren.splice(toIndex, 1)
-                this.fromIndex = fromIndex
+                toChildren.splice(toIndex, 1)
                 continue fromNameLoop
               }
             }
@@ -194,37 +154,25 @@ export default class Loader {
             }
             let mReplace = `M${test[1]}`
             let fillerPath = cache.FILLER_PATH.replace('M -0.1 -0.1', mReplace)
-            this.pathsToBake[fromPathName] = {
+            pathsToBake[fromPathName] = {
               fromFill,
               fromPath,
               toPath: fillerPath,
               toFill: fromFill,
               additional: true,
-              index: this.loadedSVGs[this.charName][this.fromName].childrenById[fromPathName].index
+              index: this.loadedSVGs[charName][fromName].childrenById[fromPathName].index
             }
-            if (!this.statics[this.charName][this.fromName].viewBox) {
-              this.statics[this.charName][this.fromName][fromPathName] = {
+            if (!this.statics[charName][fromName].viewBox) {
+              this.statics[charName][fromName][fromPathName] = {
                 fill: fromFill,
                 path: fromPath,
                 additional: true,
-                index: this.loadedSVGs[this.charName][this.fromName].childrenById[fromPathName].index
+                index: this.loadedSVGs[charName][fromName].childrenById[fromPathName].index
               }
             }
-            this.fromIndex = fromIndex
           }
-          if (this.fromIndex >= this.fromChildren.length) {
-            this.forPathLooping = false
-            this.remainderIndex = 0
-            this.remainderLimit = 10
-            this._forRemainderPath()
-          }
-        }
-
-        _forRemainderPath() {
-          this.forRemainderPathLooping = true
-          let limit = this.remainderIndex + this.remainderLimit - 1
-          for (let remainderIndex = this.remainderIndex; remainderIndex <= limit && remainderIndex < this.toChildren.length; remainderIndex++) {
-            let child = this.toChildren[remainderIndex]
+          for (let remainderIndex = 0; remainderIndex < toChildren.length; remainderIndex++) {
+            let child = toChildren[remainderIndex]
             let reMreplace = /M(\d*\.?\d*,\d*\.?\d*)[a-zA-Z,.]/g
             let test = reMreplace.exec(child.attributes.d)
             if (test === null) {
@@ -233,89 +181,75 @@ export default class Loader {
             }
             let mReplace = `M${test[1]}`
             let fillerPath = cache.FILLER_PATH.replace('M -0.1 -0.1', mReplace)
-            this.pathsToBake[child.attributes.id] = {
+            pathsToBake[child.attributes.id] = {
               toFill: child.attributes.fill,
               toPath: child.attributes.d,
               fromFill: child.attributes.fill,
               fromPath: fillerPath,
               remainder: true,
-              index: this.loadedSVGs[this.charName][this.toName].childrenById[child.attributes.id].index
+              index: this.loadedSVGs[charName][toName].childrenById[child.attributes.id].index
 
             }
-            if (!this.statics[this.charName][this.toName].viewBox) {
-              this.statics[this.charName][this.toName][child.attributes.id] = {
+            if (!this.statics[charName][toName].viewBox) {
+              this.statics[charName][toName][child.attributes.id] = {
                 fill: child.attributes.fill,
                 path: child.attributes.d,
                 remainder: true,
-                index: this.loadedSVGs[this.charName][this.toName].childrenById[child.attributes.id].index
+                index: this.loadedSVGs[charName][toName].childrenById[child.attributes.id].index
               }
             }
-            this.remainderIndex = remainderIndex;
           }
-          if (this.remainderIndex >= this.toChildren.length) {
-            this.forRemainderPathLooping = false
-            this.pathIndex = 0
-            this.pathLimit = 10
-            this.pathKeys = Object.keys(this.pathsToBake)
-            this.bakedFrames = []
-            this._bakeLoop()
-          }
-        }
-
-        _bakeLoop() {
-          this.bakeLooping = true
-          let limit = this.pathIndex + this.pathLimit - 1
-          for (let pathIndex = this.pathIndex; pathIndex <= limit && pathIndex < this.pathKeys.length; pathIndex++) {
-            let pathName = this.pathKeys[pathIndex]
-            let { fromPath, toPath, fromFill, toFill, remainder, additional, index } = this.pathsToBake[pathName]
+          let bakedFrames = []
+          for (let pathName in pathsToBake) {
+            let { fromPath, toPath, fromFill, toFill, remainder, additional, index } = pathsToBake[pathName]
             let morph = interpolate(fromPath, toPath, { maxSegmentLength: detail })
             // for the prefered amount of shapeframes between the keyframes
-            for (let timeframeIndex = 0; timeframeIndex < this.timeframe; timeframeIndex++) {
-              this.bakedFrames[timeframeIndex] = this.bakedFrames[timeframeIndex] || {}
-              let percentage = (1 / (this.timeframe - 1)) * timeframeIndex,
+            for (let timeframeIndex = 0; timeframeIndex < timeframe; timeframeIndex++) {
+              bakedFrames[timeframeIndex] = bakedFrames[timeframeIndex] || {}
+              let percentage = (1 / (timeframe - 1)) * timeframeIndex,
                 newPath, viewBox, fill, fromGrad = false,
                 toGrad = false
               if (fromFill.startsWith('url(#')) {
                 let fromGradKey = fromFill.replace('url(#', '').replace(')', '')
-                fromGrad = this.loadedSVGs[this.charName][remainder ? this.toName : this.fromName].gradientById[fromGradKey]
+                fromGrad = this.loadedSVGs[charName][remainder ? toName : fromName].gradientById[fromGradKey]
               }
               if (toFill.startsWith('url(#')) {
                 let toGradKey = toFill.replace('url(#', '').replace(')', '')
-                toGrad = this.loadedSVGs[this.charName][additional ? this.fromName : this.toName].gradientById[toGradKey]
+                toGrad = this.loadedSVGs[charName][additional ? fromName : toName].gradientById[toGradKey]
               }
               // strange morph behavior at 0 and 1
               if (percentage === 0) {
                 newPath = fromPath
-                viewBox = `0 0 ${this.fromViewBox.x} ${this.fromViewBox.y}`
+                viewBox = `0 0 ${fromViewBox.x} ${fromViewBox.y}`
                 if (fromGrad || toGrad) {
-                  fill = lerpGradient(fromGrad || fromFill, toGrad || toFIll, percentage, this.charName)
+                  fill = lerpGradient(fromGrad || fromFill, toGrad || toFIll, percentage, charName)
                 } else {
                   fill = fromFill
                 }
-                if (!this.statics[this.charName][this.fromName].viewBox)
-                  this.statics[this.charName][this.fromName].viewBox = viewBox
+                if (!this.statics[charName][fromName].viewBox)
+                  this.statics[charName][fromName].viewBox = viewBox
               } else if (percentage === 1) {
                 newPath = toPath
-                viewBox = `0 0 ${this.toViewBox.x} ${this.toViewBox.y}`
+                viewBox = `0 0 ${toViewBox.x} ${toViewBox.y}`
                 if (fromGrad || toGrad) {
-                  fill = lerpGradient(fromGrad || fromFill, toGrad || toFIll, percentage, this.charName)
+                  fill = lerpGradient(fromGrad || fromFill, toGrad || toFIll, percentage, charName)
                 } else {
                   fill = toFill
                 }
-                if (!this.statics[this.charName][this.toName].viewBox)
-                  this.statics[this.charName][this.toName].viewBox = viewBox
+                if (!this.statics[charName][toName].viewBox)
+                  this.statics[charName][toName].viewBox = viewBox
               } else {
-                let x = this.fromViewBox.x + ((this.toViewBox.x - this.fromViewBox.x) * percentage)
-                let y = this.fromViewBox.y + ((this.toViewBox.y - this.fromViewBox.y) * percentage)
+                let x = fromViewBox.x + ((toViewBox.x - fromViewBox.x) * percentage)
+                let y = fromViewBox.y + ((toViewBox.y - fromViewBox.y) * percentage)
                 viewBox = `0 0 ${x} ${y}`
                 if (fromGrad || toGrad) {
-                  fill = lerpGradient(fromGrad || fromFill, toGrad || toFIll, percentage, this.charName)
+                  fill = lerpGradient(fromGrad || fromFill, toGrad || toFIll, percentage, charName)
                 } else {
                   fill = lerpColor(fromFill, toFill, percentage)
                 }
                 // minimize floating of new shapes
                 if (fromPath.endsWith('-0.1 0 z')) {
-                  let lim = ~~(this.timeframe / 2)
+                  let lim = ~~(timeframe / 2)
                   if (timeframeIndex < lim) {
                     percentage = 0
                   } else {
@@ -323,7 +257,7 @@ export default class Loader {
                   }
                 }
                 if (toPath.endsWith('-0.1 0 z')) {
-                  let lim = ~~(this.timeframe / 10)
+                  let lim = ~~(timeframe / 10)
                   if (timeframeIndex < lim) {
                     percentage = (timeframeIndex - lim) / lim
                   } else {
@@ -332,24 +266,23 @@ export default class Loader {
                 }
                 newPath = morph(percentage)
               }
-              this.bakedFrames[timeframeIndex][pathName] = {
+              bakedFrames[timeframeIndex][pathName] = {
                 path: newPath,
                 fill,
                 remainder,
                 additional,
                 index
               }
-              this.bakedFrames[timeframeIndex].viewBox = viewBox
+              bakedFrames[timeframeIndex].viewBox = viewBox
             }
           }
-          this.bakes[this.charName][this.animName].push(this.bakedFrames)
+          this.bakes[charName][animName].push(bakedFrames)
         }
       }
+    }
+  }
+}
 
-      // let loader = new Loader()
-      // export default loader
-      // export default onmessage = function (e) {
-      //   debugger
-      //   console.log('Worker: Message received from main script')
-      //   let args = e.data
-      // }
+let loader = new Loader()
+
+export default loader

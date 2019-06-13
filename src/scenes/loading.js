@@ -4,15 +4,16 @@ import style from './loading.css'
 
 import input from 'util/input'
 import updater from 'util/updater'
-import loader from 'util/workers/loaderWorker'
-import WebWorker from 'util/workers/workerSetup'
 import dispatch from 'util/dispatch'
 import animator from 'util/animator'
 import cache from 'util/cache'
 
 import SVGWrap from 'components/ui/svgwrap'
 
-let loaderWorker = new Worker(new loader)
+import WebWorker from 'util/workers/workerSetup'
+import onmessage from 'util/workers/onmessage'
+
+let loaderWorker = new WebWorker(onmessage)
 
 export default class Loading extends Component {
   constructor(props) {
@@ -51,7 +52,7 @@ export default class Loading extends Component {
   }
 
   componentWillMount() {
-    if (!cache.SVGS.loadedSVGs.loadingCircle) {
+    if (!cache.SVGS.loadedSVGs || !cache.SVGS.loadedSVGs.loadingCircle) {
       return
     }
     this.setState({
@@ -76,14 +77,17 @@ export default class Loading extends Component {
           type: 'loop'
         })
       setTimeout(() => {
-        self.postMessage('load')
+        //self.postMessage('load')
+        debugger
+        loaderWorker.postMessage('load')
+        debugger
         loaderWorker.addEventListener('message', event => {
           debugger
           this.setState({
             count: event.data.length
           })
         })
-      }, 250)
+      }, 550)
     }
   }
 
