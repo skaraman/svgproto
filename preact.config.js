@@ -1,4 +1,5 @@
 const path = require('path')
+const WorkerPlugin = require('worker-plugin')
 const aliases = {
   svg: 'src/assets/svg',
   components: 'src/components',
@@ -14,9 +15,7 @@ function setAliases(config) {
 }
 export default function (config, env, helpers) {
   setAliases(config)
-  //console.log(config.module.loaders);
-  // config.output.libraryExport = 'default'
-  // console.log(config.output)
-  config.module.loaders[4].include.push(path.resolve(__dirname, 'src/scenes'))
-  config.module.loaders[5].exclude.push(path.resolve(__dirname, 'src/scenes'))
+  config.plugins.push(new WorkerPlugin)
+  config.module.rules[4].include.push(path.resolve(__dirname, 'src/scenes'))
+  config.module.rules[5].exclude.push(path.resolve(__dirname, 'src/scenes'))
 }

@@ -10,10 +10,7 @@ import cache from 'util/cache'
 
 import SVGWrap from 'components/ui/svgwrap'
 
-import WebWorker from 'util/workers/workerSetup'
-import onmessage from 'util/workers/onmessage'
-
-let loaderWorker = new WebWorker(onmessage)
+let loaderWorker = new Worker('util/workers/loaderWorker', { type: 'module'})
 
 export default class Loading extends Component {
   constructor(props) {
@@ -77,16 +74,15 @@ export default class Loading extends Component {
           type: 'loop'
         })
       setTimeout(() => {
-        //self.postMessage('load')
-        debugger
-        loaderWorker.postMessage('load')
-        debugger
-        loaderWorker.addEventListener('message', event => {
-          debugger
-          this.setState({
-            count: event.data.length
-          })
-        })
+        loaderWorker.onmessage = event => {
+          if (event.data && !event.data.msg) {
+            return
+          }
+          if (event.data.msg === 'loadingComplete') {
+            dispatch.send('loadingComplete', event.data.data)
+          }
+        }
+        loaderWorker.postMessage({msg:'load', data: cache.META_DATA.manifest})
       }, 550)
     }
   }
@@ -119,8 +115,9 @@ export default class Loading extends Component {
     }
   }
 
-  loadingComplete() {
+  loadingComplete(SVGS) {
     console.log('Loading Completed')
+    cache.SVGS = SVGS
     dispatch.send('fadeInBS', () => {
       this._exit()
       route(cache.META_DATA.exitRoute)

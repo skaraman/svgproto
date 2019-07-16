@@ -1,8 +1,8 @@
 import cache from 'util/cache'
 import { interpolate } from 'flubber'
 import * as Rematrix from 'rematrix'
+import polyfill from 'util/polyfill'
 
-import dispatch from 'util/dispatch'
 import { lerpColor, lerpGradient, objectAssignAll } from 'util/helpers'
 
 // test manifest, tobe defined by scene files
@@ -13,16 +13,8 @@ const detail = 1
 class Loader {
   constructor() {
     //self.addEventListener('message', (e) => this.onmessage(e, this))
-    cache.SVGS = { loadedSVGs: {}, bakes: {}, statics: {} }
+    this.SVGS = { loadedSVGs: {}, bakes: {}, statics: {} }
   }
-
-  // onmessage(event, target) {
-  //   console.log('Worker: Message received from main script')
-  //   let args = event.data
-  //   if (!args.type && this[args]) {
-  //     if (args === 'load') this.load(cache.META_DATA.manifest)
-  //   }
-  // }
 
   load(manifest) {
     this.manifestData = mainManifest[manifest]
@@ -38,10 +30,10 @@ class Loader {
 
   _cache() {
     // TODO - fix 'default' in statics in loader.js
-    cache.SVGS.loadedSVGs = objectAssignAll(cache.SVGS.loadedSVGs, this.loadedSVGs)
-    cache.SVGS.bakes = objectAssignAll(cache.SVGS.bakes, this.bakes)
-    cache.SVGS.statics = objectAssignAll(cache.SVGS.statics, this.statics)
-    postMessage('loadingComplete')
+    this.SVGS.loadedSVGs = objectAssignAll(this.SVGS.loadedSVGs, this.loadedSVGs)
+    this.SVGS.bakes = objectAssignAll(this.SVGS.bakes, this.bakes)
+    this.SVGS.statics = objectAssignAll(this.SVGS.statics, this.statics)
+    postMessage({msg:'loadingComplete', data: this.SVGS})
   }
 
   loadSVGs() {
@@ -49,7 +41,7 @@ class Loader {
       let svgSet = this.svgs[setKey]
       this.loadedSVGs[setKey] = {}
       svgLoop: for (let svgKey in svgSet) {
-        if (cache.SVGS.loadedSVGs[setKey] && cache.SVGS.loadedSVGs[setKey][svgKey]) {
+        if (this.SVGS.loadedSVGs[setKey] && this.SVGS.loadedSVGs[setKey][svgKey]) {
           console.log(`already cached svg ${svgKey}`)
           continue svgLoop
         }
@@ -285,4 +277,13 @@ class Loader {
 
 let loader = new Loader()
 
-export default loader
+addEventListener('message', event => {
+  if (event.data && !event.data.msg) {
+    return
+  }
+  switch (event.data.msg) {
+    case 'load':
+      loader.load(event.data.data)
+      break;
+  }
+})
