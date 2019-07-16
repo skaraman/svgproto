@@ -19,7 +19,6 @@ export default class MainMenu extends Component {
     this.testscene = this.testscene.bind(this)
     this.pocademo = this.pocademo.bind(this)
     this.settings = this.settings.bind(this)
-    this._setAnimationState = this._setAnimationState.bind(this)
     updater.register('mainMenuUpdate', this.update, this)
     this.deltaTime = 0
   }
@@ -38,7 +37,6 @@ export default class MainMenu extends Component {
     event.stopPropagation()
     animator.play({
       svg: this.state.actors.testObject.svg,
-      stateCallback: this._setAnimationState,
       name: 'testAnimation',
       type: 'pingpong'
     })
@@ -47,17 +45,7 @@ export default class MainMenu extends Component {
     // dispatch.send('saveEntity', 'mainMenuBox', this.state.box)
   }
 
-  _setAnimationState(svg) {
-    let rSvg = this.state.actors[svg.id]
-    this.setState({
-      actors: {
-        [svg.id]: {
-          ...rSvg,
-          svg
-        }
-      }
-    })
-  }
+
 
   settings() {
     this._exit()
@@ -118,7 +106,7 @@ export default class MainMenu extends Component {
         }
       }
     })
-    animator.setStaticFrame(this.state.actors.testObject.svg, this._setAnimationState, 'box')
+    animator.setStaticFrame(this.state.actors.testObject.svg, 'box')
   }
 
   render({}, { actors }) {

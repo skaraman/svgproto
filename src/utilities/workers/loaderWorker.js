@@ -12,7 +12,16 @@ const detail = 1
 
 class Loader {
   constructor() {
-    //self.addEventListener('message', (e) => this.onmessage(e, this))
+    self.addEventListener('message', event => {
+      if (event.data && !event.data.msg) {
+        return
+      }
+      switch (event.data.msg) {
+      case 'load':
+        this.load(event.data.data)
+        break;
+      }
+    })
     this.SVGS = { loadedSVGs: {}, bakes: {}, statics: {} }
   }
 
@@ -33,7 +42,7 @@ class Loader {
     this.SVGS.loadedSVGs = objectAssignAll(this.SVGS.loadedSVGs, this.loadedSVGs)
     this.SVGS.bakes = objectAssignAll(this.SVGS.bakes, this.bakes)
     this.SVGS.statics = objectAssignAll(this.SVGS.statics, this.statics)
-    postMessage({msg:'loadingComplete', data: this.SVGS})
+    postMessage({ msg: 'loadingComplete', data: this.SVGS })
   }
 
   loadSVGs() {
@@ -276,14 +285,3 @@ class Loader {
 }
 
 let loader = new Loader()
-
-addEventListener('message', event => {
-  if (event.data && !event.data.msg) {
-    return
-  }
-  switch (event.data.msg) {
-    case 'load':
-      loader.load(event.data.data)
-      break;
-  }
-})

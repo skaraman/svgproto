@@ -2,6 +2,7 @@ import { h, Component } from 'preact'
 import style from './stage.css'
 import classnames from 'classnames'
 
+import animator from 'util/animator'
 import hierarchy from 'util/hierarchy'
 import SvgWrap from 'components/ui/svgwrap'
 
@@ -10,6 +11,18 @@ export default class Stage extends Component {
     super(props)
     this.initialRender = false
     this.entities = {}
+    animator.setStateCallback(this._setAnimationState)
+  }
+
+  _setAnimationState(svg) {
+    debugger
+    let stateSvg = this.state[svg.id]
+    this.setState({
+      [svg.id]: {
+        ...stateSvg,
+        svg
+      }
+    })
   }
 
   _setState() {

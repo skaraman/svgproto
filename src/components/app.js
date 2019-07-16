@@ -37,22 +37,22 @@ export default class App extends Component {
   render({}, { isDev }) {
     return (
       <div id='app'>
-                {
-                    isDev && <DevUI />
-                }
-                <BlackScreen/>
-                <Router onChange={this.handleRoute}>
-                    <Loading path='/' />
-                    <TestScene path='/testscene' />
-                    <MainMenu path='/mainmenu' />
-                    <Settings path='/settings' />
-                    <PocaDemo path='/pocademo' />
-                </Router>
-                <DnD/>
-                {
-                    isDev && <Terminal/>
-                }
-            </div>
+        {
+          isDev && <DevUI />
+        }
+        <BlackScreen/>
+        <Router onChange={this.handleRoute}>
+          <Loading path='/' />
+          <TestScene path='/testscene' />
+          <MainMenu path='/mainmenu' />
+          <Settings path='/settings' />
+          <PocaDemo path='/pocademo' />
+        </Router>
+        <DnD/>
+        {
+          isDev && <Terminal/>
+        }
+      </div>
     )
   }
 }

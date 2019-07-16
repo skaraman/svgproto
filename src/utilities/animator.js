@@ -12,6 +12,10 @@ class Animator {
     this.additionalsRemoved = {}
   }
 
+  setStateCallback(cb) {
+    this.stateCallback = cb
+  }
+
   update(dt) {
     if (this.notRealTime) {
       if (dt > 16) {
@@ -120,7 +124,7 @@ class Animator {
         ani.svg.attributes.oldViewBox = ani.svg.attributes.viewBox
         ani.svg.attributes.viewBox = ani.bakes[ani.frameIndex][ani.loopIndex].viewBox
       }
-      ani.stateCallback(ani.svg, ani.fitToWidth)
+      this.stateCallback(ani.svg, ani.fitToWidth)
       ani.loopIndex += this.rtMultiplier
       if (ani.loopIndex >= ani.bakes[ani.frameIndex].length) {
         ani.frameIndex++
@@ -150,7 +154,7 @@ class Animator {
     }
   }
 
-  play({ svg, stateCallback, name = 'default', type = 'regular', fitToWidth = true, from, to }) {
+  play({ svg, name = 'default', type = 'regular', fitToWidth = true, from, to }) {
     let repeat = 0
     let bakes = cache.SVGS.bakes[svg.id][name]
     if (type === 'reverse') {
@@ -173,7 +177,6 @@ class Animator {
       bakes = bakes.slice(from, to)
     }
     this.animationsById[name] = {
-      stateCallback,
       type,
       fitToWidth,
       bakes,
@@ -195,7 +198,7 @@ class Animator {
     delete this.animationsById[name]
   }
 
-  setStaticFrame(svg, stateCallback, frame = 'default') {
+  setStaticFrame(svg, frame = 'default') {
     let staticSVG = cache.SVGS.statics[svg.id][frame]
     for (let id in svg.childrenById) {
       let child = svg.childrenById[id]
@@ -207,7 +210,7 @@ class Animator {
       child.attributes.fill = staticSVG[child.attributes.id].fill
     }
     svg.attributes.viewBox = staticSVG.viewBox
-    stateCallback(svg)
+    this.stateCallback(svg)
   }
 }
 

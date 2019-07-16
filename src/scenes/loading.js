@@ -10,7 +10,7 @@ import cache from 'util/cache'
 
 import SVGWrap from 'components/ui/svgwrap'
 
-let loaderWorker = new Worker('util/workers/loaderWorker', { type: 'module'})
+let loaderWorker = new Worker('util/workers/loaderWorker', { type: 'module' })
 
 export default class Loading extends Component {
   constructor(props) {
@@ -69,7 +69,6 @@ export default class Loading extends Component {
       if (this.state.loadingCircle)
         animator.play({
           svg: this.state.loadingCircle.svg,
-          stateCallback: this._setAnimationState,
           name: 'loadingAnimation',
           type: 'loop'
         })
@@ -82,19 +81,9 @@ export default class Loading extends Component {
             dispatch.send('loadingComplete', event.data.data)
           }
         }
-        loaderWorker.postMessage({msg:'load', data: cache.META_DATA.manifest})
+        loaderWorker.postMessage({ msg: 'load', data: cache.META_DATA.manifest })
       }, 550)
     }
-  }
-
-  _setAnimationState(svg) {
-    let stateSvg = this.state[svg.id]
-    this.setState({
-      [svg.id]: {
-        ...stateSvg,
-        svg
-      }
-    })
   }
 
   update(dt) {
