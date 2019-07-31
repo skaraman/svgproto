@@ -7,6 +7,7 @@ import updater from 'util/updater'
 import dispatch from 'util/dispatch'
 import animator from 'util/animator'
 import cache from 'util/cache'
+import { bindAll } from 'util/helpers'
 
 import SVGWrap from 'components/ui/svgwrap'
 
@@ -20,7 +21,7 @@ export default class Loading extends Component {
 		this.on = [
 			dispatch.on('loadingComplete', this.loadingComplete, this)
 		]
-		this._setAnimationState = this._setAnimationState.bind(this)
+		bindAll(this, ['_exit', '_setAnimationState'])
 		this.deltaTime = 0
 		this.notRealTime = true
 		this.it = 0
