@@ -1,27 +1,33 @@
 .mainWrap {
-  position: relative;
-  height: 100%;
-  overflow: hidden;
+	position: relative;
+	height: 100%;
+	overflow: hidden;
 }
 
 .mainMenu {
-  padding: 56px 20px;
-  height: 170px;
-  width: 100%;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+	z-index: 15;
+	padding: 56px 20px;
+	color: black;
 }
 
+
 .mainMenuText {
-  font-size: 22px;
+	font-size: 22px;
 }
 
 div.stage {
-  background: #444;
-  height: calc(100% - 170px);
-  position: relative;
-  top: auto;
-  left: auto;
+	background: #444;
+	height: calc(100% - 170px);
+	position: relative;
+	top: auto;
+	left: auto;
 }
 
 .box {
-  width: 300px;
+	width: 300px;
 }

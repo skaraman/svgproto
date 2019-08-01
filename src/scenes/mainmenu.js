@@ -9,7 +9,6 @@ import dispatch from 'util/dispatch'
 import updater from 'util/updater'
 import { bindAll } from 'util/helpers'
 
-
 import Button from 'components/ui/button'
 import Stage from 'components/game/stage'
 
