@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'
 import style from './svgwrap.css'
 
-export default class Loading extends Component {
+export default class SVGWrap extends Component {
 
 	componentDidMount() {
 		debugger

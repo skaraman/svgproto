@@ -12,6 +12,10 @@ import { bindAll } from 'util/helpers'
 import SVGWrap from 'components/ui/svgwrap'
 
 let loaderWorker = new Worker('util/workers/loaderWorker', { type: 'module' })
+loaderWorker.onmessage = event => {
+	if (event.data && !event.data.msg) return
+	if (event.data.msg === 'loadingComplete') dispatch.send('loadingComplete', event.data.data)
+}
 
 export default class Loading extends Component {
 	constructor(props) {
@@ -21,7 +25,7 @@ export default class Loading extends Component {
 		this.on = [
 			dispatch.on('loadingComplete', this.loadingComplete, this)
 		]
-		bindAll(this, ['_exit', '_setAnimationState'])
+		bindAll(this, ['_exit'])
 		this.deltaTime = 0
 		this.notRealTime = true
 		this.it = 0
@@ -50,16 +54,6 @@ export default class Loading extends Component {
 		console.log('loadingKeydown', event)
 	}
 
-	_setAnimationState(svg) {
-		let stateSvg = this.state[svg.id]
-		this.setState({
-			[svg.id]: {
-				...stateSvg,
-				svg
-			}
-		})
-	}
-
 	componentWillMount() {
 		if (!cache.SVGS.loadedSVGs || !cache.SVGS.loadedSVGs.loadingCircle) {
 			return
@@ -84,10 +78,6 @@ export default class Loading extends Component {
 				name: 'loadingAnimation',
 				type: 'loop'
 			})
-		loaderWorker.onmessage = event => {
-			if (event.data && !event.data.msg) return
-			if (event.data.msg === 'loadingComplete') dispatch.send('loadingComplete', event.data.data)
-		}
 		loaderWorker.postMessage({ msg: 'load', data: cache.META_DATA.manifest })
 	}
 

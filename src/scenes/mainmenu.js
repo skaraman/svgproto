@@ -16,7 +16,7 @@ export default class MainMenu extends Component {
 	constructor(props) {
 		super(props)
 		input.register('keydown', 'mainMenuKeydown', this.keydown, this)
-		bindAll(this, ['play', 'testscene', 'pocademo', 'settings', '_setAnimationState'])
+		bindAll(this, ['play', 'testscene', 'pocademo', 'settings'])
 		updater.register('mainMenuUpdate', this.update, this)
 		this.deltaTime = 0
 	}
@@ -39,16 +39,6 @@ export default class MainMenu extends Component {
 			type: 'pingpong'
 		})
 		this.playMotions = true
-	}
-
-	_setAnimationState(svg) {
-		let stateSvg = this.state[svg.id]
-		this.setState({
-			[svg.id]: {
-				...stateSvg,
-				svg
-			}
-		})
 	}
 
 	settings() {
@@ -110,7 +100,15 @@ export default class MainMenu extends Component {
 				}
 			}
 		})
-		animator.setStaticFrame(this.state.actors.testObject.svg, 'box', this._setAnimationState)
+		animator.setStaticFrame(this.state.actors.testObject.svg, 'box', (svg) => {
+			let stateSvg = this.state[svg.id]
+			this.setState({
+				[svg.id]: {
+					...stateSvg,
+					svg
+				}
+			})
+		})
 	}
 
 	render({}, { actors }) {
