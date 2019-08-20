@@ -57,20 +57,20 @@ class Loader {
 				let path = svgSet[svgKey]
 				let svg = this.loadedSVGs[setKey][svgKey] = require(`!!preact-svg-loader!svg/${path}.svg`).default({})
 				this.loadedSVGs[setKey][svgKey].id = setKey
-				svg.childrenById = {}
-				// TODO: adobe illustrator = .children[svg.children.length - 1].children[0].children
+				svg.props.childrenById = {}
+				// TODO: adobe illustrator = .children[svg.props.children.length - 1].children[0].children
 				// desired = .children
-				for (let pathIndex = 0; pathIndex < svg.children[svg.children.length - 1].children[0].children.length; pathIndex++) {
-					let path = svg.children[svg.children.length - 1].children[0].children[pathIndex]
-					svg.childrenById[path.attributes.id] = path
-					svg.childrenById[path.attributes.id].index = pathIndex
+				for (let pathIndex = 0; pathIndex < svg.props.children[svg.props.children.length - 1].children[0].children.length; pathIndex++) {
+					let path = svg.props.children[svg.props.children.length - 1].children[0].children[pathIndex]
+					svg.props.childrenById[path.attributes.id] = path
+					svg.props.childrenById[path.attributes.id].index = pathIndex
 				}
 				svg.gradientById = {}
-				if (svg.children.length < 3) {
+				if (svg.props.children.length < 3) {
 					continue
 				}
-				for (let gradIndex = 0; gradIndex < svg.children[0].children.length; gradIndex++) {
-					let grad = svg.children[0].children[gradIndex]
+				for (let gradIndex = 0; gradIndex < svg.props.children[0].children.length; gradIndex++) {
+					let grad = svg.props.children[0].children[gradIndex]
 					if (!grad.children[0] && grad.attributes['xlink:href']) {
 						let refGradKey = grad.attributes['xlink:href'].replace('#', '')
 						let gradRef = svg.gradientById[refGradKey]
