@@ -12,9 +12,9 @@ export default class BlackScreen extends Component {
             dispatch.on('fadeOutBS', this.fadeOut, this)
         ]
     this.opacity = 1
-    this.setState({
+    this.state = { 
       opacity: this.opacity
-    })
+    }
     this.callback = null
   }
 
