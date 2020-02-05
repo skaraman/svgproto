@@ -30,14 +30,14 @@ class Animator {
 				let path = ani.bakes[ani.frameIndex][ani.loopIndex][pathKey],
 					// TODO: adobe illustrator = .children[svg.children.length - 1].children[0].children
 					// desired = .children
-					children = ani.svg.children[ani.svg.children.length - 1].children[0].children,
+					children = ani.svg.props.children[ani.svg.props.children.length - 1].props.children[0].props.children,
 					childrenById = ani.svg.childrenById,
 					child
 				if (path.remainder && !this.remaindersRendered[ani.name][pathKey]) {
 					children.insert(path.index, child = {
 						props: {
-							id: pathKey,
-							children: [] 
+							id: pathKey, 
+							children: []
 						},
 						key: undefined,
 						nodeName: "path"
@@ -75,8 +75,8 @@ class Animator {
 						ani.svg.gradientById[path.fill.id].props.x2 = path.fill.x2
 						ani.svg.gradientById[path.fill.id].props.y1 = path.fill.y1
 						ani.svg.gradientById[path.fill.id].props.y2 = path.fill.y2
-						ani.svg.gradientById[path.fill.id].children[0].props['stop-color'] = path.fill.color1
-						ani.svg.gradientById[path.fill.id].children[1].props['stop-color'] = path.fill.color2
+						ani.svg.gradientById[path.fill.id].props.children[0].props['stop-color'] = path.fill.color1
+						ani.svg.gradientById[path.fill.id].props.children[1].props['stop-color'] = path.fill.color2
 						if (path.fill.gradientTransform)
 							ani.svg.gradientById[path.fill.id].props.gradientTransform = path.fill.gradientTransform
 					} else {
@@ -87,37 +87,35 @@ class Animator {
 								x1: path.fill.x1,
 								x2: path.fill.x2,
 								y1: path.fill.y1,
-								y2: path.fill.y2,
-								children: [
-									{
-										props: {
-											'stop-color': path.fill.color1,
-											'offset': 0,
-											children: [],
-										},
-										
-										key: undefined,
-										nodeName: "stop"
-									},
-									{
-										props: {
-											'stop-color': path.fill.color2,
-											'offset': 1,
-											children: []
-										},
-										key: undefined,
-										nodeName: "stop"
-									}
-								],
+								y2: path.fill.y2
 							},
-							index: ani.svg.children[0].children.length,
+							children: [
+								{
+									props: {
+										'stop-color': path.fill.color1,
+										'offset': 0,
+										children: []
+									},
+									key: undefined,
+									nodeName: "stop"
+								},
+								{
+									props: {
+										'stop-color': path.fill.color2,
+										'offset': 1,
+										children: []
+									},
+									key: undefined,
+									nodeName: "stop"
+								}
+							],
+							index: ani.svg.props.children[0].props.children.length,
 							key: undefined,
 							nodeName: "linearGradient"
 						}
-						if (path.fill.gradientTransform) {
+						if (path.fill.gradientTransform)
 							newGrad.props.gradientTransform = path.fill.gradientTransform
-						}
-						ani.svg.children[0].children.push(newGrad)
+						ani.svg.props.children[0].props.children.push(newGrad)
 						ani.svg.gradientById[path.fill.id] = newGrad
 					}
 					child.props.fill = `url(#${path.fill.id})`

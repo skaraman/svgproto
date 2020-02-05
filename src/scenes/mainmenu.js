@@ -89,10 +89,11 @@ export default class MainMenu extends Component {
 
 	componentWillMount() {
 		dispatch.send('fadeOutBS')
+		let svg = cache.SVGS.loadedSVGs.testObject.box
 		this.setState({
 			actors: {
 				testObject: {
-					svg: cache.SVGS.loadedSVGs.testObject.box,
+					svg,
 					width: 300,
 					x: 0,
 					y: 0,
@@ -100,12 +101,17 @@ export default class MainMenu extends Component {
 				}
 			}
 		})
+<<<<<<< HEAD
 		animator.setStaticFrame(cache.SVGS.loadedSVGs.testObject.box, 'box', (svg) => {
 			let stateSvg = this.state[svg.id]
+=======
+		animator.setStaticFrame(svg, 'box', (_svg) => {
+			let stateSvg = this.state[_svg.id]
+>>>>>>> 37295b08ee016fc6be58d95180863dbaf78b123c
 			this.setState({
-				[svg.id]: {
+				[_svg.id]: {
 					...stateSvg,
-					svg
+					_svg
 				}
 			})
 		})

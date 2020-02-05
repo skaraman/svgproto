@@ -116,6 +116,7 @@ function _fixGrads(grad1, grad2) {
 			x2: otherGrad.props.x2,
 			y1: otherGrad.props.y1,
 			y2: otherGrad.props.y2,
+<<<<<<< HEAD
 			id: otherGrad.props.id
 		},
 		children: [{
@@ -128,9 +129,24 @@ function _fixGrads(grad1, grad2) {
 				props: {
 					'stop-color': grad,
 					'offset': 1
+=======
+			id: otherGrad.props.id,
+			children: [
+				{
+					props: {
+						'stop-color': grad,
+						'offset': 0
+					}
+				},
+				{
+					props: {
+						'stop-color': grad,
+						'offset': 1
+					}
+>>>>>>> 37295b08ee016fc6be58d95180863dbaf78b123c
 				}
-			}
-		],
+			]
+		},
 		key: undefined,
 		nodeName: 'linearGradient'
 	}

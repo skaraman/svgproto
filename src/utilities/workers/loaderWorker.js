@@ -6,7 +6,7 @@ import polyfill from 'util/polyfill'
 import { lerpColor, lerpGradient, objectAssignAll } from 'util/helpers'
 
 // test manifest, tobe defined by scene files
-import mainManifest from 'data/_manifest'
+import mainManifest from 'data/scenes/_manifest'
 
 const detail = 1
 
@@ -50,7 +50,7 @@ class Loader {
 			let svgSet = this.svgs[setKey]
 			this.loadedSVGs[setKey] = {}
 			svgLoop: for (let svgKey in svgSet) {
-				if (this.SVGS.loadedSVGs[setKey] && this.SVGS.loadedSVGs[setKey][svgKey]) {
+				if (this.SVGS.loadedSVGs[setKey] && this.SVGS.loadedSVGs[tKey][svgKey]) {
 					console.log(`already cached svg ${svgKey}`)
 					continue svgLoop
 				}
@@ -74,8 +74,8 @@ class Loader {
 					if (!grad.props.children[0] && grad.props['xlink:href']) {
 						let refGradKey = grad.props['xlink:href'].replace('#', '')
 						let gradRef = svg.gradientById[refGradKey]
-						let child1 = { ...gradRef.children[0] }
-						let child2 = { ...gradRef.children[1] }
+						let child1 = { ...gradRef.props.children[0] }
+						let child2 = { ...gradRef.props.children[1] }
 						grad.props.children = [child1, child2]
 						grad.props.gradientUnits = 'userSpaceOnUse'
 						if (!grad.props.gradientTransform && gradRef.props.gradientTransform) grad.props.gradientTransform = gradRef.props.gradientTransform
