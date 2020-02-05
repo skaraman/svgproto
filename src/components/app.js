@@ -27,13 +27,23 @@ export default class App extends Component {
 	}
 
 	componentWillMount() {
+<<<<<<< HEAD
 		this.setState({
-			isDev,
+			isDev
 		})
+=======
+		this._deferDebug()
+>>>>>>> 37295b08ee016fc6be58d95180863dbaf78b123c
 		cache.META_DATA.manifest = 'loadingScene'
 		cache.META_DATA.exitRoute = '/mainmenu'
 	}
 
+	_deferDebug() {
+		this.setState((prevState) => ({
+			isDev
+		}))
+	}
+	
 	render({}, { isDev }) {
 		return (
 			<div id='app'>

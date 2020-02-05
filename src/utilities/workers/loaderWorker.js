@@ -1,12 +1,12 @@
 import cache from 'util/cache'
 import { interpolate } from 'flubber'
-import * as Rematrix from 'rematrix'
+import * as rematrix from 'rematrix'
 import polyfill from 'util/polyfill'
 
 import { lerpColor, lerpGradient, objectAssignAll } from 'util/helpers'
 
 // test manifest, tobe defined by scene files
-import mainManifest from 'data/_manifest'
+import mainManifest from 'data/scenes/_manifest'
 
 const detail = 1
 
@@ -19,7 +19,7 @@ class Loader {
 			switch (event.data.msg) {
 			case 'load':
 				this.load(event.data.data)
-				break;
+				break
 			}
 		})
 		this.SVGS = { loadedSVGs: {}, bakes: {}, statics: {} }
@@ -50,43 +50,43 @@ class Loader {
 			let svgSet = this.svgs[setKey]
 			this.loadedSVGs[setKey] = {}
 			svgLoop: for (let svgKey in svgSet) {
-				if (this.SVGS.loadedSVGs[setKey] && this.SVGS.loadedSVGs[setKey][svgKey]) {
+				if (this.SVGS.loadedSVGs[setKey] && this.SVGS.loadedSVGs[tKey][svgKey]) {
 					console.log(`already cached svg ${svgKey}`)
 					continue svgLoop
 				}
-				let path = svgSet[svgKey]
-				let svg = this.loadedSVGs[setKey][svgKey] = require(`!!preact-svg-loader!svg/${path}.svg`).default({})
+				let location = svgSet[svgKey]
+				let svg = this.loadedSVGs[setKey][svgKey] = require(`!!preact-svg-loader!svg/${location}.svg`).default({})
 				this.loadedSVGs[setKey][svgKey].id = setKey
 				svg.childrenById = {}
-				// TODO: adobe illustrator = .children[svg.children.length - 1].children[0].children
+				// TODO: adobe illustrator = .children[svg.props.children.length - 1].children[0].children
 				// desired = .children
-				for (let pathIndex = 0; pathIndex < svg.children[svg.children.length - 1].children[0].children.length; pathIndex++) {
-					let path = svg.children[svg.children.length - 1].children[0].children[pathIndex]
-					svg.childrenById[path.attributes.id] = path
-					svg.childrenById[path.attributes.id].index = pathIndex
+				for (let pathIndex = 0; pathIndex < svg.props.children[svg.props.children.length - 1].props.children[0].props.children.length; pathIndex++) {
+					let path = svg.props.children[svg.props.children.length - 1].props.children[0].props.children[pathIndex]
+					svg.childrenById[path.props.id] = path
+					svg.childrenById[path.props.id].index = pathIndex
 				}
 				svg.gradientById = {}
-				if (svg.children.length < 3) {
+				if (svg.props.children.length < 3) {
 					continue
 				}
-				for (let gradIndex = 0; gradIndex < svg.children[0].children.length; gradIndex++) {
-					let grad = svg.children[0].children[gradIndex]
-					if (!grad.children[0] && grad.attributes['xlink:href']) {
-						let refGradKey = grad.attributes['xlink:href'].replace('#', '')
+				for (let gradIndex = 0; gradIndex < svg.props.children[0].props.children.length; gradIndex++) {
+					let grad = svg.props.children[0].props.children[gradIndex]
+					if (!grad.props.children[0] && grad.props['xlink:href']) {
+						let refGradKey = grad.props['xlink:href'].replace('#', '')
 						let gradRef = svg.gradientById[refGradKey]
-						let child1 = { ...gradRef.children[0] }
-						let child2 = { ...gradRef.children[1] }
-						grad.children = [child1, child2]
-						grad.attributes.gradientUnits = 'userSpaceOnUse'
-						if (!grad.attributes.gradientTransform && gradRef.attributes.gradientTransform) grad.attributes.gradientTransform = gradRef.attributes.gradientTransform
-						if (!grad.attributes.x1 && gradRef.attributes.x1) grad.attributes.x1 = gradRef.attributes.x1
-						if (!grad.attributes.x2 && gradRef.attributes.x2) grad.attributes.x2 = gradRef.attributes.x2
-						if (!grad.attributes.y1 && gradRef.attributes.y1) grad.attributes.y1 = gradRef.attributes.y1
-						if (!grad.attributes.y2 && gradRef.attributes.y2) grad.attributes.y2 = gradRef.attributes.y2
-						delete grad.attributes['xlink:href']
+						let child1 = { ...gradRef.props.children[0] }
+						let child2 = { ...gradRef.props.children[1] }
+						grad.props.children = [child1, child2]
+						grad.props.gradientUnits = 'userSpaceOnUse'
+						if (!grad.props.gradientTransform && gradRef.props.gradientTransform) grad.props.gradientTransform = gradRef.props.gradientTransform
+						if (!grad.props.x1 && gradRef.props.x1) grad.props.x1 = gradRef.props.x1
+						if (!grad.props.x2 && gradRef.props.x2) grad.props.x2 = gradRef.props.x2
+						if (!grad.props.y1 && gradRef.props.y1) grad.props.y1 = gradRef.props.y1
+						if (!grad.props.y2 && gradRef.props.y2) grad.props.y2 = gradRef.props.y2
+						delete grad.props['xlink:href']
 					}
-					svg.gradientById[grad.attributes.id] = grad
-					svg.gradientById[grad.attributes.id].index = gradIndex
+					svg.gradientById[grad.props.id] = grad
+					svg.gradientById[grad.props.id].index = gradIndex
 				}
 			}
 		}
@@ -102,23 +102,23 @@ class Loader {
 				let frames = anims[animName]
 				for (let frameIndex = 0; frameIndex < frames.length; frameIndex++) {
 					let { from: fromName, to: toName, timeframe } = frames[frameIndex]
-					let fromChildren = this.loadedSVGs[charName][fromName].children[this.loadedSVGs[charName][fromName].children.length - 1].children[0].children.copy()
+					let fromChildren = Object.values(this.loadedSVGs[charName][fromName].childrenById)
 					let fromViewBox = {
-						x: this.loadedSVGs[charName][fromName].attributes.viewBox.split(' ')[2] * 1,
-						y: this.loadedSVGs[charName][fromName].attributes.viewBox.split(' ')[3] * 1
+						x: this.loadedSVGs[charName][fromName].props.viewBox.split(' ')[2] * 1,
+						y: this.loadedSVGs[charName][fromName].props.viewBox.split(' ')[3] * 1
 					}
-					let toChildren = this.loadedSVGs[charName][toName].children[this.loadedSVGs[charName][toName].children.length - 1].children[0].children.copy()
+					let toChildren = Object.values(this.loadedSVGs[charName][toName].childrenById)
 					let toViewBox = {
-						x: this.loadedSVGs[charName][toName].attributes.viewBox.split(' ')[2] * 1,
-						y: this.loadedSVGs[charName][toName].attributes.viewBox.split(' ')[3] * 1
+						x: this.loadedSVGs[charName][toName].props.viewBox.split(' ')[2] * 1,
+						y: this.loadedSVGs[charName][toName].props.viewBox.split(' ')[3] * 1
 					}
 					this.statics[charName][fromName] = this.statics[charName][fromName] || {}
 					this.statics[charName][toName] = this.statics[charName][toName] || {}
 					let pathsToBake = {}
 					fromNameLoop: for (let fromIndex = 0; fromIndex < fromChildren.length; fromIndex++) {
-						let { id: fromPathName, d: fromPath, fill: fromFill } = fromChildren[fromIndex].attributes
+						let { id: fromPathName, d: fromPath, fill: fromFill } = fromChildren[fromIndex].props
 						for (let toIndex = 0; toIndex < toChildren.length; toIndex++) {
-							let { id: toPathName, d: toPath, fill: toFill } = toChildren[toIndex].attributes
+							let { id: toPathName, d: toPath, fill: toFill } = toChildren[toIndex].props
 							if (fromPathName === toPathName) {
 								// matching paths
 								pathsToBake[fromPathName] = {
@@ -175,28 +175,28 @@ class Loader {
 					for (let remainderIndex = 0; remainderIndex < toChildren.length; remainderIndex++) {
 						let child = toChildren[remainderIndex]
 						let reMreplace = /M(\d*\.?\d*,\d*\.?\d*)[a-zA-Z,.]/g
-						let test = reMreplace.exec(child.attributes.d)
+						let test = reMreplace.exec(child.props.d)
 						if (test === null) {
 							reMreplace = /M(\d*\.?\d*\.?\d*)[a-zA-Z,.]/g
-							test = reMreplace.exec(child.attributes.d)
+							test = reMreplace.exec(child.props.d)
 						}
 						let mReplace = `M${test[1]}`
 						let fillerPath = cache.FILLER_PATH.replace('M -0.1 -0.1', mReplace)
-						pathsToBake[child.attributes.id] = {
-							toFill: child.attributes.fill,
-							toPath: child.attributes.d,
-							fromFill: child.attributes.fill,
+						pathsToBake[child.props.id] = {
+							toFill: child.props.fill,
+							toPath: child.props.d,
+							fromFill: child.props.fill,
 							fromPath: fillerPath,
 							remainder: true,
-							index: this.loadedSVGs[charName][toName].childrenById[child.attributes.id].index
+							index: this.loadedSVGs[charName][toName].childrenById[child.props.id].index
 
 						}
 						if (!this.statics[charName][toName].viewBox) {
-							this.statics[charName][toName][child.attributes.id] = {
-								fill: child.attributes.fill,
-								path: child.attributes.d,
+							this.statics[charName][toName][child.props.id] = {
+								fill: child.props.fill,
+								path: child.props.d,
 								remainder: true,
-								index: this.loadedSVGs[charName][toName].childrenById[child.attributes.id].index
+								index: this.loadedSVGs[charName][toName].childrenById[child.props.id].index
 							}
 						}
 					}

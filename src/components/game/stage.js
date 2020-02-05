@@ -10,8 +10,6 @@ import SvgWrap from 'components/ui/svgwrap'
 export default class Stage extends Component {
 	constructor(props) {
 		super(props)
-		this.initialRender = false
-		this.entities = {}
 		bindAll(this, ['_setAnimationState'])
 		animator.setStateCallback(this._setAnimationState)
 	}
@@ -27,29 +25,25 @@ export default class Stage extends Component {
 	}
 
 	_setState() {
-		let paths = hierarchy.getPaths()
-		let grads = hierarchy.getGradients()
-		this.entities = hierarchy.getEntities()
+		let groups = hierarchy.getGroups()
+		let grads = hierarchy.getGrads()
 		this.setState({
-			paths,
+			groups,
 			grads
 		})
 	}
 
+	componentWillMount() {
+		debugger
+		hierarchy.add(this.props.children)
+	}
+
 	componentWillReceiveProps(props, context) {
-		let svgs = props.children[0]
-		hierarchy.update(svgs)
+		hierarchy.update(props.children)
 		this._setState()
 	}
 
-	render({ children, class: additionalClass }, { paths, grads }) {
-		if (this.initialRender === false) {
-			hierarchy.clear()
-			hierarchy.add(children[0])
-			this._setState()
-			this.initialRender = true
-			return
-		}
+	render({ class: additionalClass }, { groups, grads }) {
 		return (
 			<div class={classnames(style.stage, additionalClass)}>
 				<svg class={style.svgStage} style={{transform: 'scaleY(-1)'}} viewBox={`0 0 ${window.innerWidth} ${window.innerHeight}`}>
@@ -57,38 +51,35 @@ export default class Stage extends Component {
 						grads.map((v) => {
 							return (
 								<linearGradient
-									gradientUnits={v.attributes.gradientUnits}
-									id={v.attributes.id + '_' + v.entity}
-									x1={v.attributes.x1}
-									x2={v.attributes.x2}
-									y1={v.attributes.y1}
-									y2={v.attributes.y2}
+									gradientUnits={v.props.gradientUnits}
+									id={v.props.id + '_' + v.entity}
+									x1={v.props.x1}
+									x2={v.props.x2}
+									y1={v.props.y1}
+									y2={v.props.y2}
 								>
 									<stop
-										offset={v.children[0].attributes.offset}
-										stop-color={v.children[0].attributes['stop-color']}
+										offset={v.props.children[0].props.offset}
+										stop-color={v.props.children[0].props['stop-color']}
 									/>
 									<stop
-										offset={v.children[1].attributes.offset}
-										stop-color={v.children[1].attributes['stop-color']}
+										offset={v.props.children[1].props.offset}
+										stop-color={v.props.children[1].props['stop-color']}
 									/>
 								</linearGradient>
 							)
 						})
 					}
 					{
-						paths.map((v) => {
-							let data = this.entities[v.entity]
-							let translate = `translate(${data.x}, ${data.y})`
-							let scale = `scale(${data.scale})`
-							let rotate = `rotate(${data.rotation})`
+						groups.map((v) => {
+							debugger
 							return (
-								<g id={v.attributes.id} class={style.translate} style={{transform: translate}}>
+								<g id={v.props.id} class={style.translate} style={{transform: translate}}>
 									<g class={style.scale} style={{transform: scale}}>
 										<g class={style.rotate} style={{transform: rotate}}>
 											<path
-												d={v.attributes.d}
-												fill={v.attributes.fill}
+												d={v.props.d}
+												fill={v.props.fill}
 
 											/>
 										</g>

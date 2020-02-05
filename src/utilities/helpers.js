@@ -62,26 +62,26 @@ function lerpColor(color1, color2, amount) {
 
 // Gradient
 function lerpGradient(grad1, grad2, amount, idMod = '') {
-	if (!grad1.attributes || !grad2.attributes) {
+	if (!grad1.props || !grad2.props) {
 		let grads = _fixGrads(grad1, grad2)
 		grad1 = grads.grad1
 		grad2 = grads.grad2
 	}
-	let x1 = ((grad2.attributes.x1 - grad1.attributes.x1) * amount) + (grad1.attributes.x1 * 1)
-	let x2 = ((grad2.attributes.x2 - grad1.attributes.x2) * amount) + (grad1.attributes.x2 * 1)
-	let y1 = ((grad2.attributes.y1 - grad1.attributes.y1) * amount) + (grad1.attributes.y1 * 1)
-	let y2 = ((grad2.attributes.y2 - grad1.attributes.y2) * amount) + (grad1.attributes.y2 * 1)
-	let id = grad1.attributes.id + (idMod ? '_' + idMod : '')
+	let x1 = ((grad2.props.x1 - grad1.props.x1) * amount) + (grad1.props.x1 * 1)
+	let x2 = ((grad2.props.x2 - grad1.props.x2) * amount) + (grad1.props.x2 * 1)
+	let y1 = ((grad2.props.y1 - grad1.props.y1) * amount) + (grad1.props.y1 * 1)
+	let y2 = ((grad2.props.y2 - grad1.props.y2) * amount) + (grad1.props.y2 * 1)
+	let id = grad1.props.id + (idMod ? '_' + idMod : '')
 	let color1 = null
-	if (grad1.children[0]) color1 = lerpColor(
-		grad1.children[0].attributes['stop-color'] || '#000',
-		grad2.children[0].attributes['stop-color'] || '#000',
+	if (grad1.props.children[0]) color1 = lerpColor(
+		grad1.props.children[0].props['stop-color'] || '#000',
+		grad2.props.children[0].props['stop-color'] || '#000',
 		amount
 	)
 	let color2 = null
-	if (grad2.children[1]) color2 = lerpColor(
-		grad1.children[1].attributes['stop-color'] || '#000',
-		grad2.children[1].attributes['stop-color'] || '#000',
+	if (grad2.props.children[1]) color2 = lerpColor(
+		grad1.props.children[1].props['stop-color'] || '#000',
+		grad2.props.children[1].props['stop-color'] || '#000',
 		amount
 	)
 	let fillObj = {
@@ -93,16 +93,16 @@ function lerpGradient(grad1, grad2, amount, idMod = '') {
 		color2,
 		id,
 	}
-	if (grad1.attributes.gradientTransform)
+	if (grad1.props.gradientTransform)
 		// to do lerp gradientTransform?? matrix + rotate
-		fillObj.gradientTransform = grad1.attributes.gradientTransform
+		fillObj.gradientTransform = grad1.props.gradientTransform
 	return fillObj
 }
 
 function _fixGrads(grad1, grad2) {
-	let grad
+	let grad, otherGrad
 	let flip = 1
-	if (!grad1.attributes) {
+	if (!grad1.props) {
 		grad = grad1
 		otherGrad = grad2
 	} else {
@@ -111,31 +111,47 @@ function _fixGrads(grad1, grad2) {
 		otherGrad = grad1
 	}
 	grad = {
-		attributes: {
-			x1: otherGrad.attributes.x1,
-			x2: otherGrad.attributes.x2,
-			y1: otherGrad.attributes.y1,
-			y2: otherGrad.attributes.y2,
-			id: otherGrad.attributes.id
+		props: {
+			x1: otherGrad.props.x1,
+			x2: otherGrad.props.x2,
+			y1: otherGrad.props.y1,
+			y2: otherGrad.props.y2,
+<<<<<<< HEAD
+			id: otherGrad.props.id
 		},
 		children: [{
-				attributes: {
+				props: {
 					'stop-color': grad,
 					'offset': 0
 				}
 			},
 			{
-				attributes: {
+				props: {
 					'stop-color': grad,
 					'offset': 1
+=======
+			id: otherGrad.props.id,
+			children: [
+				{
+					props: {
+						'stop-color': grad,
+						'offset': 0
+					}
+				},
+				{
+					props: {
+						'stop-color': grad,
+						'offset': 1
+					}
+>>>>>>> 37295b08ee016fc6be58d95180863dbaf78b123c
 				}
-			}
-		],
+			]
+		},
 		key: undefined,
 		nodeName: 'linearGradient'
 	}
-	if (otherGrad.attributes.gradientTransform) {
-		grad.attributes.gradientTransform = otherGrad.attributes.gradientTransform
+	if (otherGrad.props.gradientTransform) {
+		grad.props.gradientTransform = otherGrad.props.gradientTransform
 	}
 	return {
 		grad1: flip === 1 ? grad : otherGrad,

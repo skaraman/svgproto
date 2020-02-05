@@ -30,13 +30,15 @@ class Animator {
 				let path = ani.bakes[ani.frameIndex][ani.loopIndex][pathKey],
 					// TODO: adobe illustrator = .children[svg.children.length - 1].children[0].children
 					// desired = .children
-					children = ani.svg.children[ani.svg.children.length - 1].children[0].children,
+					children = ani.svg.props.children[ani.svg.props.children.length - 1].props.children[0].props.children,
 					childrenById = ani.svg.childrenById,
 					child
 				if (path.remainder && !this.remaindersRendered[ani.name][pathKey]) {
 					children.insert(path.index, child = {
-						attributes: { id: pathKey },
-						children: [],
+						props: {
+							id: pathKey, 
+							children: []
+						},
 						key: undefined,
 						nodeName: "path"
 					})
@@ -65,21 +67,21 @@ class Animator {
 				if (path.path.endsWith(' -0.1 0 z')) {
 					path.path = ''
 				}
-				child.attributes.d = path.path
+				child.props.d = path.path
 				if (path.fill.id) {
 					if (ani.svg.gradientById[path.fill.id]) {
-						ani.svg.gradientById[path.fill.id].attributes.id = path.fill.id
-						ani.svg.gradientById[path.fill.id].attributes.x1 = path.fill.x1
-						ani.svg.gradientById[path.fill.id].attributes.x2 = path.fill.x2
-						ani.svg.gradientById[path.fill.id].attributes.y1 = path.fill.y1
-						ani.svg.gradientById[path.fill.id].attributes.y2 = path.fill.y2
-						ani.svg.gradientById[path.fill.id].children[0].attributes['stop-color'] = path.fill.color1
-						ani.svg.gradientById[path.fill.id].children[1].attributes['stop-color'] = path.fill.color2
+						ani.svg.gradientById[path.fill.id].props.id = path.fill.id
+						ani.svg.gradientById[path.fill.id].props.x1 = path.fill.x1
+						ani.svg.gradientById[path.fill.id].props.x2 = path.fill.x2
+						ani.svg.gradientById[path.fill.id].props.y1 = path.fill.y1
+						ani.svg.gradientById[path.fill.id].props.y2 = path.fill.y2
+						ani.svg.gradientById[path.fill.id].props.children[0].props['stop-color'] = path.fill.color1
+						ani.svg.gradientById[path.fill.id].props.children[1].props['stop-color'] = path.fill.color2
 						if (path.fill.gradientTransform)
-							ani.svg.gradientById[path.fill.id].attributes.gradientTransform = path.fill.gradientTransform
+							ani.svg.gradientById[path.fill.id].props.gradientTransform = path.fill.gradientTransform
 					} else {
 						let newGrad = {
-							attributes: {
+							props: {
 								gradientUnits: 'userSpaceOnUse',
 								id: path.fill.id,
 								x1: path.fill.x1,
@@ -87,42 +89,43 @@ class Animator {
 								y1: path.fill.y1,
 								y2: path.fill.y2
 							},
-							children: [{
-									attributes: {
+							children: [
+								{
+									props: {
 										'stop-color': path.fill.color1,
-										'offset': 0
+										'offset': 0,
+										children: []
 									},
-									children: [],
 									key: undefined,
 									nodeName: "stop"
 								},
 								{
-									attributes: {
+									props: {
 										'stop-color': path.fill.color2,
-										'offset': 1
+										'offset': 1,
+										children: []
 									},
-									children: [],
 									key: undefined,
 									nodeName: "stop"
 								}
 							],
-							index: ani.svg.children[0].children.length,
+							index: ani.svg.props.children[0].props.children.length,
 							key: undefined,
 							nodeName: "linearGradient"
 						}
 						if (path.fill.gradientTransform)
-							newGrad.attributes.gradientTransform = path.fill.gradientTransform
-						ani.svg.children[0].children.push(newGrad)
+							newGrad.props.gradientTransform = path.fill.gradientTransform
+						ani.svg.props.children[0].props.children.push(newGrad)
 						ani.svg.gradientById[path.fill.id] = newGrad
 					}
-					child.attributes.fill = `url(#${path.fill.id})`
+					child.props.fill = `url(#${path.fill.id})`
 				} else {
-					child.attributes.fill = path.fill
+					child.props.fill = path.fill
 				}
 			}
 			if (ani.fitToWidth) {
-				ani.svg.attributes.oldViewBox = ani.svg.attributes.viewBox
-				ani.svg.attributes.viewBox = ani.bakes[ani.frameIndex][ani.loopIndex].viewBox
+				ani.svg.props.oldViewBox = ani.svg.props.viewBox
+				ani.svg.props.viewBox = ani.bakes[ani.frameIndex][ani.loopIndex].viewBox
 			}
 			this.stateCallback(ani.svg, ani.fitToWidth)
 			ani.loopIndex += this.rtMultiplier
@@ -191,10 +194,7 @@ class Animator {
 	}
 
 	kill(name) {
-		this.animations.splice(
-			this.animations.indexOf(this.animationsById[name]),
-			1
-		)
+		this.animations.splice(this.animations.indexOf(this.animationsById[name]), 1)
 		delete this.animationsById[name]
 	}
 
@@ -203,13 +203,13 @@ class Animator {
 		for (let id in svg.childrenById) {
 			let child = svg.childrenById[id]
 			if (!staticSVG[id]) {
-				child.attributes.d = ''
+				child.props.d = ''
 				continue
 			}
-			child.attributes.d = staticSVG[child.attributes.id].path
-			child.attributes.fill = staticSVG[child.attributes.id].fill
+			child.props.d = staticSVG[child.props.id].path
+			child.props.fill = staticSVG[child.props.id].fill
 		}
-		svg.attributes.viewBox = staticSVG.viewBox
+		svg.props.viewBox = staticSVG.viewBox
 		if (!this.stateCallback) stateCallback(svg)
 		if (this.stateCallback) this.stateCallback(svg)
 	}
