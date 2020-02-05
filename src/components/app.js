@@ -28,7 +28,7 @@ export default class App extends Component {
 
 	componentWillMount() {
 		this.setState({
-			isDev,
+			isDev
 		})
 		cache.META_DATA.manifest = 'loadingScene'
 		cache.META_DATA.exitRoute = '/mainmenu'

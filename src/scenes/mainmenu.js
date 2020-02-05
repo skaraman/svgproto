@@ -100,7 +100,7 @@ export default class MainMenu extends Component {
 				}
 			}
 		})
-		animator.setStaticFrame(this.state.actors.testObject.svg, 'box', (svg) => {
+		animator.setStaticFrame(cache.SVGS.loadedSVGs.testObject.box, 'box', (svg) => {
 			let stateSvg = this.state[svg.id]
 			this.setState({
 				[svg.id]: {
