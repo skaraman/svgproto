@@ -3,7 +3,4 @@ class Combo {
 
   }
 }
-
-module.exports = {
-  combo: new Combo
-}
+export default new Combo

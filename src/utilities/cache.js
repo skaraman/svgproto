@@ -1,5 +1,5 @@
 // new cache
-module.exports = {
+export let cache = {
   GAME_DATA: {},
   USER_PREFERENCES: {},
   META_DATA: {},

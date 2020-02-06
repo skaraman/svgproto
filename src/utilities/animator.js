@@ -1,4 +1,4 @@
-import cache from 'util/cache'
+import { cache } from 'util/cache'
 import updater from 'util/updater'
 
 class Animator {

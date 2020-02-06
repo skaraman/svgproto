@@ -1,10 +1,10 @@
-function bindAll(ring, o) {
+export function bindAll(ring, o) {
 	for (let odx = 0; odx < o.length; odx++) {
 		ring[o[odx]] = ring[o[odx]].bind(ring)
 	}
 }
 
-function arraysToUniqueObj() {
+export function arraysToUniqueObj() {
 	if (!arguments) return null
 	var output = {}
 	for (let j = 0; j < arguments.length; j++) {
@@ -19,7 +19,7 @@ function arraysToUniqueObj() {
 	return output
 }
 
-function objectAssignAll(target, source) {
+export function objectAssignAll(target, source) {
 	for (let key in source) {
 		let value = source[key]
 		if (typeof value === 'object' && typeof target[key] === 'object') {
@@ -31,7 +31,7 @@ function objectAssignAll(target, source) {
 }
 
 //HEX Color
-function lerpColor(color1, color2, amount) {
+export function lerpColor(color1, color2, amount) {
 	if (!color1.startsWith('#') && !color2.startsWith('#')) {
 		if (color1 === 'none' || color2 === 'none') return 'none'
 		console.warn('use #HEXFMT')
@@ -61,7 +61,7 @@ function lerpColor(color1, color2, amount) {
 }
 
 // Gradient
-function lerpGradient(grad1, grad2, amount, idMod = '') {
+export function lerpGradient(grad1, grad2, amount, idMod = '') {
 	if (!grad1.props || !grad2.props) {
 		let grads = _fixGrads(grad1, grad2)
 		grad1 = grads.grad1
@@ -99,7 +99,7 @@ function lerpGradient(grad1, grad2, amount, idMod = '') {
 	return fillObj
 }
 
-function _fixGrads(grad1, grad2) {
+export function _fixGrads(grad1, grad2) {
 	let grad, otherGrad
 	let flip = 1
 	if (!grad1.props) {
@@ -116,20 +116,6 @@ function _fixGrads(grad1, grad2) {
 			x2: otherGrad.props.x2,
 			y1: otherGrad.props.y1,
 			y2: otherGrad.props.y2,
-<<<<<<< HEAD
-			id: otherGrad.props.id
-		},
-		children: [{
-				props: {
-					'stop-color': grad,
-					'offset': 0
-				}
-			},
-			{
-				props: {
-					'stop-color': grad,
-					'offset': 1
-=======
 			id: otherGrad.props.id,
 			children: [
 				{
@@ -143,7 +129,6 @@ function _fixGrads(grad1, grad2) {
 						'stop-color': grad,
 						'offset': 1
 					}
->>>>>>> 37295b08ee016fc6be58d95180863dbaf78b123c
 				}
 			]
 		},
@@ -157,12 +142,4 @@ function _fixGrads(grad1, grad2) {
 		grad1: flip === 1 ? grad : otherGrad,
 		grad2: flip === 1 ? otherGrad : grad
 	}
-}
-
-module.exports = {
-	objectAssignAll,
-	arraysToUniqueObj,
-	lerpColor,
-	lerpGradient,
-	bindAll
 }

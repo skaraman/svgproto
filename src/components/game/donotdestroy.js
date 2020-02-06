@@ -2,7 +2,7 @@ import { h, Component } from 'preact'
 import style from './donotdestroy.css'
 
 import dispatch from 'util/dispatch'
-import cache from 'util/cache'
+import { cache }  from 'util/cache'
 
 import SVGWrap from 'components/ui/svgwrap'
 

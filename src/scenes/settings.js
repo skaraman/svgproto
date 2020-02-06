@@ -2,7 +2,7 @@ import { h, Component } from 'preact'
 import style from './settings.css'
 import { route } from 'preact-router'
 
-import cache from 'util/cache'
+import { cache } from 'util/cache'
 import input from 'util/input'
 
 import Button from 'components/ui/button'

@@ -6,7 +6,7 @@ import input from 'util/input'
 import updater from 'util/updater'
 import dispatch from 'util/dispatch'
 import animator from 'util/animator'
-import cache from 'util/cache'
+import { cache } from 'util/cache'
 import { bindAll } from 'util/helpers'
 
 import SVGWrap from 'components/ui/svgwrap'
@@ -54,30 +54,30 @@ export default class Loading extends Component {
 		console.log('loadingKeydown', event)
 	}
 
-	componentWillMount() {
-		if (!cache.SVGS.loadedSVGs || !cache.SVGS.loadedSVGs.loadingCircle) {
-			return
-		}
-		this.setState({
-			loadingCircle: {
-				svg: cache.SVGS.loadedSVGs.loadingCircle['1'],
-				width: '200px',
-				right: '50px',
-				bottom: '50px',
-				rotation: 0
-			}
-		})
-	}
-
 	componentDidMount() {
 		dispatch.send('fadeOutBS')
-		if (!cache.META_DATA.manifest || !cache.META_DATA.exitRoute) return
-		if (this.state.loadingCircle)
+		if (!cache.META_DATA.manifest ||
+			!cache.META_DATA.exitRoute) {
+				throw `Initial loading loop flaw`
+		}
+		if (cache.SVGS.loadedSVGs) {
+			// all subbsequent loading loops should show an animated loading screen
+			let svg = cache.SVGS.loadedSVGs.loadingCircle['1']
+			this.state = {
+				loadingCircle: {
+					svg: svg,
+					width: '200px',
+					right: '50px',
+					bottom: '50px',
+					rotation: 0
+				}
+			}
 			animator.play({
-				svg: this.state.loadingCircle.svg,
+				svg: svg,
 				name: 'loadingAnimation',
 				type: 'loop'
 			})
+		}
 		loaderWorker.postMessage({ msg: 'load', data: cache.META_DATA.manifest })
 	}
 

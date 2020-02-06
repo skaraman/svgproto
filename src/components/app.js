@@ -12,30 +12,22 @@ import Loading from 'scenes/loading'
 import Settings from 'scenes/settings'
 import PocaDemo from 'scenes/pocademo'
 
-import cache from 'util/cache'
+import { cache } from 'util/cache'
 
 const isDev = true
 
 export default class App extends Component {
-
-	/** Gets fired when the route changes.
-	 *	@param {Object} event		'change' event from [preact-router](http://git.io/preact-router)
-	 *	@param {string} event.url	The newly routed URL
-	 */
-	handleRoute = e => {
-		this.currentUrl = e.url
-	}
-
-	componentWillMount() {
-<<<<<<< HEAD
-		this.setState({
+	constructor(props) {
+		super(props)
+		this.state = {
 			isDev
-		})
-=======
-		this._deferDebug()
->>>>>>> 37295b08ee016fc6be58d95180863dbaf78b123c
+		}
 		cache.META_DATA.manifest = 'loadingScene'
 		cache.META_DATA.exitRoute = '/mainmenu'
+	}
+
+	handleRoute = e => {
+		this.currentUrl = e.url
 	}
 
 	_deferDebug() {

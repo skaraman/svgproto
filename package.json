@@ -28,8 +28,8 @@
   "dependencies": {
     "classnames": "^2.2.6",
     "flubber": "^0.4.2",
-    "preact": "^10.1.0",
-    "preact-router": "^3.1.0",
+    "preact": "^10.3.0",
+    "preact-router": "^3.2.1",
     "rematrix": "^0.3.0",
     "svgson": "^3.1.0"
   }

@@ -1,4 +1,4 @@
-import cache from 'util/cache'
+import { cache } from 'util/cache'
 import { interpolate } from 'flubber'
 import * as rematrix from 'rematrix'
 import polyfill from 'util/polyfill'

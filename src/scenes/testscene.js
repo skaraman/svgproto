@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'
 import style from './testscene.css'
 
-import cache from 'util/cache'
+import { cache } from 'util/cache'
 import dispatch from 'util/dispatch'
 import updater from 'util/updater'
 import input from 'util/input'

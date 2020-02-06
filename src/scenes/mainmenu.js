@@ -3,7 +3,7 @@ import style from './mainmenu.css'
 import { route } from 'preact-router'
 
 import animator from 'util/animator'
-import cache from 'util/cache'
+import { cache } from 'util/cache'
 import input from 'util/input'
 import dispatch from 'util/dispatch'
 import updater from 'util/updater'
@@ -101,13 +101,8 @@ export default class MainMenu extends Component {
 				}
 			}
 		})
-<<<<<<< HEAD
-		animator.setStaticFrame(cache.SVGS.loadedSVGs.testObject.box, 'box', (svg) => {
-			let stateSvg = this.state[svg.id]
-=======
 		animator.setStaticFrame(svg, 'box', (_svg) => {
 			let stateSvg = this.state[_svg.id]
->>>>>>> 37295b08ee016fc6be58d95180863dbaf78b123c
 			this.setState({
 				[_svg.id]: {
 					...stateSvg,
