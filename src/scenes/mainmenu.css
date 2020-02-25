@@ -2,32 +2,35 @@
 	position: relative;
 	height: 100%;
 	overflow: hidden;
-}
+	display: flex;
+	flex-direction: column;
 
-.mainMenu {
-	position: absolute;
-	height: 100%;
-	width: 100%;
-	top: 0;
-	left: 0;
-	z-index: 15;
-	padding: 56px 20px;
-	color: black;
-}
+	& .mainMenu {
+		top: 0;
+		left: 0;
+		z-index: 15;
+		padding: 56px 20px;
+		color: #00C34E;
 
+		& ts-button {
+			color: #000000;
+		}
+	}
 
-.mainMenuText {
-	font-size: 22px;
-}
+	& .mainMenuText {
+		font-size: 22px;
+	}
 
-div.stage {
-	background: #444;
-	height: calc(100% - 170px);
-	position: relative;
-	top: auto;
-	left: auto;
-}
+	& .stage {
+		background: #444;
+		height: 100%;
+		position: relative;
+		top: auto;
+		left: auto;
+		overflow: hidden;
+	}
 
-.box {
-	width: 300px;
+	& .box {
+		width: 300px;
+	}
 }

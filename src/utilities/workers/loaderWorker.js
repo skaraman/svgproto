@@ -1,9 +1,7 @@
-import { cache } from 'util/cache'
+import cache from 'util/cache'
 import { interpolate } from 'flubber'
-import * as rematrix from 'rematrix'
 import polyfill from 'util/polyfill'
-
-import { lerpColor, lerpGradient, objectAssignAll } from 'util/helpers'
+import { lerpColor, lerpGradient, objectAssignAll, intParse } from 'util/helpers'
 
 // test manifest, tobe defined by scene files
 import mainManifest from 'data/scenes/_manifest'
@@ -38,7 +36,6 @@ class Loader {
 	}
 
 	_cache() {
-		// TODO - fix 'default' in statics in loader.js
 		this.SVGS.loadedSVGs = objectAssignAll(this.SVGS.loadedSVGs, this.loadedSVGs)
 		this.SVGS.bakes = objectAssignAll(this.SVGS.bakes, this.bakes)
 		this.SVGS.statics = objectAssignAll(this.SVGS.statics, this.statics)
@@ -49,97 +46,132 @@ class Loader {
 		for (let setKey in this.svgs) {
 			let svgSet = this.svgs[setKey]
 			this.loadedSVGs[setKey] = {}
+			this.statics[setKey] = {}
 			svgLoop: for (let svgKey in svgSet) {
+				if (svgKey === 'defaultId') {
+					svgKey = 'defaultName'
+				}
 				if (this.SVGS.loadedSVGs[setKey] && this.SVGS.loadedSVGs[tKey][svgKey]) {
 					console.log(`already cached svg ${svgKey}`)
 					continue svgLoop
 				}
 				let location = svgSet[svgKey]
-				let svg = this.loadedSVGs[setKey][svgKey] = require(`!!preact-svg-loader!svg/${location}.svg`).default({})
+				let svg =
+					this.loadedSVGs[setKey][svgKey] =
+					require(`!!simple-svg-loader!svg/${location}.svg`).default({})
 				this.loadedSVGs[setKey][svgKey].id = setKey
-				svg.childrenById = {}
-				// TODO: adobe illustrator = .children[svg.props.children.length - 1].children[0].children
-				// desired = .children
-				for (let pathIndex = 0; pathIndex < svg.props.children[svg.props.children.length - 1].props.children[0].props.children.length; pathIndex++) {
-					let path = svg.props.children[svg.props.children.length - 1].props.children[0].props.children[pathIndex]
-					svg.childrenById[path.props.id] = path
-					svg.childrenById[path.props.id].index = pathIndex
+				this.statics[setKey][svgKey] = {}
+				// if (!this.statics[setKey].id) {
+				// 	this.statics[setKey].id = setKey
+				// }
+				if (!this.statics[setKey].defaultId) {
+					this.statics[setKey].defaultId = svgKey
 				}
-				svg.gradientById = {}
-				if (svg.props.children.length < 3) {
-					continue
-				}
-				for (let gradIndex = 0; gradIndex < svg.props.children[0].props.children.length; gradIndex++) {
-					let grad = svg.props.children[0].props.children[gradIndex]
-					if (!grad.props.children[0] && grad.props['xlink:href']) {
-						let refGradKey = grad.props['xlink:href'].replace('#', '')
-						let gradRef = svg.gradientById[refGradKey]
-						let child1 = { ...gradRef.props.children[0] }
-						let child2 = { ...gradRef.props.children[1] }
-						grad.props.children = [child1, child2]
-						grad.props.gradientUnits = 'userSpaceOnUse'
-						if (!grad.props.gradientTransform && gradRef.props.gradientTransform) grad.props.gradientTransform = gradRef.props.gradientTransform
-						if (!grad.props.x1 && gradRef.props.x1) grad.props.x1 = gradRef.props.x1
-						if (!grad.props.x2 && gradRef.props.x2) grad.props.x2 = gradRef.props.x2
-						if (!grad.props.y1 && gradRef.props.y1) grad.props.y1 = gradRef.props.y1
-						if (!grad.props.y2 && gradRef.props.y2) grad.props.y2 = gradRef.props.y2
-						delete grad.props['xlink:href']
+
+				let reduceSvgChildrenToPaths = (children) => {
+					for (let childIndex = 0; childIndex < children.length; childIndex++) {
+						let child = children[childIndex]
+						if (child.type === 'g') {
+							reduceSvgChildrenToPaths(child.props.children)
+						}
+						if (child.type === 'path') {
+							let { id, d, fill } = child.props
+							if (fill && fill.startsWith('url(#')) {
+								// bind this gradient to it's svg parent
+								fill = fill.replace('url(#', `url(#${setKey}_${svgKey}_`)
+							}
+							svg.pathsById[id] = {
+								id,
+								d,
+								fill,
+								index: childIndex,
+								indexLength: children.length
+							}
+							if (child.props.children.length) {
+								console.warn('children paths inside paths!?!')
+								reduceSvgChildrenToPaths(child.props.children)
+							}
+						}
 					}
-					svg.gradientById[grad.props.id] = grad
-					svg.gradientById[grad.props.id].index = gradIndex
 				}
+
+				let reduceSvgGradients = (children) => {
+					for (let childIndex = 0; childIndex < children.length; childIndex++) {
+						let child = children[childIndex]
+						if (child.type === 'defs') {
+							let gradients = child.props.children
+							this.statics[setKey][svgKey].grads = this.statics[setKey][svgKey].grads || {}
+							for (let gradIndex = 0; gradIndex < gradients.length; gradIndex++) {
+								let grad = gradients[gradIndex]
+								// bind this gradient to it's svg parent
+								grad.props.id = `${setKey}_${svgKey}_${grad.props.id}`
+								svg.gradientsById[grad.props.id] = grad.props
+							}
+							this.statics[setKey][svgKey].grads = svg.gradientsById
+						}
+					}
+				}
+
+				let [, , width, height] = svg.props.viewBox.split(' ')
+				svg.width = parseInt(width)
+				svg.height = parseInt(height)
+				svg.pathsById = {}
+				svg.gradientsById = {}
+				reduceSvgChildrenToPaths(svg.props.children)
+				reduceSvgGradients(svg.props.children)
 			}
 		}
 	}
 
 	bakeSVGs() {
-		for (let charName in this.manifestAnimData) {
-			let anims = this.manifestAnimData[charName]
-			this.bakes[charName] = {}
-			this.statics[charName] = this.statics[charName] || {}
+		for (let setKey in this.manifestAnimData) {
+			let anims = this.manifestAnimData[setKey]
+			this.bakes[setKey] = {}
 			for (let animName in anims) {
-				this.bakes[charName][animName] = []
+				this.bakes[setKey][animName] = []
 				let frames = anims[animName]
 				for (let frameIndex = 0; frameIndex < frames.length; frameIndex++) {
 					let { from: fromName, to: toName, timeframe } = frames[frameIndex]
-					let fromChildren = Object.values(this.loadedSVGs[charName][fromName].childrenById)
+					let fromChildren = Object.values(this.loadedSVGs[setKey][fromName].pathsById)
 					let fromViewBox = {
-						x: this.loadedSVGs[charName][fromName].props.viewBox.split(' ')[2] * 1,
-						y: this.loadedSVGs[charName][fromName].props.viewBox.split(' ')[3] * 1
+						x: this.loadedSVGs[setKey][fromName].props.viewBox.split(' ')[2] * 1,
+						y: this.loadedSVGs[setKey][fromName].props.viewBox.split(' ')[3] * 1
 					}
-					let toChildren = Object.values(this.loadedSVGs[charName][toName].childrenById)
+					let toChildren = Object.values(this.loadedSVGs[setKey][toName].pathsById)
 					let toViewBox = {
-						x: this.loadedSVGs[charName][toName].props.viewBox.split(' ')[2] * 1,
-						y: this.loadedSVGs[charName][toName].props.viewBox.split(' ')[3] * 1
+						x: this.loadedSVGs[setKey][toName].props.viewBox.split(' ')[2] * 1,
+						y: this.loadedSVGs[setKey][toName].props.viewBox.split(' ')[3] * 1
 					}
-					this.statics[charName][fromName] = this.statics[charName][fromName] || {}
-					this.statics[charName][toName] = this.statics[charName][toName] || {}
+					this.statics[setKey][fromName] = this.statics[setKey][fromName] || {}
+					this.statics[setKey][toName] = this.statics[setKey][toName] || {}
 					let pathsToBake = {}
 					fromNameLoop: for (let fromIndex = 0; fromIndex < fromChildren.length; fromIndex++) {
-						let { id: fromPathName, d: fromPath, fill: fromFill } = fromChildren[fromIndex].props
+						let { id: fromId, d: fromPath, fill: fromFill, index: fromPathIndex } = fromChildren[fromIndex]
 						for (let toIndex = 0; toIndex < toChildren.length; toIndex++) {
-							let { id: toPathName, d: toPath, fill: toFill } = toChildren[toIndex].props
-							if (fromPathName === toPathName) {
+							let { id: toPathName, d: toPath, fill: toFill, index: toPathIndex } = toChildren[toIndex]
+							if (fromId === toPathName) {
 								// matching paths
-								pathsToBake[fromPathName] = {
+								pathsToBake[fromId] = {
 									fromFill,
 									fromPath,
 									toFill,
 									toPath,
-									index: this.loadedSVGs[charName][fromName].childrenById[fromPathName].index
+									index: fromPathIndex
 								}
-								if (!this.statics[charName][fromName].viewBox) {
-									this.statics[charName][fromName][fromPathName] = {
+								if (!this.statics[setKey][fromName].viewBox) {
+									this.statics[setKey][fromName].paths = this.statics[setKey][fromName].paths || {}
+									this.statics[setKey][fromName].paths[fromId] = {
 										fill: fromFill,
-										path: fromPath,
-										index: this.loadedSVGs[charName][fromName].childrenById[fromPathName].index
+										d: fromPath,
+										index: fromPathIndex
 									}
 								}
-								if (!this.statics[charName][toName].viewBox) {
-									this.statics[charName][toName][toPathName] = {
+								if (!this.statics[setKey][toName].viewBox) {
+									this.statics[setKey][toName].paths = this.statics[setKey][toName].paths || {}
+									this.statics[setKey][toName].paths[toPathName] = {
 										fill: toFill,
-										path: toPath,
-										index: this.loadedSVGs[charName][toName].childrenById[toPathName].index
+										d: toPath,
+										index: toPathIndex
 									}
 								}
 								toChildren.splice(toIndex, 1)
@@ -155,48 +187,50 @@ class Loader {
 						}
 						let mReplace = `M${test[1]}`
 						let fillerPath = cache.FILLER_PATH.replace('M -0.1 -0.1', mReplace)
-						pathsToBake[fromPathName] = {
+						pathsToBake[fromId] = {
 							fromFill,
 							fromPath,
 							toPath: fillerPath,
 							toFill: fromFill,
 							additional: true,
-							index: this.loadedSVGs[charName][fromName].childrenById[fromPathName].index
+							index: fromPathIndex
 						}
-						if (!this.statics[charName][fromName].viewBox) {
-							this.statics[charName][fromName][fromPathName] = {
+						if (!this.statics[setKey][fromName].viewBox) {
+							this.statics[setKey][fromName].paths = this.statics[setKey][fromName].paths || {}
+							this.statics[setKey][fromName].paths[fromId] = {
 								fill: fromFill,
-								path: fromPath,
+								d: fromPath,
 								additional: true,
-								index: this.loadedSVGs[charName][fromName].childrenById[fromPathName].index
+								index: fromPathIndex
 							}
 						}
 					}
 					for (let remainderIndex = 0; remainderIndex < toChildren.length; remainderIndex++) {
-						let child = toChildren[remainderIndex]
+						let { d, id, fill } = toChildren[remainderIndex]
 						let reMreplace = /M(\d*\.?\d*,\d*\.?\d*)[a-zA-Z,.]/g
-						let test = reMreplace.exec(child.props.d)
+						let test = reMreplace.exec(d)
 						if (test === null) {
 							reMreplace = /M(\d*\.?\d*\.?\d*)[a-zA-Z,.]/g
-							test = reMreplace.exec(child.props.d)
+							test = reMreplace.exec(d)
 						}
 						let mReplace = `M${test[1]}`
 						let fillerPath = cache.FILLER_PATH.replace('M -0.1 -0.1', mReplace)
-						pathsToBake[child.props.id] = {
-							toFill: child.props.fill,
-							toPath: child.props.d,
-							fromFill: child.props.fill,
+						pathsToBake[id] = {
+							toFill: fill,
+							toPath: d,
+							fromFill: fill,
 							fromPath: fillerPath,
 							remainder: true,
-							index: this.loadedSVGs[charName][toName].childrenById[child.props.id].index
+							index: this.loadedSVGs[setKey][toName].pathsById[id].index
 
 						}
-						if (!this.statics[charName][toName].viewBox) {
-							this.statics[charName][toName][child.props.id] = {
-								fill: child.props.fill,
-								path: child.props.d,
+						if (!this.statics[setKey][toName].viewBox) {
+							this.statics[setKey][toName].paths = this.statics[setKey][toName].paths || {}
+							this.statics[setKey][toName].paths[id] = {
+								fill: fill,
+								d: d,
 								remainder: true,
-								index: this.loadedSVGs[charName][toName].childrenById[child.props.id].index
+								index: this.loadedSVGs[setKey][toName].pathsById[id].index
 							}
 						}
 					}
@@ -212,45 +246,53 @@ class Loader {
 								toGrad = false
 							if (fromFill.startsWith('url(#')) {
 								let fromGradKey = fromFill.replace('url(#', '').replace(')', '')
-								fromGrad = this.loadedSVGs[charName][remainder ? toName : fromName].gradientById[fromGradKey]
+								fromGrad = this.statics[setKey][remainder ? toName : fromName].grads[fromGradKey]
 							}
 							if (toFill.startsWith('url(#')) {
 								let toGradKey = toFill.replace('url(#', '').replace(')', '')
-								toGrad = this.loadedSVGs[charName][additional ? fromName : toName].gradientById[toGradKey]
+								toGrad = this.statics[setKey][additional ? fromName : toName].grads[toGradKey]
 							}
 							// strange morph behavior at 0 and 1
 							if (percentage === 0) {
 								newPath = fromPath
 								viewBox = `0 0 ${fromViewBox.x} ${fromViewBox.y}`
 								if (fromGrad || toGrad) {
-									fill = lerpGradient(fromGrad || fromFill, toGrad || toFIll, percentage, charName)
+									fill = lerpGradient(fromGrad || fromFill, toGrad || toFill, percentage, setKey)
 								} else {
 									fill = fromFill
 								}
-								if (!this.statics[charName][fromName].viewBox)
-									this.statics[charName][fromName].viewBox = viewBox
+								if (!this.statics[setKey][fromName].viewBox) {
+									this.statics[setKey][fromName].viewBox = viewBox
+									let [, , width, height] = viewBox.split(' ')
+									this.statics[setKey][fromName].width = parseInt(width)
+									this.statics[setKey][fromName].height = parseInt(height)
+								}
 							} else if (percentage === 1) {
 								newPath = toPath
 								viewBox = `0 0 ${toViewBox.x} ${toViewBox.y}`
 								if (fromGrad || toGrad) {
-									fill = lerpGradient(fromGrad || fromFill, toGrad || toFIll, percentage, charName)
+									fill = lerpGradient(fromGrad || fromFill, toGrad || toFill, percentage, setKey)
 								} else {
 									fill = toFill
 								}
-								if (!this.statics[charName][toName].viewBox)
-									this.statics[charName][toName].viewBox = viewBox
+								if (!this.statics[setKey][toName].viewBox) {
+									this.statics[setKey][toName].viewBox = viewBox
+									let [, , width, height] = viewBox.split(' ')
+									this.statics[setKey][toName].width = parseInt(width)
+									this.statics[setKey][toName].height = parseInt(height)
+								}
 							} else {
 								let x = fromViewBox.x + ((toViewBox.x - fromViewBox.x) * percentage)
 								let y = fromViewBox.y + ((toViewBox.y - fromViewBox.y) * percentage)
 								viewBox = `0 0 ${x} ${y}`
 								if (fromGrad || toGrad) {
-									fill = lerpGradient(fromGrad || fromFill, toGrad || toFIll, percentage, charName)
+									fill = lerpGradient(fromGrad || fromFill, toGrad || toFill, percentage, setKey)
 								} else {
 									fill = lerpColor(fromFill, toFill, percentage)
 								}
 								// minimize floating of new shapes
 								if (fromPath.endsWith('-0.1 0 z')) {
-									let lim = ~~(timeframe / 2)
+									let lim = parseInt(timeframe / 2)
 									if (timeframeIndex < lim) {
 										percentage = 0
 									} else {
@@ -258,7 +300,7 @@ class Loader {
 									}
 								}
 								if (toPath.endsWith('-0.1 0 z')) {
-									let lim = ~~(timeframe / 10)
+									let lim = parseInt(timeframe / 10)
 									if (timeframeIndex < lim) {
 										percentage = (timeframeIndex - lim) / lim
 									} else {
@@ -268,7 +310,7 @@ class Loader {
 								newPath = morph(percentage)
 							}
 							bakedFrames[timeframeIndex][pathName] = {
-								path: newPath,
+								d: newPath,
 								fill,
 								remainder,
 								additional,
@@ -277,7 +319,7 @@ class Loader {
 							bakedFrames[timeframeIndex].viewBox = viewBox
 						}
 					}
-					this.bakes[charName][animName].push(bakedFrames)
+					this.bakes[setKey][animName].push(bakedFrames)
 				}
 			}
 		}

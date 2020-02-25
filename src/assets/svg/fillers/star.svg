@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 355 366">
+	<defs>
+		<linearGradient id="linear-gradient" x1="120" y1="165" x2="312" y2="165" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#ffffff" />
+			<stop offset="1" />
+		</linearGradient>
+	</defs>
+	<title>star</title>
+	<g id="Layer_2" data-name="Layer 2">
+		<g id="star">
+			<path id="bb22" d="M355,191,237,241,210,366l-83-97L0,282l66-109L14,56l124,29L234,0l10,127Z" fill="blue" />
+			<path id="aa11" d="M312,165c0,29-43,53-96,53s-96-23-96-53,43-53,96-53S312,135,312,165Z" fill="url(#linear-gradient)" />
+			<path id="cc33" d="M122,226a24,24,0,1,1-24-24A24,24,0,0,1,122,226Z" fill="#ffffff" />
+		</g>
+	</g>
+</svg>

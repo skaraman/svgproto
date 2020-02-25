@@ -1,14 +1,12 @@
 import { h, Component } from 'preact'
 import style from './mainmenu.css'
 import { route } from 'preact-router'
-
 import animator from 'util/animator'
-import { cache } from 'util/cache'
+import cache from 'util/cache'
 import input from 'util/input'
 import dispatch from 'util/dispatch'
 import updater from 'util/updater'
 import { bindAll } from 'util/helpers'
-
 import Button from 'components/ui/button'
 import Stage from 'components/game/stage'
 
@@ -29,16 +27,6 @@ export default class MainMenu extends Component {
 
 	keydown(event) {
 		console.log('mainMenuKeydown', event)
-	}
-
-	play(event) {
-		event.stopPropagation()
-		animator.play({
-			svg: this.state.actors.testObject.svg,
-			name: 'testAnimation',
-			type: 'pingpong'
-		})
-		this.playMotions = true
 	}
 
 	settings() {
@@ -87,47 +75,58 @@ export default class MainMenu extends Component {
 		}
 	}
 
-	componentWillMount() {
+	play(event) {
+		event.stopPropagation()
+		animator.play({
+			actor: this.state.actors.testObject,
+			name: 'testAnimation',
+			type: 'pingpong'
+		})
+		// this.playMotions = true
+	}
+
+	componentDidMount() {
 		dispatch.send('fadeOutBS')
-		let svg = cache.SVGS.loadedSVGs.testObject.box
-		this.setState({
-			actors: {
-				testObject: {
+		if (cache.SVGS.statics) {
+			// initilize scene
+			let actorsList = ['testObject'] //, 'testObject3']
+			let actors = {}
+			for (let act of actorsList) {
+				let svg = cache.SVGS.statics[act]
+				actors[act] = {
+					id: act,
 					svg,
-					width: 300,
-					x: 0,
-					y: 0,
-					rotation: 0
+					// setup position in the scene, x and y should be relevant to center of screen
+					transform: {
+						x: 0,
+						y: 0,
+						rotate: 0,
+						scale: 1
+					}
 				}
 			}
-		})
-		animator.setStaticFrame(svg, 'box', (_svg) => {
-			let stateSvg = this.state[_svg.id]
 			this.setState({
-				[_svg.id]: {
-					...stateSvg,
-					_svg
-				}
+				actors
 			})
-		})
+		}
 	}
 
 	render({}, { actors }) {
-		return (
+		return (actors &&
 			<div class={style.mainWrap}>
 				<div class={style.mainMenu}>
 					<div class={style.mainMenuText}>Main Menu</div>
 					<Button
-						text='Start Game'
-						onClick={this.testscene}
+						text='Play Test Animation'
+						onClick={this.play}
 					/>
 					<Button
 						text='Settings'
 						onClick={this.settings}
 					/>
 					<Button
-						text='Play Test Animation'
-						onClick={this.play}
+						text='Test Scene'
+						onClick={this.testscene}
 					/>
 					<Button
 						text='Poca Demo'
@@ -135,8 +134,7 @@ export default class MainMenu extends Component {
 					/>
 					<p>copyright and trademark stuff</p>
 				</div>
-				{
-					actors &&
+				{ actors &&
 					<Stage class={style.stage}>
 						{actors}
 					</Stage>

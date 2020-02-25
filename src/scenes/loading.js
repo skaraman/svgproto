@@ -1,20 +1,22 @@
 import { h, Component } from 'preact'
 import { route } from 'preact-router'
 import style from './loading.css'
-
 import input from 'util/input'
 import updater from 'util/updater'
 import dispatch from 'util/dispatch'
 import animator from 'util/animator'
-import { cache } from 'util/cache'
+import cache from 'util/cache'
 import { bindAll } from 'util/helpers'
-
-import SVGWrap from 'components/ui/svgwrap'
+import Stage from 'components/game/stage'
 
 let loaderWorker = new Worker('util/workers/loaderWorker', { type: 'module' })
 loaderWorker.onmessage = event => {
-	if (event.data && !event.data.msg) return
-	if (event.data.msg === 'loadingComplete') dispatch.send('loadingComplete', event.data.data)
+	if (event.data && !event.data.msg) {
+		return
+	}
+	if (event.data.msg === 'loadingComplete') {
+		dispatch.send('loadingComplete', event.data.data)
+	}
 }
 
 export default class Loading extends Component {
@@ -58,8 +60,10 @@ export default class Loading extends Component {
 		dispatch.send('fadeOutBS')
 		if (!cache.META_DATA.manifest ||
 			!cache.META_DATA.exitRoute) {
-				throw `Initial loading loop flaw`
+			throw `Initial loading loop flaw`
 		}
+		// first loading loop doesn't have any cached SVGs, this should be used as the Initial
+		// black screen during which company logos and loading scenes/aniamtions can be loaded
 		if (cache.SVGS.loadedSVGs) {
 			// all subbsequent loading loops should show an animated loading screen
 			let svg = cache.SVGS.loadedSVGs.loadingCircle['1']
@@ -94,7 +98,9 @@ export default class Loading extends Component {
 				loadingText
 			})
 			this.it++
-			if (this.it >= this.loadingTextArr.length) this.it = 0
+			if (this.it >= this.loadingTextArr.length) {
+				this.it = 0
+			}
 			this.deltaTime = 0
 		}
 	}
@@ -111,7 +117,7 @@ export default class Loading extends Component {
 				{
 					loadingCircle &&
 					<div class={style.stage}>
-						<SVGWrap
+						<Stage
 							origin={{x:0, y:0}}
 							right={loadingCircle.right}
 							bottom={loadingCircle.bottom}
@@ -119,7 +125,7 @@ export default class Loading extends Component {
 							rotation={loadingCircle.rotation}
 						>
 							{loadingCircle.svg}
-						</SVGWrap>
+						</Stage>
 					</div>
 				}
 				<div class={style.effects}>

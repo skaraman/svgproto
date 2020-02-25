@@ -15,6 +15,15 @@ function setAliases(config) {
 }
 
 export default function (config, env, helpers) {
+
+	helpers.getLoadersByName(config, 'postcss-loader').forEach(({ loader }) => {
+		loader.options = {
+			config: {
+				path: path.resolve(__dirname, 'postcss.config.js')
+			}
+		}
+	})
+
 	setAliases(config)
 	config.plugins.push(new WorkerPlugin)
 	config.module.rules[4].include.push(path.resolve(__dirname, 'src/scenes'))

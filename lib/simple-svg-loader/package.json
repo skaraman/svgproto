@@ -1,0 +1,15 @@
+{
+	"author": {
+		"name": "",
+		"email": ""
+	},
+	"dependencies": {
+		"htmlparser": "^1.7.7",
+		"loader-utils": "^1.1.0"
+	},
+	"description": "Load svg files as preact components.",
+	"license": "MIT",
+	"main": "src/index.js",
+	"name": "simple-svg-loader",
+	"version": "0.0.1"
+}

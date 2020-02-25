@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 377 94">
+	<defs></defs>
+	<title>test2</title>
+	<g>
+		<path id="green" d="M377,64H22V0H377Z" fill="#00ff9d" />
+		<path id="red" d="M280,94H106V34H280Z" fill="#FF0000" />
+		<path id="filler" d="M5,44H0V38H5Z" fill="none" />
+	</g>
+</svg>

@@ -1,11 +1,11 @@
-import testScene from 'data/scenes/testscene'
-import pocaDemo from 'data/scenes/pocademo'
-import loadingScene from 'data/scenes/loadingscene'
+import demoScene from 'data/scenes/demo'
+import pocaDemoScene from 'data/scenes/pocademo'
+import mainMenuScene from 'data/scenes/mainmenu'
 
 let manifest = {
-  "loadingScene": loadingScene,
-  "testScene": testScene,
-  "pocaDemo": pocaDemo
+	"mainMenuScene": mainMenuScene,
+	"demoScene": demoScene,
+	"pocaDemoScene": pocaDemoScene
 }
 
 export default manifest

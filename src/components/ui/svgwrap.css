@@ -1,12 +1,5 @@
 .svgwrap {
-  height: auto;
-  position: absolute;
-}
-
-.rotate {
-  height: auto;
-}
-
-.svgwrap .rotate svg {
-  overflow: visible !important;
+	height: auto;
+	position: absolute;
+	overflow: visible !important;
 }

@@ -1,54 +1,46 @@
 class Hierarchy {
-  constructor() {
-    this.clear()
-  }
+	constructor() {
+		this.init()
+	}
 
+	init() {
+		this.entities = []
+		this.gradients = []
+	}
 
-  clear() {
-    this.paths = []
-    this.entities = {}
-    this.gradients = []
-  }
+	add(nodes) {
+		for (let ndx in nodes) {
+			let node = nodes[ndx]
+			let defaultId = node.svg.defaultId
+			let svg = node.svg[defaultId]
+			this.gradients.push({
+				id: ndx,
+				grads: svg.grads
+			})
+			this.entities.push({
+				id: ndx,
+				paths: svg.paths,
+				viewBox: svg.viewBox,
+				width: svg.width,
+				height: svg.height,
+				transform: node.transform
+			})
+		}
+	}
 
-  add(nodes) {
-    for (let ndx in nodes) {
-      let node = nodes[ndx]
-      this.entities[ndx] = node
-      let paths = node.svg.children[node.svg.children.length - 1].children[0].children
-      for (let cdx = 0; cdx < paths.length; cdx++) {
-        let fill = paths[cdx].attributes.fill
-        if (fill.startsWith('url')) {
-          fill = fill.replace(')', `_${ndx})`)
-          paths[cdx].attributes.fill = fill
-        }
-        this.paths.push({ entity: ndx, ...paths[cdx] })
-      }
-      if (node.svg.children.length < 3) continue
-      let grads = node.svg.children[0].children
-      for (let cdx = 0; cdx < grads.length; cdx++) {
-        this.gradients.push({ entity: ndx, ...grads[cdx] })
-      }
-    }
-  }
+	update(nodes) {
+		// TODO compare the nodes here to the entities already existing
+		// add only the new or different ones
+		throw 'no update'
+	}
 
-  update(nodes) {
-    this.paths = []
-    this.gradients = []
-    this.add(nodes)
-  }
+	getGradients() {
+		return this.gradients
+	}
 
-  getPaths() {
-    return this.paths
-  }
-
-  getGradients() {
-    return this.gradients
-  }
-
-  getEntities() {
-    return this.entities
-  }
-
+	getEntities() {
+		return this.entities
+	}
 }
 
 export default new Hierarchy

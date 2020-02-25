@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'
-import style from './testscene.css'
+import style from './demo.css'
 
-import { cache } from 'util/cache'
+import cache from 'util/cache'
 import dispatch from 'util/dispatch'
 import updater from 'util/updater'
 import input from 'util/input'
@@ -9,7 +9,7 @@ import animator from 'util/animator'
 
 import Stage from 'components/game/stage'
 
-export default class TestScene extends Component {
+export default class Demo extends Component {
 	constructor(props) {
 		super(props)
 		this.updateTime = this.updateTime.bind(this)

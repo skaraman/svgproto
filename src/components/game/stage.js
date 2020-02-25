@@ -2,7 +2,6 @@ import { h, Component } from 'preact'
 import style from './stage.css'
 import classnames from 'classnames'
 import { bindAll } from 'util/helpers'
-
 import animator from 'util/animator'
 import hierarchy from 'util/hierarchy'
 import SvgWrap from 'components/ui/svgwrap'
@@ -10,8 +9,17 @@ import SvgWrap from 'components/ui/svgwrap'
 export default class Stage extends Component {
 	constructor(props) {
 		super(props)
-		bindAll(this, ['_setAnimationState'])
+		bindAll(this, ['_setAnimationState', '_setState', 'reportWindowSize'])
 		animator.setStateCallback(this._setAnimationState)
+		window.addEventListener('resize', this.reportWindowSize)
+	}
+
+	reportWindowSize() {
+		let { offsetHeight, offsetWidth } = this.stage
+		this.setState({
+			offsetHeight,
+			offsetWidth
+		})
 	}
 
 	_setAnimationState(svg) {
@@ -25,70 +33,76 @@ export default class Stage extends Component {
 	}
 
 	_setState() {
-		let groups = hierarchy.getGroups()
-		let grads = hierarchy.getGrads()
+		let ents = hierarchy.getEntities()
+		let grads = hierarchy.getGradients()
 		this.setState({
-			groups,
+			ents,
 			grads
 		})
 	}
 
-	componentWillMount() {
-		debugger
+	componentDidMount() {
 		hierarchy.add(this.props.children)
+		this._setState()
+		this.reportWindowSize()
 	}
 
-	componentWillReceiveProps(props, context) {
-		hierarchy.update(props.children)
+	componentDidUpdate(prevProps, prevState) {
+		if (this.props.children === prevProps.children) {
+			return
+		}
+		hierarchy.update(this.props.children)
 		this._setState()
 	}
 
-	render({ class: additionalClass }, { groups, grads }) {
+	render({ class: additionalClass }, { ents, grads, offsetWidth, offsetHeight }) {
 		return (
-			<div class={classnames(style.stage, additionalClass)}>
-				<svg class={style.svgStage} style={{transform: 'scaleY(-1)'}} viewBox={`0 0 ${window.innerWidth} ${window.innerHeight}`}>
-					{
-						grads.map((v) => {
-							return (
-								<linearGradient
-									gradientUnits={v.props.gradientUnits}
-									id={v.props.id + '_' + v.entity}
-									x1={v.props.x1}
-									x2={v.props.x2}
-									y1={v.props.y1}
-									y2={v.props.y2}
-								>
-									<stop
-										offset={v.props.children[0].props.offset}
-										stop-color={v.props.children[0].props['stop-color']}
-									/>
-									<stop
-										offset={v.props.children[1].props.offset}
-										stop-color={v.props.children[1].props['stop-color']}
-									/>
-								</linearGradient>
-							)
-						})
-					}
-					{
-						groups.map((v) => {
-							debugger
-							return (
-								<g id={v.props.id} class={style.translate} style={{transform: translate}}>
-									<g class={style.scale} style={{transform: scale}}>
-										<g class={style.rotate} style={{transform: rotate}}>
-											<path
-												d={v.props.d}
-												fill={v.props.fill}
-
-											/>
-										</g>
-									</g>
-								</g>
-							)
-						})
-					}
-				</svg>
+			<div
+				class={classnames(style.stage, additionalClass)}
+				ref={elem => this.stage = elem}
+			>
+				{ ents && grads &&
+					<svg
+						class={style.svgStage}
+						viewBox={`0 0 ${offsetWidth} ${offsetHeight}`}
+					>
+						<defs>
+							{ grads.map((v) => {
+									if (v.grads) {
+										for (let gradId in v.grads) {
+											let {children, ...rest} = v.grads[gradId]
+											return ( <linearGradient {...rest}>
+												{ children.map(childStop => (
+														<stop
+															offset={childStop.props.offset}
+															stop-color={childStop.props['stop-color']}
+														/>
+													))
+												}
+											</linearGradient>)
+										}
+									}
+								})
+							}
+						</defs>
+						{ ents.map(v => {
+							if (Object.keys(v.paths).length > 0) {
+								return (
+									<SvgWrap
+										id={v.id}
+										stageHeight={offsetHeight}
+										stageWidth={offsetWidth}
+										height={v.height}
+										width={v.width}
+										{...v.transform}
+									>
+										{ Object.keys(v.paths).map(k => (<path {...v.paths[k]} />)) }
+									</SvgWrap>
+								)
+							}
+						})}
+					</svg>
+				}
 			</div>
 		)
 	}

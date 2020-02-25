@@ -1,1 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><defs></defs><title>1</title><g id="Layer_2" data-name="Layer 2"><g id="loading"><path id="bar" data-name="1" d="M90.5,25.5h-1v9h1Z" fill="#ffffff"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+	<defs></defs>
+	<title>1</title>
+	<g id="Layer_2" data-name="Layer 2">
+		<g id="loading">
+			<path id="bar" data-name="1" d="M90.5,25.5h-1v9h1Z" fill="#ffffff" />
+		</g>
+	</g>
+</svg>

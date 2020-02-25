@@ -1,5 +1,6 @@
-import { cache } from 'util/cache'
+import cache from 'util/cache'
 import updater from 'util/updater'
+import { intParse } from 'util/helpers'
 
 class Animator {
 	constructor() {
@@ -19,14 +20,18 @@ class Animator {
 	update(dt) {
 		if (this.notRealTime) {
 			if (dt > 16) {
-				this.rtMultiplier = ~~(dt / 16)
+				this.rtMultiplier = intParse((dt / 16))
 			}
 		}
 		for (let i = 0; i < this.animations.length; i++) {
 			let ani = this.animations[i]
 			this.remaindersRendered[ani.name] = this.remaindersRendered[ani.name] || {}
 			for (let pathKey in ani.bakes[ani.frameIndex][ani.loopIndex]) {
-				if (pathKey === 'viewBox') continue
+				if (pathKey === 'viewBox') {
+					debugger
+					continue
+				}
+				debugger
 				let path = ani.bakes[ani.frameIndex][ani.loopIndex][pathKey],
 					// TODO: adobe illustrator = .children[svg.children.length - 1].children[0].children
 					// desired = .children
@@ -36,7 +41,7 @@ class Animator {
 				if (path.remainder && !this.remaindersRendered[ani.name][pathKey]) {
 					children.insert(path.index, child = {
 						props: {
-							id: pathKey, 
+							id: pathKey,
 							children: []
 						},
 						key: undefined,
@@ -89,8 +94,7 @@ class Animator {
 								y1: path.fill.y1,
 								y2: path.fill.y2
 							},
-							children: [
-								{
+							children: [{
 									props: {
 										'stop-color': path.fill.color1,
 										'offset': 0,
@@ -146,20 +150,20 @@ class Animator {
 								break
 							}
 						}
-					case 'regular':
-					case 'reverse':
-						this.animations.splice(i, 1)
-						i--
-						break
+						case 'regular':
+						case 'reverse':
+							this.animations.splice(i, 1)
+							i--
+							break
 					}
 				}
 			}
 		}
 	}
 
-	play({ svg, name = 'default', type = 'regular', fitToWidth = true, from, to }) {
+	play({ actor, name = 'default', type = 'regular', fitToWidth = true, from, to }) {
 		let repeat = 0
-		let bakes = cache.SVGS.bakes[svg.id][name]
+		let bakes = cache.SVGS.bakes[actor.id][name]
 		if (type === 'reverse') {
 			bakes = bakes.reverse()
 			for (let i = 0; i < bakes.length; i++) {
@@ -172,18 +176,18 @@ class Animator {
 				bakes.push(revArr)
 			}
 		} else if (type.startsWith('repeat')) {
-			repeat = ~~type.replace('repeat', '')
+			repeat = intParse(type.replace('repeat', ''))
 			type = 'repeat'
 		} else if (type === 'frame') {
-			from = ~~from
-			to = ~~to
+			from = intParse(from)
+			to = intParse(to)
 			bakes = bakes.slice(from, to)
 		}
 		this.animationsById[name] = {
 			type,
 			fitToWidth,
 			bakes,
-			svg,
+			actor,
 			name,
 			frameIndex: 0,
 			loopIndex: 0,
@@ -198,10 +202,10 @@ class Animator {
 		delete this.animationsById[name]
 	}
 
-	setStaticFrame(svg, frame = 'default', stateCallback) {
-		let staticSVG = cache.SVGS.statics[svg.id][frame]
-		for (let id in svg.childrenById) {
-			let child = svg.childrenById[id]
+	setStaticFrame(actor, frame = 'default', stateCallback) {
+		let staticSVG = cache.SVGS.statics[actor.id][frame]
+		for (let id in actor.childrenById) {
+			let child = actor.childrenById[id]
 			if (!staticSVG[id]) {
 				child.props.d = ''
 				continue
@@ -209,9 +213,9 @@ class Animator {
 			child.props.d = staticSVG[child.props.id].path
 			child.props.fill = staticSVG[child.props.id].fill
 		}
-		svg.props.viewBox = staticSVG.viewBox
-		if (!this.stateCallback) stateCallback(svg)
-		if (this.stateCallback) this.stateCallback(svg)
+		actor.props.viewBox = staticSVG.viewBox
+		if (!this.stateCallback) stateCallback(actor)
+		if (this.stateCallback) this.stateCallback(actor)
 	}
 }
 
