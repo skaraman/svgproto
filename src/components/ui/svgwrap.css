@@ -1,5 +1,15 @@
-.svgwrap {
-	height: auto;
-	position: absolute;
+.svgWrap {
 	overflow: visible !important;
+}
+
+.translateXY {
+	transform-origin: center;
+}
+
+.scaleRotate {
+	transform-origin: center;
+}
+
+.align {
+	transform: translate(50%, 50%);
 }

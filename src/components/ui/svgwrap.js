@@ -26,28 +26,46 @@ export default class SVGWrap extends Component {
 			rotation = `rotate(${rotate}deg)`
 		}
 		if (isDefined(x)) {
-			let [xOrigin] = origin
-			let [xAnchor] = anchor
-			let realX = ((stageWidth / 2) +
-					((stageWidth / 2) * xOrigin)) -
-				((width / 2) - ((width / 2) * xAnchor))
-			translateX = `translateX(${realX}px)`
+			// let [xOrigin] = origin
+			// let [xAnchor] = anchor
+			// let realX = ((stageWidth / 2) +
+			// 		((stageWidth / 2) * xOrigin)) -
+			// 	((width / 2) - ((width / 2) * xAnchor))
+			translateX = `translateX(${x}px)`
 		}
 		if (isDefined(y)) {
-			let [, yOrigin] = origin
-			let [, yAnchor] = anchor
-			let realY = ((stageHeight / 2) +
-					((stageHeight / 2) * yOrigin)) -
-				((height / 2) - ((height / 2) * yAnchor))
-			translateY = `translateY(${realY}px)`
+			// let [, yOrigin] = origin
+			// let [, yAnchor] = anchor
+			// let realY = ((stageHeight / 2) +
+			// 		((stageHeight / 2) * yOrigin)) -
+			// 	((height / 2) - ((height / 2) * yAnchor))
+			translateY = `translateY(${y}px)`
 		}
 		if (isDefined(scale)) {
 			scalar = `scale(${scale})`
 		}
-		transform = `${rotation} ${translateX} ${translateY} ${scalar}`
 		return (
-			<g class={style.svgwrap} style={{transform: transform}}>
-				{children}
+			<g class={style.align}>
+				<svg
+					x={-width/2}
+					y={-height/2}
+					width={width}
+					height={height}
+					class={style.svgWrap}
+					viewBox={`0 0 ${width} ${height}`}
+				>
+					<g
+						class={style.translateXY}
+						style={{transform: `${translateX} ${translateY}`}}
+					>
+						<g
+							class={style.scaleRotate}
+							style={{transform: `${scalar} ${rotation}`}}
+						>
+							{children}
+						</g>
+					</g>
+				</svg>
 			</g>
 		)
 	}

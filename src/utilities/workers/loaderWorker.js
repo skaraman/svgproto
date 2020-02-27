@@ -80,6 +80,7 @@ class Loader {
 								// bind this gradient to it's svg parent
 								fill = fill.replace('url(#', `url(#${setKey}_${svgKey}_`)
 							}
+							d = d.replace(/d: \.\d*\.\d*/, '0,').replace(/\.\d*/, '')
 							svg.pathsById[id] = {
 								id,
 								d,
