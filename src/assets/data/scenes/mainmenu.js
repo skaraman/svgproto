@@ -37,109 +37,135 @@ const mainMenuScene = {
 		// 	"loadingAnimation": [{
 		// 			"from": "1",
 		// 			"to": "2",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "2",
 		// 			"to": "3",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "3",
 		// 			"to": "4",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "4",
 		// 			"to": "5",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "5",
 		// 			"to": "6",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "6",
 		// 			"to": "7",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "7",
 		// 			"to": "8",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "8",
 		// 			"to": "9",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "9",
 		// 			"to": "10",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "10",
 		// 			"to": "11",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "11",
 		// 			"to": "12",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "12",
 		// 			"to": "13",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "13",
 		// 			"to": "14",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "14",
 		// 			"to": "15",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "15",
 		// 			"to": "16",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		},
 		// 		{
 		// 			"from": "16",
 		// 			"to": "1",
-		// 			"timeframe": 15
+		// 			"fps": 15
 		// 		}
 		// 	]
 		// },
 		"testObject": {
-			"testAnimation": [{
-				"from": "box",
-				"to": "star",
-				"timeframe": 60
-			}, {
-				"from": "star",
-				"to": "tri",
-				"timeframe": 60
-			}]
+			"testAnimation": {
+				"type": "animation",
+				"sequence": [{
+						"from": "box",
+						"to": "star",
+						"fps": 60
+					},
+					{
+						"from": "star",
+						"to": "tri",
+						"fps": 60
+					}
+				]
+			},
+			"rotationAnimation": {
+				"type": "tween",
+				"sequence": [{
+					"tween": "rotate",
+					"from": 0,
+					"to": 360,
+					"fps": 60
+				}]
+			}
 		},
 		// "testObject2": {
 		// 	"testAnimation": [{
 		// 		"from": "circle",
 		// 		"to": "triangle",
-		// 		"timeframe": 120
+		// 		"fps": 120
 		// 	}]
 		// },
 		"testObject3": {
-			"testAnimation": [{
-				"from": "one",
-				"to": "two",
-				"timeframe": 60
-			}]
+			"testAnimation": {
+				"type": "animation",
+				"sequence": [{
+					"from": "one",
+					"to": "two",
+					"fps": 60
+				}]
+			},
+			"rotationAnimation": {
+				"type": "tween",
+				"sequence": [{
+					"tween": "rotate",
+					"from": 0,
+					"to": 360,
+					"fps": 60
+				}]
+			}
 		}
 	}
 }

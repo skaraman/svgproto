@@ -9,6 +9,7 @@ import updater from 'util/updater'
 import { bindAll } from 'util/helpers'
 import Button from 'components/ui/button'
 import Stage from 'components/game/stage'
+import mainMenuScene from 'data/scenes/mainmenu'
 
 export default class MainMenu extends Component {
 	constructor(props) {
@@ -17,6 +18,7 @@ export default class MainMenu extends Component {
 		bindAll(this, ['play', 'testscene', 'pocademo', 'settings'])
 		updater.register('mainMenuUpdate', this.update, this)
 		this.deltaTime = 0
+		this.data = mainMenuScene
 	}
 
 	_exit() {
@@ -55,6 +57,8 @@ export default class MainMenu extends Component {
 
 	update(dt) {
 		if (this.playMotions) {
+			debugger
+			this.data
 			this.deltaTime += (dt / 4)
 			let width, x, y, rotation
 			width = ((this.deltaTime % 3000)) % 400
@@ -77,29 +81,40 @@ export default class MainMenu extends Component {
 
 	play(event) {
 		event.stopPropagation()
-		animator.play({
-			actor: this.state.actors.testObject,
-			name: 'testAnimation',
-			type: 'pingpong'
-		})
-		// this.playMotions = true
+		// animator.play({
+		// 	actor: this.state.actors.testObject,
+		// 	name: 'testAnimation',
+		// 	type: 'pingpong'
+		// })
+		this.playMotions = true
 	}
 
 	componentDidMount() {
 		dispatch.send('fadeOutBS')
 		if (cache.SVGS.statics) {
 			// initilize scene
-			let actorsList = ['testObject'] //, 'testObject3']
+			let actorsList = [{
+					id: 'testObject',
+					x: -150
+				},
+				{
+					id: 'testObject3',
+					x: 90,
+					y: 10
+				}
+			]
 			let actors = {}
 			for (let act of actorsList) {
-				let svg = cache.SVGS.statics[act]
-				actors[act] = {
-					id: act,
+
+				let { id = act, x, y } = act
+				let svg = cache.SVGS.statics[id]
+				actors[id] = {
+					id,
 					svg,
 					// setup position in the scene, x and y should be relevant to center of screen
 					transform: {
-						x: 0,
-						y: 0,
+						x: x || 0,
+						y: y || 0,
 						rotate: 0,
 						scale: 1
 					}
@@ -108,6 +123,7 @@ export default class MainMenu extends Component {
 			this.setState({
 				actors
 			})
+			// this.playMotions = true
 		}
 	}
 

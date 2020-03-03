@@ -20,6 +20,7 @@
 		"postcss-preset-env": "^5.1.0",
 		"preact-cli": "^3.0.0-rc.9",
 		"simple-svg-loader": "file:./lib/simple-svg-loader",
+		"simple-svg-collision": "file:./lib/simple-svg-collision",
 		"style-loader": "^0.23.1",
 		"worker-plugin": "^3.2.0"
 	},

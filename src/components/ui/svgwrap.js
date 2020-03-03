@@ -3,6 +3,27 @@ import style from './svgwrap.css'
 import { isDefined } from 'util/helpers'
 
 export default class SVGWrap extends Component {
+	constructor() {
+		super()
+		this.alignAttempted = false
+	}
+
+	componentDidUpdate() {
+		if (!this.alignAttempted) {
+			this.alignAttempted = true
+			this.setState({
+				align: false
+			})
+			setTimeout(() => {
+				this.setState({
+					align: true
+				})
+			}, 5)
+			setTimeout(() => {
+				this.alignAttempted = false
+			}, 10)
+		}
+	}
 
 	render({
 		children,
@@ -16,7 +37,7 @@ export default class SVGWrap extends Component {
 		stageWidth,
 		width,
 		height
-	}) {
+	}, { align = true }) {
 		let transform = ''
 		let rotation = ''
 		let translateX = ''
@@ -45,7 +66,10 @@ export default class SVGWrap extends Component {
 			scalar = `scale(${scale})`
 		}
 		return (
-			<g class={style.align}>
+			<g
+				class={align ? style.align : false}
+				ref={elem => this.alignLayer = elem}
+			>
 				<svg
 					x={-width/2}
 					y={-height/2}

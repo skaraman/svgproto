@@ -3,7 +3,6 @@ import { interpolate } from 'flubber'
 import polyfill from 'util/polyfill'
 import { lerpColor, lerpGradient, objectAssignAll, intParse } from 'util/helpers'
 
-// test manifest, tobe defined by scene files
 import mainManifest from 'data/scenes/_manifest'
 
 const detail = 1
@@ -129,10 +128,13 @@ class Loader {
 			let anims = this.manifestAnimData[setKey]
 			this.bakes[setKey] = {}
 			for (let animName in anims) {
+				let { type, sequence } = anims[animName]
+				if (type !== 'animation') {
+					continue
+				}
 				this.bakes[setKey][animName] = []
-				let frames = anims[animName]
-				for (let frameIndex = 0; frameIndex < frames.length; frameIndex++) {
-					let { from: fromName, to: toName, timeframe } = frames[frameIndex]
+				for (let frameIndex = 0; frameIndex < sequence.length; frameIndex++) {
+					let { from: fromName, to: toName, fps: timeframe } = sequence[frameIndex]
 					let fromChildren = Object.values(this.loadedSVGs[setKey][fromName].pathsById)
 					let fromViewBox = {
 						x: this.loadedSVGs[setKey][fromName].props.viewBox.split(' ')[2] * 1,
