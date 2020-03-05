@@ -1,7 +1,7 @@
 import cache from 'util/cache'
 import { interpolate } from 'flubber'
 import polyfill from 'util/polyfill'
-import { lerpColor, lerpGradient, objectAssignAll, intParse } from 'util/helpers'
+import { lerpColor, lerpGradient, objectAssignAll, intParse, isDefined } from 'util/helpers'
 
 import mainManifest from 'data/scenes/_manifest'
 
@@ -77,9 +77,8 @@ class Loader {
 							let { id, d, fill } = child.props
 							if (fill && fill.startsWith('url(#')) {
 								// bind this gradient to it's svg parent
-								fill = fill.replace('url(#', `url(#${setKey}_${svgKey}_`)
+								fill = fill.replace('url(#', `url(#${setKey}_`)
 							}
-							d = d.replace(/d: \.\d*\.\d*/, '0,').replace(/\.\d*/, '')
 							svg.pathsById[id] = {
 								id,
 								d,
@@ -104,7 +103,7 @@ class Loader {
 							for (let gradIndex = 0; gradIndex < gradients.length; gradIndex++) {
 								let grad = gradients[gradIndex]
 								// bind this gradient to it's svg parent
-								grad.props.id = `${setKey}_${svgKey}_${grad.props.id}`
+								grad.props.id = `${setKey}_${grad.props.id}`
 								svg.gradientsById[grad.props.id] = grad.props
 							}
 							this.statics[setKey][svgKey].grads = svg.gradientsById
@@ -137,13 +136,13 @@ class Loader {
 					let { from: fromName, to: toName, fps: timeframe } = sequence[frameIndex]
 					let fromChildren = Object.values(this.loadedSVGs[setKey][fromName].pathsById)
 					let fromViewBox = {
-						x: this.loadedSVGs[setKey][fromName].props.viewBox.split(' ')[2] * 1,
-						y: this.loadedSVGs[setKey][fromName].props.viewBox.split(' ')[3] * 1
+						x: this.loadedSVGs[setKey][fromName].width,
+						y: this.loadedSVGs[setKey][fromName].height
 					}
 					let toChildren = Object.values(this.loadedSVGs[setKey][toName].pathsById)
 					let toViewBox = {
-						x: this.loadedSVGs[setKey][toName].props.viewBox.split(' ')[2] * 1,
-						y: this.loadedSVGs[setKey][toName].props.viewBox.split(' ')[3] * 1
+						x: this.loadedSVGs[setKey][toName].width,
+						y: this.loadedSVGs[setKey][toName].height
 					}
 					this.statics[setKey][fromName] = this.statics[setKey][fromName] || {}
 					this.statics[setKey][toName] = this.statics[setKey][toName] || {}
@@ -182,14 +181,14 @@ class Loader {
 							}
 						}
 						// additional From paths - fade out
-						let reMreplace = /M(\d*\.?\d*,\d*\.?\d*)[a-zA-Z,.]/g
-						let test = reMreplace.exec(fromPath)
-						if (test === null) {
-							reMreplace = /M(\d*\.?\d*\.?\d*)[a-zA-Z,.]/g
-							test = reMreplace.exec(fromPath)
+						let test
+						let reMreplace = fromPath.replace(/M(\d*\.?\d*,\d*\.?\d*)[a-zA-Z]/, (match, group) => {
+							test = group
+						})
+						if (!isDefined(test)) {
+							throw 'regex error'
 						}
-						let mReplace = `M${test[1]}`
-						let fillerPath = cache.FILLER_PATH.replace('M -0.1 -0.1', mReplace)
+						let fillerPath = cache.FILLER_PATH.replace('M0,0', `M${test}`)
 						pathsToBake[fromId] = {
 							fromFill,
 							fromPath,
@@ -210,14 +209,14 @@ class Loader {
 					}
 					for (let remainderIndex = 0; remainderIndex < toChildren.length; remainderIndex++) {
 						let { d, id, fill } = toChildren[remainderIndex]
-						let reMreplace = /M(\d*\.?\d*,\d*\.?\d*)[a-zA-Z,.]/g
-						let test = reMreplace.exec(d)
-						if (test === null) {
-							reMreplace = /M(\d*\.?\d*\.?\d*)[a-zA-Z,.]/g
-							test = reMreplace.exec(d)
+						let test
+						let reMreplace = d.replace(/M(\d*\.?\d*,\d*\.?\d*)[a-zA-Z]/, (match, group) => {
+							test = group
+						})
+						if (!isDefined(test)) {
+							throw 'regex error 2'
 						}
-						let mReplace = `M${test[1]}`
-						let fillerPath = cache.FILLER_PATH.replace('M -0.1 -0.1', mReplace)
+						let fillerPath = cache.FILLER_PATH.replace('M0,0', `M${test}`)
 						pathsToBake[id] = {
 							toFill: fill,
 							toPath: d,

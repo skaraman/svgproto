@@ -156,6 +156,10 @@ export function _fixGrads(grad1, grad2) {
 	}
 }
 
+export function addGradientToDOM(grad) {
+	console.log('addGradientToDOM')
+}
+
 const colorMap = {
 	aliceblue: '#f0f8ff',
 	antiquewhite: '#faebd7',

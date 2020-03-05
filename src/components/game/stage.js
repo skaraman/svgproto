@@ -69,18 +69,20 @@ export default class Stage extends Component {
 						<defs>
 							{ grads.map((v) => {
 									if (v.grads) {
-										for (let gradId in v.grads) {
-											let {children, ...rest} = v.grads[gradId]
-											return ( <linearGradient {...rest}>
-												{ children.map(childStop => (
-														<stop
-															offset={childStop.props.offset}
-															stop-color={childStop.props['stop-color']}
-														/>
-													))
-												}
-											</linearGradient>)
-										}
+										return Object.values(v.grads).map(grad => {
+											let { children, ...rest } = grad
+											return (
+												<linearGradient {...rest}>
+													{ children.map(childStop => (
+															<stop
+																offset={childStop.props.offset}
+																stop-color={childStop.props['stop-color']}
+															/>
+														))
+													}
+												</linearGradient>
+											)
+										})
 									}
 								})
 							}

@@ -10,6 +10,7 @@ import { bindAll } from 'util/helpers'
 import Button from 'components/ui/button'
 import Stage from 'components/game/stage'
 import mainMenuScene from 'data/scenes/mainmenu'
+import physics from 'util/physics'
 
 export default class MainMenu extends Component {
 	constructor(props) {
@@ -81,12 +82,12 @@ export default class MainMenu extends Component {
 
 	play(event) {
 		event.stopPropagation()
-		// animator.play({
-		// 	actor: this.state.actors.testObject,
-		// 	name: 'testAnimation',
-		// 	type: 'pingpong'
-		// })
-		this.playMotions = true
+		animator.play({
+			actor: this.state.actors.colorChar,
+			name: 'powerUp',
+			type: 'pingpong'
+		})
+		// this.playMotions = true
 	}
 
 	componentDidMount() {
@@ -94,18 +95,11 @@ export default class MainMenu extends Component {
 		if (cache.SVGS.statics) {
 			// initilize scene
 			let actorsList = [{
-					id: 'testObject',
-					x: -150
-				},
-				{
-					id: 'testObject3',
-					x: 90,
-					y: 10
-				}
-			]
+				id: 'colorChar',
+				x: -150
+			}]
 			let actors = {}
 			for (let act of actorsList) {
-
 				let { id = act, x, y } = act
 				let svg = cache.SVGS.statics[id]
 				actors[id] = {
