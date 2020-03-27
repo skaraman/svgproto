@@ -1,6 +1,7 @@
 import cache from 'util/cache'
 import updater from 'util/updater'
 import { intParse } from 'util/helpers'
+import hierarchy from 'util/hierarchy'
 
 class Animator {
 	constructor() {
@@ -9,12 +10,12 @@ class Animator {
 		this.animationsById = {}
 		this.notRealTime = true
 		this.rtMultiplier = 1
-		this.remaindersRendered = {}
-		this.additionalsRemoved = {}
+		this.additionalsRendered = {}
+		this.remaindersRemoved = {}
 	}
 
-	setStateCallback(cb) {
-		this.stateCallback = cb
+	setStageCallback(cb) {
+		this.stageCallback = cb
 	}
 
 	update(dt) {
@@ -23,134 +24,70 @@ class Animator {
 				this.rtMultiplier = intParse((dt / 16))
 			}
 		}
+		let gradients = hierarchy.getGradientsById()
 		for (let i = 0; i < this.animations.length; i++) {
 			let ani = this.animations[i]
-			this.remaindersRendered[ani.name] = this.remaindersRendered[ani.name] || {}
+			this.additionalsRendered[ani.name] = this.additionalsRendered[ani.name] || {}
 			for (let pathKey in ani.bakes[ani.frameIndex][ani.loopIndex]) {
+				let path = ani.bakes[ani.frameIndex][ani.loopIndex][pathKey],
+					ent = ani.entity,
+					child
 				if (pathKey === 'viewBox') {
-					debugger
 					continue
 				}
-				debugger
-				let path = ani.bakes[ani.frameIndex][ani.loopIndex][pathKey],
-					// TODO: adobe illustrator = .children[svg.children.length - 1].children[0].children
-					// desired = .children
-					children = ani.svg.props.children[ani.svg.props.children.length - 1].props.children[0].props.children,
-					childrenById = ani.svg.childrenById,
-					child
-				if (path.remainder && !this.remaindersRendered[ani.name][pathKey]) {
-					children.insert(path.index, child = {
-						props: {
-							id: pathKey,
-							children: []
-						},
-						key: undefined,
-						nodeName: "path"
-					})
-					childrenById[pathKey] = child
-					this.remaindersRendered[ani.name][pathKey] = true
-					// if (this.additionalsRemoved[pathKey] === true) {
-					//     delete this.additionalsRemoved[pathKey]
-					// }
-				}
-				// else if (path.additional && !this.additionalsRemoved[pathKey]) {
-				//     if (path.path.endsWith(' -0.1 0 z')) {
-				//         children.splice(
-				//             children.indexOf(childrenById[pathKey]),
-				//             1
-				//         )
-				//         this.additionalsRemoved[pathKey] = true
-				//         continue
-				//     } else {
-				//         child = childrenById[pathKey]
-				//     }
-				// }
-				else {
-					child = childrenById[pathKey]
-				}
-				// hard hide 'removed' path
-				if (path.path.endsWith(' -0.1 0 z')) {
-					path.path = ''
-				}
-				child.props.d = path.path
+				// update and new gradient
 				if (path.fill.id) {
-					if (ani.svg.gradientById[path.fill.id]) {
-						ani.svg.gradientById[path.fill.id].props.id = path.fill.id
-						ani.svg.gradientById[path.fill.id].props.x1 = path.fill.x1
-						ani.svg.gradientById[path.fill.id].props.x2 = path.fill.x2
-						ani.svg.gradientById[path.fill.id].props.y1 = path.fill.y1
-						ani.svg.gradientById[path.fill.id].props.y2 = path.fill.y2
-						ani.svg.gradientById[path.fill.id].props.children[0].props['stop-color'] = path.fill.color1
-						ani.svg.gradientById[path.fill.id].props.children[1].props['stop-color'] = path.fill.color2
-						if (path.fill.gradientTransform)
-							ani.svg.gradientById[path.fill.id].props.gradientTransform = path.fill.gradientTransform
-					} else {
-						let newGrad = {
-							props: {
-								gradientUnits: 'userSpaceOnUse',
-								id: path.fill.id,
-								x1: path.fill.x1,
-								x2: path.fill.x2,
-								y1: path.fill.y1,
-								y2: path.fill.y2
-							},
-							children: [{
-									props: {
-										'stop-color': path.fill.color1,
-										'offset': 0,
-										children: []
-									},
-									key: undefined,
-									nodeName: "stop"
-								},
-								{
-									props: {
-										'stop-color': path.fill.color2,
-										'offset': 1,
-										children: []
-									},
-									key: undefined,
-									nodeName: "stop"
-								}
-							],
-							index: ani.svg.props.children[0].props.children.length,
-							key: undefined,
-							nodeName: "linearGradient"
-						}
-						if (path.fill.gradientTransform)
-							newGrad.props.gradientTransform = path.fill.gradientTransform
-						ani.svg.props.children[0].props.children.push(newGrad)
-						ani.svg.gradientById[path.fill.id] = newGrad
+					gradients[ent.id].grads[path.fill.id] = {
+						...path.fill
 					}
-					child.props.fill = `url(#${path.fill.id})`
-				} else {
-					child.props.fill = path.fill
+				}
+				// add additional paths into entity
+				if (path.additional && !this.additionalsRendered[ani.name][pathKey]) {
+					if (path.fill.id) {
+						path.fill = `url(#${path.fill.id})`
+					}
+					ent.paths[pathKey] = {
+						...path
+					}
+				}
+				// 'remove' path by reducing it in size
+				else if (path.remainder && !this.remaindersRemoved[pathKey]) {
+					// hard hide 'removed' path
+					if (path.d.endsWith(' -0.1 0 z')) {
+						path.d = ''
+					}
+					ent.paths[pathKey].d = path.d
+				}
+				// update path based on bake
+				else {
+					ent.paths[pathKey].d = path.d
 				}
 			}
 			if (ani.fitToWidth) {
-				ani.svg.props.oldViewBox = ani.svg.props.viewBox
-				ani.svg.props.viewBox = ani.bakes[ani.frameIndex][ani.loopIndex].viewBox
+				ani.entity.oldViewBox = ani.entity.viewBox
+				ani.entity.viewBox = ani.bakes[ani.frameIndex][ani.loopIndex].viewBox
 			}
-			this.stateCallback(ani.svg, ani.fitToWidth)
+			this.stageCallback(ani.entity)
 			ani.loopIndex += this.rtMultiplier
 			if (ani.loopIndex >= ani.bakes[ani.frameIndex].length) {
 				ani.frameIndex++
 				ani.loopIndex = 0
 				if (ani.frameIndex >= ani.bakes.length) {
 					switch (ani.type) {
-					case 'loop':
-					case 'pingpong':
-						ani.frameIndex = 0
-						break
-					case 'repeat':
-						ani.frameIndex = 0
-						if (ani.repeatLimit) {
-							ani.repeatIndex++
-							if (ani.repeatIndex < ani.repeatLimit) {
-								break
+						case 'loop':
+						case 'pingpong':
+							ani.frameIndex = 0
+							break
+						case 'repeat':
+							ani.frameIndex = 0
+							if (ani.repeatLimit) {
+								ani.repeatIndex++
+								if (ani.repeatIndex < ani.repeatLimit) {
+									break
+								}
 							}
-						}
-						case 'regular':
+							break
+						case 'normal':
 						case 'reverse':
 							this.animations.splice(i, 1)
 							i--
@@ -161,7 +98,7 @@ class Animator {
 		}
 	}
 
-	play({ actor, name = 'default', type = 'regular', fitToWidth = true, from, to }) {
+	play({ actor, name = 'default', type = 'normal', fitToWidth = true, from, to }) {
 		let repeat = 0
 		let bakes = cache.SVGS.bakes[actor.id][name]
 		if (type === 'reverse') {
@@ -183,39 +120,22 @@ class Animator {
 			to = intParse(to)
 			bakes = bakes.slice(from, to)
 		}
-		this.animationsById[name] = {
+		this.animations.push(this.animationsById[name] = {
 			type,
 			fitToWidth,
 			bakes,
-			actor,
 			name,
+			entity: hierarchy.getEntityById(actor.id),
 			frameIndex: 0,
 			loopIndex: 0,
 			repeatIndex: 0,
 			repeatLimit: repeat
-		}
-		this.animations.push(this.animationsById[name])
+		})
 	}
 
 	kill(name) {
 		this.animations.splice(this.animations.indexOf(this.animationsById[name]), 1)
 		delete this.animationsById[name]
-	}
-
-	setStaticFrame(actor, frame = 'default', stateCallback) {
-		let staticSVG = cache.SVGS.statics[actor.id][frame]
-		for (let id in actor.childrenById) {
-			let child = actor.childrenById[id]
-			if (!staticSVG[id]) {
-				child.props.d = ''
-				continue
-			}
-			child.props.d = staticSVG[child.props.id].path
-			child.props.fill = staticSVG[child.props.id].fill
-		}
-		actor.props.viewBox = staticSVG.viewBox
-		if (!this.stateCallback) stateCallback(actor)
-		if (this.stateCallback) this.stateCallback(actor)
 	}
 }
 

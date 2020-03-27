@@ -85,7 +85,7 @@ export default class MainMenu extends Component {
 		animator.play({
 			actor: this.state.actors.colorChar,
 			name: 'powerUp',
-			type: 'pingpong'
+			type: 'repeat'
 		})
 		// this.playMotions = true
 	}

@@ -9,12 +9,12 @@ import SvgWrap from 'components/ui/svgwrap'
 export default class Stage extends Component {
 	constructor(props) {
 		super(props)
-		bindAll(this, ['_setAnimationState', '_setState', 'reportWindowSize'])
-		animator.setStateCallback(this._setAnimationState)
-		window.addEventListener('resize', this.reportWindowSize)
+		bindAll(this, ['updateStageFromAnimation', '_setState', 'resize'])
+		animator.setStageCallback(this.updateStageFromAnimation)
+		window.addEventListener('resize', this.resize)
 	}
 
-	reportWindowSize() {
+	resize() {
 		let { offsetHeight, offsetWidth } = this.stage
 		this.setState({
 			offsetHeight,
@@ -22,7 +22,7 @@ export default class Stage extends Component {
 		})
 	}
 
-	_setAnimationState(svg) {
+	updateStageFromAnimation(svg) {
 		let stateSvg = this.state[svg.id]
 		this.setState({
 			[svg.id]: {
@@ -44,7 +44,7 @@ export default class Stage extends Component {
 	componentDidMount() {
 		hierarchy.add(this.props.children)
 		this._setState()
-		this.reportWindowSize()
+		this.resize()
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -70,13 +70,18 @@ export default class Stage extends Component {
 							{ grads.map((v) => {
 									if (v.grads) {
 										return Object.values(v.grads).map(grad => {
-											let { children, ...rest } = grad
+											let { color1, color2, color1Offset, color2Offset, ...rest } = grad
+											let colors = [
+												{ color: color1, offset: color1Offset },
+												{ color: color2, offset: color2Offset }
+											]
 											return (
 												<linearGradient {...rest}>
-													{ children.map(childStop => (
+													{
+														colors.map(c => (
 															<stop
-																offset={childStop.props.offset}
-																stop-color={childStop.props['stop-color']}
+																offset={c.offset}
+																stop-color={c.color}
 															/>
 														))
 													}

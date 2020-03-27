@@ -8,16 +8,8 @@ import animator from 'util/animator'
 import cache from 'util/cache'
 import { bindAll } from 'util/helpers'
 import Stage from 'components/game/stage'
-
-let loaderWorker = new Worker('util/workers/loaderWorker', { type: 'module' })
-loaderWorker.onmessage = event => {
-	if (event.data && !event.data.msg) {
-		return
-	}
-	if (event.data.msg === 'loadingComplete') {
-		dispatch.send('loadingComplete', event.data.data)
-	}
-}
+import { loaderSetup } from 'util/workers/setup'
+let loader = loaderSetup(['loadingComplete'])
 
 export default class Loading extends Component {
 	constructor(props) {
@@ -82,7 +74,7 @@ export default class Loading extends Component {
 				type: 'loop'
 			})
 		}
-		loaderWorker.postMessage({ msg: 'load', data: cache.META_DATA.manifest })
+		loader.postMessage({ msg: 'load', data: cache.META_DATA.manifest })
 	}
 
 	update(dt) {

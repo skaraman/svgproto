@@ -5,31 +5,36 @@ class Hierarchy {
 
 	init() {
 		this.entities = []
+		this.entitiesById = {}
+
 		this.gradients = []
+		this.gradientsById = {}
 	}
 
-	add(nodes) {
-		for (let ndx in nodes) {
-			let node = nodes[ndx]
-			let defaultId = node.svg.defaultId
-			let svg = node.svg[defaultId]
-			this.gradients.push({
-				id: ndx,
+	add(children) {
+		for (let cdx in children) {
+			let child = children[cdx]
+			let defaultId = child.svg.defaultId
+			let svg = child.svg[defaultId]
+			this.gradients.push(this.gradientsById[cdx] = {
+				id: cdx,
 				grads: svg.grads
 			})
-			this.entities.push({
-				id: ndx,
+			this.entities.push(this.entitiesById[cdx] = {
+				id: cdx,
+				frame: defaultId,
 				paths: svg.paths,
 				viewBox: svg.viewBox,
 				width: svg.width,
 				height: svg.height,
-				transform: node.transform
+				transform: child.transform
 			})
+
 		}
 	}
 
-	update(nodes) {
-		// TODO compare the nodes here to the entities already existing
+	update(children) {
+		// TODO compare the children here to the entities already existing
 		// add only the new or different ones
 		throw 'no update'
 	}
@@ -38,8 +43,20 @@ class Hierarchy {
 		return this.gradients
 	}
 
+	getGradientsById() {
+		return this.gradientsById
+	}
+
 	getEntities() {
 		return this.entities
+	}
+
+	getEntitiesById() {
+		return this.entitiesById
+	}
+
+	getEntityById(id) {
+		return this.entitiesById[id]
 	}
 }
 

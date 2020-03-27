@@ -104,7 +104,18 @@ class Loader {
 								let grad = gradients[gradIndex]
 								// bind this gradient to it's svg parent
 								grad.props.id = `${setKey}_${grad.props.id}`
-								svg.gradientsById[grad.props.id] = grad.props
+								svg.gradientsById[grad.props.id] = {
+									id: grad.props.id,
+									x1: grad.props.x1,
+									x2: grad.props.x2,
+									y1: grad.props.y1,
+									y2: grad.props.y2,
+									gradientUnits: grad.props.gradientUnits,
+									color1: grad.props.children[0].props['stop-color'],
+									color1Offset: grad.props.children[0].props['offset'],
+									color2: grad.props.children[1].props['stop-color'],
+									color2Offset: grad.props.children[1].props['offset']
+								}
 							}
 							this.statics[setKey][svgKey].grads = svg.gradientsById
 						}
@@ -180,7 +191,7 @@ class Loader {
 								continue fromNameLoop
 							}
 						}
-						// additional From paths - fade out
+						// remainder From paths - fade out
 						let test
 						let reMreplace = fromPath.replace(/M(\d*\.?\d*,\d*\.?\d*)[a-zA-Z]/, (match, group) => {
 							test = group
@@ -194,7 +205,7 @@ class Loader {
 							fromPath,
 							toPath: fillerPath,
 							toFill: fromFill,
-							additional: true,
+							remainder: true,
 							index: fromPathIndex
 						}
 						if (!this.statics[setKey][fromName].viewBox) {
@@ -202,13 +213,13 @@ class Loader {
 							this.statics[setKey][fromName].paths[fromId] = {
 								fill: fromFill,
 								d: fromPath,
-								additional: true,
+								remainder: true,
 								index: fromPathIndex
 							}
 						}
 					}
-					for (let remainderIndex = 0; remainderIndex < toChildren.length; remainderIndex++) {
-						let { d, id, fill } = toChildren[remainderIndex]
+					for (let additionalIndex = 0; additionalIndex < toChildren.length; additionalIndex++) {
+						let { d, id, fill } = toChildren[additionalIndex]
 						let test
 						let reMreplace = d.replace(/M(\d*\.?\d*,\d*\.?\d*)[a-zA-Z]/, (match, group) => {
 							test = group
@@ -222,7 +233,7 @@ class Loader {
 							toPath: d,
 							fromFill: fill,
 							fromPath: fillerPath,
-							remainder: true,
+							additional: true,
 							index: this.loadedSVGs[setKey][toName].pathsById[id].index
 
 						}
@@ -231,14 +242,14 @@ class Loader {
 							this.statics[setKey][toName].paths[id] = {
 								fill: fill,
 								d: d,
-								remainder: true,
+								additional: true,
 								index: this.loadedSVGs[setKey][toName].pathsById[id].index
 							}
 						}
 					}
 					let bakedFrames = []
 					for (let pathName in pathsToBake) {
-						let { fromPath, toPath, fromFill, toFill, remainder, additional, index } = pathsToBake[pathName]
+						let { fromPath, toPath, fromFill, toFill, additional, remainder, index } = pathsToBake[pathName]
 						let morph = interpolate(fromPath, toPath, { maxSegmentLength: detail })
 						// for the prefered amount of shapeframes between the keyframes
 						for (let timeframeIndex = 0; timeframeIndex < timeframe; timeframeIndex++) {
@@ -248,18 +259,18 @@ class Loader {
 								toGrad = false
 							if (fromFill.startsWith('url(#')) {
 								let fromGradKey = fromFill.replace('url(#', '').replace(')', '')
-								fromGrad = this.statics[setKey][remainder ? toName : fromName].grads[fromGradKey]
+								fromGrad = this.statics[setKey][additional ? toName : fromName].grads[fromGradKey]
 							}
 							if (toFill.startsWith('url(#')) {
 								let toGradKey = toFill.replace('url(#', '').replace(')', '')
-								toGrad = this.statics[setKey][additional ? fromName : toName].grads[toGradKey]
+								toGrad = this.statics[setKey][remainder ? fromName : toName].grads[toGradKey]
 							}
 							// strange morph behavior at 0 and 1
 							if (percentage === 0) {
 								newPath = fromPath
 								viewBox = `0 0 ${fromViewBox.x} ${fromViewBox.y}`
 								if (fromGrad || toGrad) {
-									fill = lerpGradient(fromGrad || fromFill, toGrad || toFill, percentage, setKey)
+									fill = lerpGradient(fromGrad || fromFill, toGrad || toFill, percentage)
 								} else {
 									fill = fromFill
 								}
@@ -273,7 +284,7 @@ class Loader {
 								newPath = toPath
 								viewBox = `0 0 ${toViewBox.x} ${toViewBox.y}`
 								if (fromGrad || toGrad) {
-									fill = lerpGradient(fromGrad || fromFill, toGrad || toFill, percentage, setKey)
+									fill = lerpGradient(fromGrad || fromFill, toGrad || toFill, percentage)
 								} else {
 									fill = toFill
 								}
@@ -288,7 +299,7 @@ class Loader {
 								let y = fromViewBox.y + ((toViewBox.y - fromViewBox.y) * percentage)
 								viewBox = `0 0 ${x} ${y}`
 								if (fromGrad || toGrad) {
-									fill = lerpGradient(fromGrad || fromFill, toGrad || toFill, percentage, setKey)
+									fill = lerpGradient(fromGrad || fromFill, toGrad || toFill, percentage)
 								} else {
 									fill = lerpColor(fromFill, toFill, percentage)
 								}
@@ -314,8 +325,8 @@ class Loader {
 							bakedFrames[timeframeIndex][pathName] = {
 								d: newPath,
 								fill,
-								remainder,
 								additional,
+								remainder,
 								index
 							}
 							bakedFrames[timeframeIndex].viewBox = viewBox

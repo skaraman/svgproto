@@ -88,15 +88,15 @@ export function lerpGradient(grad1, grad2, amount, idmod = '') {
 	let y2 = ((grad2.y2 - grad1.y2) * amount) + (grad1.y2 * 1)
 	let id = grad1.id + (idmod ? '_' + idmod : '')
 	let color1 = null
-	if (grad1.children[0]) color1 = lerpColor(
-		grad1.children[0].props['stop-color'] || '#000000',
-		grad2.children[0].props['stop-color'] || '#000000',
+	if (grad1.color1) color1 = lerpColor(
+		grad1.color1 || '#000000',
+		grad2.color1 || '#000000',
 		amount
 	)
 	let color2 = null
-	if (grad2.children[1]) color2 = lerpColor(
-		grad1.children[1].props['stop-color'] || '#000000',
-		grad2.children[1].props['stop-color'] || '#000000',
+	if (grad2.color2) color2 = lerpColor(
+		grad1.color2 || '#000000',
+		grad2.color2 || '#000000',
 		amount
 	)
 	let fillobj = {
@@ -131,19 +131,10 @@ export function _fixGrads(grad1, grad2) {
 		y1: othergrad.y1,
 		y2: othergrad.y2,
 		id: othergrad.id,
-		children: [{
-				props: {
-					'stop-color': grad,
-					'offset': 0
-				}
-			},
-			{
-				props: {
-					'stop-color': grad,
-					'offset': 1
-				}
-			}
-		],
+		color1: grad,
+		color1Offset: 0,
+		color2: grad,
+		color2Offset: 1,
 		gradientUnits: 'userSpaceOnUse'
 	}
 	if (othergrad.gradienttransform) {
