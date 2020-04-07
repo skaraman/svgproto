@@ -56,20 +56,23 @@ export default class Loading extends Component {
 		}
 		// first loading loop doesn't have any cached SVGs, this should be used as the Initial
 		// black screen during which company logos and loading scenes/aniamtions can be loaded
-		if (cache.SVGS.loadedSVGs) {
+		let statics = cache.getStatics()
+		if (statics && statics.loadingCircle) {
 			// all subbsequent loading loops should show an animated loading screen
-			let svg = cache.SVGS.loadedSVGs.loadingCircle['1']
+			let entity = statics.loadingCircle['1']
 			this.state = {
-				loadingCircle: {
-					svg: svg,
-					width: '200px',
-					right: '50px',
-					bottom: '50px',
-					rotation: 0
+				actors: {
+					loadingCircle: {
+						entity,
+						width: '200px',
+						right: '50px',
+						bottom: '50px',
+						rotation: 0
+					}
 				}
 			}
 			animator.play({
-				svg: svg,
+				entity: 'loadingCircle',
 				name: 'loadingAnimation',
 				type: 'loop'
 			})
@@ -99,7 +102,7 @@ export default class Loading extends Component {
 
 	loadingComplete(SVGS) {
 		console.log('Loading Completed')
-		cache.SVGS = SVGS
+		cache.setSVGS(SVGS)
 		dispatch.send('fadeInBS', this._exit)
 	}
 

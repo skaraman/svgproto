@@ -67,9 +67,9 @@ export default class MainMenu extends Component {
 			y = ((this.deltaTime % 9000) / 12) % 200
 			rotation = (this.deltaTime % 1440) / 4
 			this.setState({
-				actors: {
+				entities: {
 					testObject: {
-						svg: this.state.actors.testObject.svg,
+						entity: this.state.entities.testObject.entity,
 						width: width + 'px',
 						x: x + 'px',
 						y: y + 'px',
@@ -83,28 +83,29 @@ export default class MainMenu extends Component {
 	play(event) {
 		event.stopPropagation()
 		animator.play({
-			actor: this.state.actors.colorChar,
+			entity: 'colorChar',
 			name: 'powerUp',
-			type: 'repeat'
+			type: 'normal'
 		})
 		// this.playMotions = true
 	}
 
 	componentDidMount() {
 		dispatch.send('fadeOutBS')
-		if (cache.SVGS.statics) {
+		let statics = cache.getStatics()
+		if (statics) {
 			// initilize scene
-			let actorsList = [{
+			let entitiesList = [{
 				id: 'colorChar',
 				x: -150
 			}]
-			let actors = {}
-			for (let act of actorsList) {
+			let entities = {}
+			for (let act of entitiesList) {
 				let { id = act, x, y } = act
-				let svg = cache.SVGS.statics[id]
-				actors[id] = {
+				let entity = statics[id]
+				entities[id] = {
 					id,
-					svg,
+					entity,
 					// setup position in the scene, x and y should be relevant to center of screen
 					transform: {
 						x: x || 0,
@@ -115,14 +116,15 @@ export default class MainMenu extends Component {
 				}
 			}
 			this.setState({
-				actors
+				entities
 			})
 			// this.playMotions = true
 		}
 	}
 
-	render({}, { actors }) {
-		return (actors &&
+	render({}, { entities }) {
+		console.log('mainmenu render');
+		return (entities &&
 			<div class={style.mainWrap}>
 				<div class={style.mainMenu}>
 					<div class={style.mainMenuText}>Main Menu</div>
@@ -144,9 +146,9 @@ export default class MainMenu extends Component {
 					/>
 					<p>copyright and trademark stuff</p>
 				</div>
-				{ actors &&
+				{ entities &&
 					<Stage class={style.stage}>
-						{actors}
+						{entities}
 					</Stage>
 				}
 			</div>

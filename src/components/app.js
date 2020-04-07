@@ -22,6 +22,7 @@ export default class App extends Component {
 			isDev,
 			randomNumber: cache.randomNumber
 		}
+		cache.META_DATA.isDev = isDev
 		cache.META_DATA.manifest = 'mainMenuScene'
 		cache.META_DATA.exitRoute = '/mainmenu'
 	}

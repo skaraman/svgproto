@@ -19,7 +19,7 @@ class Loader {
 				break
 			}
 		})
-		this.SVGS = { loadedSVGs: {}, bakes: {}, statics: {} }
+		this.SVGS = { loadedSVGs: {}, bakes: {}, statics: {}, getStatics: this.getStatics }
 	}
 
 	load(manifest) {
@@ -35,7 +35,6 @@ class Loader {
 	}
 
 	_cache() {
-		this.SVGS.loadedSVGs = objectAssignAll(this.SVGS.loadedSVGs, this.loadedSVGs)
 		this.SVGS.bakes = objectAssignAll(this.SVGS.bakes, this.bakes)
 		this.SVGS.statics = objectAssignAll(this.SVGS.statics, this.statics)
 		postMessage({ msg: 'loadingComplete', data: this.SVGS })

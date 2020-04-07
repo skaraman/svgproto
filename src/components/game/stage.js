@@ -5,6 +5,7 @@ import { bindAll } from 'util/helpers'
 import animator from 'util/animator'
 import hierarchy from 'util/hierarchy'
 import SvgWrap from 'components/ui/svgwrap'
+import cache from 'util/cache'
 
 export default class Stage extends Component {
 	constructor(props) {
@@ -48,6 +49,12 @@ export default class Stage extends Component {
 	}
 
 	componentDidUpdate(prevProps, prevState) {
+		if (cache.META_DATA.isReload) {
+			console.log('attempt reload resize');
+			setTimeout(() => {
+				this.resize()
+			}, 100)
+		}
 		if (this.props.children === prevProps.children) {
 			return
 		}
@@ -56,6 +63,7 @@ export default class Stage extends Component {
 	}
 
 	render({ class: additionalClass }, { ents, grads, offsetWidth, offsetHeight }) {
+		console.log('stage render')
 		return (
 			<div
 				class={classnames(style.stage, additionalClass)}
@@ -72,8 +80,8 @@ export default class Stage extends Component {
 										return Object.values(v.grads).map(grad => {
 											let { color1, color2, color1Offset, color2Offset, ...rest } = grad
 											let colors = [
-												{ color: color1, offset: color1Offset },
-												{ color: color2, offset: color2Offset }
+												{ color: color1, offset: 0 },
+												{ color: color2, offset: 1 }
 											]
 											return (
 												<linearGradient {...rest}>

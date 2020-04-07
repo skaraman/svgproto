@@ -98,9 +98,9 @@ class Animator {
 		}
 	}
 
-	play({ actor, name = 'default', type = 'normal', fitToWidth = true, from, to }) {
+	play({ entityId, name = 'default', type = 'normal', fitToWidth = true, from, to }) {
 		let repeat = 0
-		let bakes = cache.SVGS.bakes[actor.id][name]
+		let bakes = cache.SVGS.bakes[entityId][name]
 		if (type === 'reverse') {
 			bakes = bakes.reverse()
 			for (let i = 0; i < bakes.length; i++) {
@@ -125,7 +125,7 @@ class Animator {
 			fitToWidth,
 			bakes,
 			name,
-			entity: hierarchy.getEntityById(actor.id),
+			entity: hierarchy.getEntityById(entityId),
 			frameIndex: 0,
 			loopIndex: 0,
 			repeatIndex: 0,
