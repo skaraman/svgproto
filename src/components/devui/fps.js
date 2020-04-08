@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'
 import style from './fps.css'
-import updater from 'util/updater'
-import { intParse } from 'util/helpers'
+import updater from 'util/game/updater'
+import { intParse } from 'util/data/helpers'
 
 const second = 1000
 const limiter = 2
@@ -36,7 +36,6 @@ export default class FpsMeter extends Component {
 	}
 
 	render({}, { fps }) {
-		//console.log(fps)
 		return (
 			<div class={style.fps}>
 				<p>FPS: {fps}</p>{/*<p>Calls: </p>*/}

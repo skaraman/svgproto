@@ -1,23 +1,26 @@
 import { h, Component } from 'preact'
 import { route } from 'preact-router'
 import style from './loading.css'
-import input from 'util/input'
-import updater from 'util/updater'
-import dispatch from 'util/dispatch'
-import animator from 'util/animator'
-import cache from 'util/cache'
-import { bindAll } from 'util/helpers'
+import input from 'util/game/input'
+import updater from 'util/game/updater'
+import dispatch from 'util/data/dispatch'
+import animator from 'util/game/animator'
+import cache from 'util/data/cache'
+import { bindAll, resetRefreshStorage } from 'util/data/helpers'
 import Stage from 'components/game/stage'
-import { loaderSetup } from 'util/workers/setup'
-let loader = loaderSetup(['loadingComplete'])
+import { setup } from 'util/data/setup'
+
+let loader = setup('loader', ['loadingComplete'])
 
 export default class Loading extends Component {
 	constructor(props) {
 		super(props)
+		this.loader = loader
 		input.register('keydown', 'loadingKeydown', this.keydown, this)
 		updater.register('loadingUpdate', this.update, this)
 		this.on = [
-			dispatch.on('loadingComplete', this.loadingComplete, this)
+			dispatch.on('loadingComplete', this.loadingComplete, this),
+			dispatch.on('fs success', this.fsReady, this)
 		]
 		bindAll(this, ['_exit'])
 		this.deltaTime = 0
@@ -31,21 +34,6 @@ export default class Loading extends Component {
 			'Loading.  ',
 			'Loading.. '
 		]
-	}
-
-	_exit() {
-		input.unregister('keydown', 'loadingKeydown')
-		updater.unregister('loadingUpdate')
-		animator.kill('loadingAnimation')
-		for (let o = 0; o < this.on.length; o++) {
-			this.on[o].off()
-		}
-		this.on = []
-		route(cache.META_DATA.exitRoute)
-	}
-
-	keydown(event) {
-		console.log('loadingKeydown', event)
 	}
 
 	componentDidMount() {
@@ -72,12 +60,27 @@ export default class Loading extends Component {
 				}
 			}
 			animator.play({
-				entity: 'loadingCircle',
+				entityId: 'loadingCircle',
 				name: 'loadingAnimation',
 				type: 'loop'
 			})
 		}
-		loader.postMessage({ msg: 'load', data: cache.META_DATA.manifest })
+		this.loader.postMessage({ msg: 'load', data: cache.META_DATA.manifest })
+	}
+
+	_exit() {
+		input.unregister('keydown', 'loadingKeydown')
+		updater.unregister('loadingUpdate')
+		animator.kill('loadingAnimation')
+		for (let o = 0; o < this.on.length; o++) {
+			this.on[o].off()
+		}
+		this.on = []
+		route(cache.META_DATA.exitRoute)
+	}
+
+	keydown(event) {
+		console.log('loadingKeydown', event)
 	}
 
 	update(dt) {
@@ -102,8 +105,22 @@ export default class Loading extends Component {
 
 	loadingComplete(SVGS) {
 		console.log('Loading Completed')
-		cache.setSVGS(SVGS)
-		dispatch.send('fadeInBS', this._exit)
+		this.lc = true
+		this.SVGS = SVGS
+		this.attemptLoadingDone()
+	}
+
+	fsReady() {
+		console.log('File System Ready')
+		this.fsr = true
+		this.attemptLoadingDone()
+	}
+
+	attemptLoadingDone() {
+		if (this.fsr === true && this.lc === true) {
+			cache.setSVGS(this.SVGS)
+			dispatch.send('fadeInBS', this._exit)
+		}
 	}
 
 	render({}, { loadingText, loadingCircle }) {

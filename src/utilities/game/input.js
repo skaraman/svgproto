@@ -44,7 +44,6 @@ module.exports = (function () {
 		}
 
 		__applyEvent(id, event) {
-			//console.log(id)
 			for (let i in this._listeners[id]) {
 				let cb = this._listeners[id][i]
 				cb.callback.apply(cb.target, [event])

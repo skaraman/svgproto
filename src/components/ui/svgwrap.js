@@ -1,29 +1,8 @@
 import { h, Component } from 'preact'
 import style from './svgwrap.css'
-import { isDefined } from 'util/helpers'
+import { isDefined } from 'util/data/helpers'
 
 export default class SVGWrap extends Component {
-	constructor() {
-		super()
-		this.alignAttempted = false
-	}
-
-	// componentDidUpdate() {
-	// 	if (!this.alignAttempted) {
-	// 		this.alignAttempted = true
-	// 		this.setState({
-	// 			align: false
-	// 		})
-	// 		setTimeout(() => {
-	// 			this.setState({
-	// 				align: true
-	// 			})
-	// 		}, 5)
-	// 		setTimeout(() => {
-	// 			this.alignAttempted = false
-	// 		}, 10)
-	// 	}
-	// }
 
 	render({
 		children,

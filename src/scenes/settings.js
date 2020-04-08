@@ -1,8 +1,8 @@
 import { h, Component } from 'preact'
 import style from './settings.css'
 import { route } from 'preact-router'
-import cache from 'util/cache'
-import input from 'util/input'
+import cache from 'util/data/cache'
+import input from 'util/game/input'
 
 import Button from 'components/ui/button'
 import SVGWrap from 'components/ui/svgwrap'

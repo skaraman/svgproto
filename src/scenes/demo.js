@@ -1,11 +1,11 @@
 import { h, Component } from 'preact'
 import style from './demo.css'
 
-import cache from 'util/cache'
-import dispatch from 'util/dispatch'
-import updater from 'util/updater'
-import input from 'util/input'
-import animator from 'util/animator'
+import cache from 'util/data/cache'
+import dispatch from 'util/data/dispatch'
+import updater from 'util/game/updater'
+import input from 'util/game/input'
+import animator from 'util/game/animator'
 
 import Stage from 'components/game/stage'
 

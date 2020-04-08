@@ -1,5 +1,7 @@
 import * as rematrix from 'rematrix'
 
+const R_SKEY = '_chromeRefreshStorageKey'
+
 export function bindAll(ring, o) {
 	for (let odx = 0; odx < o.length; odx++) {
 		ring[o[odx]] = ring[o[odx]].bind(ring)
@@ -107,6 +109,7 @@ export function lerpGradient(grad1, grad2, amount, idmod = '') {
 		color1,
 		color2,
 		id,
+		gradientUnits: 'userSpaceOnUse'
 	}
 	if (grad1.gradienttransform)
 		// to do lerp gradienttransform?? matrix + rotate
@@ -145,10 +148,6 @@ export function _fixGrads(grad1, grad2) {
 		grad1: flip === 1 ? grad : othergrad,
 		grad2: flip === 1 ? othergrad : grad
 	}
-}
-
-export function addGradientToDOM(grad) {
-	console.log('addGradientToDOM')
 }
 
 const colorMap = {

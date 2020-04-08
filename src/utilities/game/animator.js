@@ -1,7 +1,8 @@
-import cache from 'util/cache'
-import updater from 'util/updater'
-import { intParse } from 'util/helpers'
-import hierarchy from 'util/hierarchy'
+import cache from 'util/data/cache'
+import updater from 'util/game/updater'
+import { intParse } from 'util/data/helpers'
+import hierarchy from 'util/game/hierarchy'
+import dispatch from 'util/data/dispatch'
 
 class Animator {
 	constructor() {
@@ -98,9 +99,23 @@ class Animator {
 		}
 	}
 
+	replay() {
+		this.reloadNotice.off()
+		delete this.reloadNotice
+		this.play(this.replayParams)
+		delete this.replayParams
+	}
+
 	play({ entityId, name = 'default', type = 'normal', fitToWidth = true, from, to }) {
 		let repeat = 0
-		let bakes = cache.SVGS.bakes[entityId][name]
+		// TODO - figure out how to unbottleneck here
+		let allBakes = cache.getBakes()
+		if (!allBakes) {
+			this.replayParams = arguments[0]
+			this.reloadNotice = dispatch.on('reading complete', this.replay, this)
+			return
+		}
+		let bakes = allBakes[entityId][name]
 		if (type === 'reverse') {
 			bakes = bakes.reverse()
 			for (let i = 0; i < bakes.length; i++) {

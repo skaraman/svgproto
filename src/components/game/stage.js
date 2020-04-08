@@ -1,11 +1,11 @@
 import { h, Component } from 'preact'
 import style from './stage.css'
 import classnames from 'classnames'
-import { bindAll } from 'util/helpers'
-import animator from 'util/animator'
-import hierarchy from 'util/hierarchy'
+import { bindAll } from 'util/data/helpers'
+import animator from 'util/game/animator'
+import hierarchy from 'util/game/hierarchy'
 import SvgWrap from 'components/ui/svgwrap'
-import cache from 'util/cache'
+import cache from 'util/data/cache'
 
 export default class Stage extends Component {
 	constructor(props) {
@@ -49,12 +49,6 @@ export default class Stage extends Component {
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if (cache.META_DATA.isReload) {
-			console.log('attempt reload resize');
-			setTimeout(() => {
-				this.resize()
-			}, 100)
-		}
 		if (this.props.children === prevProps.children) {
 			return
 		}
@@ -63,7 +57,6 @@ export default class Stage extends Component {
 	}
 
 	render({ class: additionalClass }, { ents, grads, offsetWidth, offsetHeight }) {
-		console.log('stage render')
 		return (
 			<div
 				class={classnames(style.stage, additionalClass)}
@@ -84,7 +77,7 @@ export default class Stage extends Component {
 												{ color: color2, offset: 1 }
 											]
 											return (
-												<linearGradient {...rest}>
+												<linearGradient {...rest} >
 													{
 														colors.map(c => (
 															<stop

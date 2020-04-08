@@ -1,10 +1,10 @@
 import { h, Component } from 'preact'
 import style from './devui.css'
-import { bindAll } from 'util/helpers'
+import { bindAll } from 'util/data/helpers'
 import { Link } from 'preact-router/match';
 import FpsMeter from 'components/devui/fps'
-import Options from 'components/devui/options'
-import cache from 'util/cache'
+import FpsOptions from 'components/devui/fpsOptions'
+import cache from 'util/data/cache'
 
 class DevUI extends Component {
 
@@ -18,7 +18,7 @@ class DevUI extends Component {
 					<Link activeClassName={style.active} href="/mainmenu">MainMenu</Link>
 				</nav>
 				<FpsMeter />
-				<Options />
+				<FpsOptions />
 			</header>
 		)
 	}
