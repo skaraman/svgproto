@@ -8,6 +8,7 @@ class Files {
 			self.TEMPORARY,
 			undefined
 		)
+		this.reader = new FileReaderSync()
 		if (this.fs) {
 			postMessage({ msg: 'fsSuccess', data: true })
 		}
@@ -28,17 +29,22 @@ class Files {
 	read(name) {
 		let fileEntry = this.fs.root.getFile(name, {})
 		let file = fileEntry.file()
-		let reader = new FileReaderSync()
-		let text = reader.readAsText(file)
+		let text = this.reader.readAsText(file)
 		postMessage({ msg: 'readingComplete', data: { name, text }})
 	}
 
 	write({ name, text }) {
 		let fileEntry = this.fs.root.getFile(name, { create: true })
-		let fileWriter = fileEntry.createWriter()
+		let file = fileEntry.file()
+		let testText = this.reader.readAsText(file)
+		if (testText) {
+			fileEntry.remove()
+			this.write({ name, text })
+			return
+		}
 		let blob = new Blob([text], { type: 'text/plain' })
+		let fileWriter = fileEntry.createWriter()
 		fileWriter.write(blob)
-		console.log('Writing complete');
 	}
 }
 

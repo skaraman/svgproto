@@ -4,16 +4,15 @@ import DevUI from 'components/devui/devui'
 import Terminal from 'components/devui/terminal'
 import BlackScreen from 'components/game/blackscreen'
 import DnD from 'components/game/donotdestroy'
-import MainMenu from 'scenes/mainmenu'
-import Demo from 'scenes/demo'
-import Loading from 'scenes/loading'
-import Settings from 'scenes/settings'
-import PocaDemo from 'scenes/pocademo'
+import MainMenu from 'scenes/mainmenu/mainmenu'
+import Demo from 'scenes/demo/demo'
+import Loading from 'scenes/loading/loading'
+import Settings from 'scenes/settings/settings'
+import PocaDemo from 'scenes/pocademo/pocademo'
 import cache from 'util/data/cache'
 import dispatch from 'util/data/dispatch'
-import { bindAll, refreshStorageCheck } from 'util/data/helpers'
+import { bindAll, refreshStorageCheck, queryParams } from 'util/data/helpers'
 
-const isDev = true
 const ENTRY_URL = {
 		'/': '/'
 }
@@ -28,6 +27,7 @@ const RELOAD_URLS = {
 export default class App extends Component {
 	constructor(props) {
 		super(props)
+		let isDev = queryParams()['dev']
 		this.state = {
 			isDev
 		}
@@ -35,27 +35,32 @@ export default class App extends Component {
 		cache.META_DATA.manifest = 'mainMenuScene'
 		cache.META_DATA.exitRoute = RELOAD_URLS['/mainmenu']
 		this.on = [
-			dispatch.on('fsSuccess', this.handleFSSuccess, this)
+			dispatch.on('fsSuccess', this._handleFSSuccess, this)
 		]
 	}
 
-	handleFSSuccess() {
+	_handleFSSuccess() {
 		if (cache.META_DATA.isReload) {
 			this.handleRoute()
 		}
 	}
 
-	handleRoute = e => {
+	handleRoute = event => {
 		let bypass = false
 		if (this.delayedRoute) {
-			e = this.delayedRoute
+			event = this.delayedRoute
 			delete this.delayedRoute
 			bypass = true
 		}
-		if (RELOAD_URLS[e.url] && e.previous === undefined) {
+		let url = event.url
+		let indexOfTest = event.url.indexOf('?')
+		if (indexOfTest >= 0) {
+			url = url.substr(0, indexOfTest)
+		}
+		if (RELOAD_URLS[url] && event.previous === undefined) {
 			cache.META_DATA.isReload = true
 			if (!bypass) {
-				this.delayedRoute = e
+				this.delayedRoute = event
 				return
 			}
 			else {
@@ -70,16 +75,10 @@ export default class App extends Component {
 				ready: true
 			})
 		}
-		this.currentUrl = e.url
+		this.currentUrl = url
 	}
 
-	_deferDebug() {
-		this.setState((prevState) => ({
-			isDev
-		}))
-	}
-
-	render({}, { isDev, ready }) {
+	render(props, { isDev, ready }) {
 		return (
 			<div id='app'>
 				{

@@ -1,6 +1,27 @@
 import * as rematrix from 'rematrix'
 
-const R_SKEY = '_chromeRefreshStorageKey'
+export function queryParams() {
+	let sn = location.search.replace('?', '').split('&').map(sv => {
+		let sp = sv.split('=')
+		return { [sp[0]]: sp[1] }
+	})
+	let res = {}
+	for (let sdx of sn) {
+		Object.assign(res, sdx)
+	}
+	for (let rdx in res) {
+		if (res[rdx] === 'true') {
+			res[rdx] = true
+		}
+		else if (res[rdx] === 'false') {
+			res[rdx] = false
+		}
+		else if (!isNaN(res[rdx])) {
+			res[rdx] = res[rdx] * 1
+		}
+	}
+	return res
+}
 
 export function bindAll(ring, o) {
 	for (let odx = 0; odx < o.length; odx++) {

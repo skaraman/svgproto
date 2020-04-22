@@ -7,16 +7,34 @@ import dispatch from 'util/data/dispatch'
 class Animator {
 	constructor() {
 		updater.register('animatorUpater', this.update, this)
+		this.on = [
+			dispatch.on('svgs ready', this.gatherBakes, this)
+		]
 		this.animations = []
 		this.animationsById = {}
 		this.notRealTime = true
 		this.rtMultiplier = 1
-		this.additionalsRendered = {}
 		this.remaindersRemoved = {}
+		this.additionalsRendered = {}
 	}
 
 	setStageCallback(cb) {
 		this.stageCallback = cb
+	}
+
+	gatherBakes() {
+		this.bakes = cache.getBakes()
+		// only for reload
+		if (!this.bakes) {
+			this.reloadNotice = dispatch.on('reading complete', this.gatherBakes, this)
+			return
+		}
+		else if (this.reloadNotice) {
+			this.reloadNotice.off()
+			delete this.reloadNotice
+			this.play(this.playParams)
+		}
+		// - only for reload
 	}
 
 	update(dt) {
@@ -67,6 +85,9 @@ class Animator {
 			if (ani.fitToWidth) {
 				ani.entity.oldViewBox = ani.entity.viewBox
 				ani.entity.viewBox = ani.bakes[ani.frameIndex][ani.loopIndex].viewBox
+				let split = ani.entity.viewBox.split(' ')
+				ani.entity.width = ~~split[2]
+				ani.entity.height = ~~split[3]
 			}
 			this.stageCallback(ani.entity)
 			ani.loopIndex += this.rtMultiplier
@@ -99,23 +120,19 @@ class Animator {
 		}
 	}
 
-	replay() {
-		this.reloadNotice.off()
-		delete this.reloadNotice
-		this.play(this.replayParams)
-		delete this.replayParams
-	}
-
 	play({ entityId, name = 'default', type = 'normal', fitToWidth = true, from, to }) {
-		let repeat = 0
-		// TODO - figure out how to unbottleneck here
-		let allBakes = cache.getBakes()
-		if (!allBakes) {
-			this.replayParams = arguments[0]
-			this.reloadNotice = dispatch.on('reading complete', this.replay, this)
+		// only for reload
+		if (!this.bakes) {
+			this.playParams = arguments[0]
+			this.gatherBakes()
 			return
 		}
-		let bakes = allBakes[entityId][name]
+		else if (this.playParams) {
+			delete this.playParams
+		}
+		// - only for reload
+		let repeat = 0
+		let bakes = this.bakes[entityId][name]
 		if (type === 'reverse') {
 			bakes = bakes.reverse()
 			for (let i = 0; i < bakes.length; i++) {
@@ -135,6 +152,7 @@ class Animator {
 			to = intParse(to)
 			bakes = bakes.slice(from, to)
 		}
+		name = entityId + '_' + name
 		this.animations.push(this.animationsById[name] = {
 			type,
 			fitToWidth,
@@ -148,7 +166,8 @@ class Animator {
 		})
 	}
 
-	kill(name) {
+	kill(entityId, name) {
+		name = entityId + '_' + name
 		this.animations.splice(this.animations.indexOf(this.animationsById[name]), 1)
 		delete this.animationsById[name]
 	}

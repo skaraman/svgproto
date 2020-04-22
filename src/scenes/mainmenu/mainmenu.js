@@ -11,63 +11,54 @@ import Button from 'components/ui/button'
 import Stage from 'components/game/stage'
 import mainMenuScene from 'data/scenes/mainmenu'
 import physics from 'util/game/physics'
+import { initilize } from './scripts'
 
 export default class MainMenu extends Component {
 	constructor(props) {
 		super(props)
-		bindAll(this, ['exit', 'play', 'testscene', 'pocademo', 'settings', 'initilizeScene'])
+		bindAll(this, ['exit', 'play', 'testscene', 'pocademo', 'settings', 'initilizeScene', 'getStatics'])
 		input.register('keydown', 'mainMenuKeydown', this._keydown, this)
 		updater.register('mainMenuUpdate', this._update, this)
 		this.deltaTime = 0
 		this.data = mainMenuScene
+		this.getStatics()
 	}
 
 	componentDidMount() {
-		if (this.props.ready === true) {
+		if (this.props.ready) {
 			this.initilizeScene()
 		}
 	}
 
 	componentDidUpdate(prevProps) {
-		if (this.props.ready !== prevProps.ready && this.props.ready === true) {
+		if (this.props.ready && this.props.ready !== prevProps.ready) {
 			this.initilizeScene()
 		}
 	}
 
-	reinitilizeScene() {
-		this.reloadNotice.off()
-		delete this.reloadNotice
-		this.initilizeScene()
+	getStatics(reload) {
+		this.statics = cache.getStatics()
+		// only for reload
+		if (!this.statics) {
+			this.reloadNotice = dispatch.on('reading complete', this.getStatics, this)
+			return
+		}
+		else if (this.reloadNotice) {
+			this.reloadNotice.off()
+			delete this.reloadNotice
+			this.initilizeScene()
+		}
+		// - only for reload
 	}
 
 	initilizeScene() {
-		// TODO - figure out how to unbottleneck here
-		let statics = cache.getStatics()
-		if (!statics) {
-			this.reloadNotice = dispatch.on('reading complete', this.reinitilizeScene, this)
+		// only for reload
+		if (!this.statics) {
+			this.getStatics(true)
 			return
 		}
-		// initilize scene
-		let entitiesList = [{
-			id: 'colorChar',
-			x: -150
-		}]
-		let entities = {}
-		for (let act of entitiesList) {
-			let { id = act, x, y } = act
-			let entity = statics[id]
-			entities[id] = {
-				id,
-				entity,
-				// setup position in the scene, x and y should be relevant to center of screen
-				transform: {
-					x: x || 0,
-					y: y || 0,
-					rotate: 0,
-					scale: 1
-				}
-			}
-		}
+		// - only for reload
+		let entities = initilize(this.statics)
 		this.setState({
 			entities
 		})
@@ -130,9 +121,14 @@ export default class MainMenu extends Component {
 		animator.play({
 			entityId: 'colorChar',
 			name: 'powerUp',
-			type: 'normal'
+			type: 'repeat'
 		})
 		// this.playMotions = true
+	}
+
+	stop(event) {
+		event.stopPropagation()
+		animator.kill('colorChar', 'powerUp')
 	}
 
 	exit() {

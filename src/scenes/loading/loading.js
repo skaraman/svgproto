@@ -16,13 +16,13 @@ export default class Loading extends Component {
 	constructor(props) {
 		super(props)
 		this.loader = loader
-		input.register('keydown', 'loadingKeydown', this.keydown, this)
-		updater.register('loadingUpdate', this.update, this)
+		input.register('keydown', 'loadingKeydown', this._keydown, this)
+		updater.register('loadingUpdate', this._update, this)
 		this.on = [
-			dispatch.on('loadingComplete', this.loadingComplete, this),
-			dispatch.on('fs success', this.fsReady, this)
+			dispatch.on('loadingComplete', this._loadingComplete, this),
+			dispatch.on('fs success', this._fsReady, this)
 		]
-		bindAll(this, ['_exit'])
+		bindAll(this, ['exit', 'attemptLoadingDone'])
 		this.deltaTime = 0
 		this.notRealTime = true
 		this.it = 0
@@ -44,10 +44,9 @@ export default class Loading extends Component {
 		}
 		// first loading loop doesn't have any cached SVGs, this should be used as the Initial
 		// black screen during which company logos and loading scenes/aniamtions can be loaded
-		let statics = cache.getStatics()
-		if (statics && statics.loadingCircle) {
+		if (this.statics && this.statics.loadingCircle) {
 			// all subbsequent loading loops should show an animated loading screen
-			let entity = statics.loadingCircle['1']
+			let entity = this.statics.loadingCircle['1']
 			this.state = {
 				actors: {
 					loadingCircle: {
@@ -68,22 +67,7 @@ export default class Loading extends Component {
 		this.loader.postMessage({ msg: 'load', data: cache.META_DATA.manifest })
 	}
 
-	_exit() {
-		input.unregister('keydown', 'loadingKeydown')
-		updater.unregister('loadingUpdate')
-		animator.kill('loadingAnimation')
-		for (let o = 0; o < this.on.length; o++) {
-			this.on[o].off()
-		}
-		this.on = []
-		route(cache.META_DATA.exitRoute)
-	}
-
-	keydown(event) {
-		console.log('loadingKeydown', event)
-	}
-
-	update(dt) {
+	_update(dt) {
 		if (this.notRealTime) {
 			if (dt > 16) {
 				dt = 16
@@ -103,14 +87,18 @@ export default class Loading extends Component {
 		}
 	}
 
-	loadingComplete(SVGS) {
+	_keydown(event) {
+		console.log('loadingKeydown', event)
+	}
+
+	_loadingComplete(SVGS) {
 		console.log('Loading Completed')
 		this.lc = true
 		this.SVGS = SVGS
 		this.attemptLoadingDone()
 	}
 
-	fsReady() {
+	_fsReady() {
 		console.log('File System Ready')
 		this.fsr = true
 		this.attemptLoadingDone()
@@ -119,8 +107,21 @@ export default class Loading extends Component {
 	attemptLoadingDone() {
 		if (this.fsr === true && this.lc === true) {
 			cache.setSVGS(this.SVGS)
-			dispatch.send('fadeInBS', this._exit)
+			this.statics = this.SVGS.statics
+			dispatch.send('svgs ready')
+			dispatch.send('fadeInBS', this.exit)
 		}
+	}
+
+	exit() {
+		input.unregister('keydown', 'loadingKeydown')
+		updater.unregister('loadingUpdate')
+		animator.kill('loadingAnimation')
+		for (let o = 0; o < this.on.length; o++) {
+			this.on[o].off()
+		}
+		this.on = []
+		route(cache.META_DATA.exitRoute + window.location.search)
 	}
 
 	render({}, { loadingText, loadingCircle }) {

@@ -31,10 +31,10 @@ class Loader {
 		this.manifestAnimData = this.manifestData.animations
 		this.loadSVGs()
 		this.bakeSVGs()
-		this._cache()
+		this.saveToCache()
 	}
 
-	_cache() {
+	saveToCache() {
 		this.SVGS.bakes = objectAssignAll(this.SVGS.bakes, this.bakes)
 		this.SVGS.statics = objectAssignAll(this.SVGS.statics, this.statics)
 		postMessage({ msg: 'loadingComplete', data: this.SVGS })
@@ -54,14 +54,9 @@ class Loader {
 					continue svgLoop
 				}
 				let location = svgSet[svgKey]
-				let svg =
-					this.loadedSVGs[setKey][svgKey] =
-					require(`!!simple-svg-loader!svg/${location}.svg`).default({})
+				let svg = this.loadedSVGs[setKey][svgKey] = require(`!!simple-svg-loader!svg/${location}.svg`).default({})
 				this.loadedSVGs[setKey][svgKey].id = setKey
 				this.statics[setKey][svgKey] = {}
-				// if (!this.statics[setKey].id) {
-				// 	this.statics[setKey].id = setKey
-				// }
 				if (!this.statics[setKey].defaultId) {
 					this.statics[setKey].defaultId = svgKey
 				}
@@ -76,7 +71,8 @@ class Loader {
 							let { id, d, fill } = child.props
 							if (fill && fill.startsWith('url(#')) {
 								// bind this gradient to it's svg parent
-								fill = fill.replace('url(#', `url(#${setKey}_`)
+								this.pathToGradMap[fill.replace('url(#', '').replace(')', '')]  = `${setKey}_${id}`
+								fill = `url(#${setKey}_${id}`
 							}
 							svg.pathsById[id] = {
 								id,
@@ -102,7 +98,7 @@ class Loader {
 							for (let gradIndex = 0; gradIndex < gradients.length; gradIndex++) {
 								let grad = gradients[gradIndex]
 								// bind this gradient to it's svg parent
-								grad.props.id = `${setKey}_${grad.props.id}`
+								grad.props.id = this.pathToGradMap[grad.props.id]
 								svg.gradientsById[grad.props.id] = {
 									id: grad.props.id,
 									x1: grad.props.x1,
@@ -126,6 +122,7 @@ class Loader {
 				svg.height = parseInt(height)
 				svg.pathsById = {}
 				svg.gradientsById = {}
+				this.pathToGradMap = {}
 				reduceSvgChildrenToPaths(svg.props.children)
 				reduceSvgGradients(svg.props.children)
 			}

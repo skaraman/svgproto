@@ -2,18 +2,18 @@ import { h, Component } from 'preact'
 import style from './fpsOptions.css'
 import updater from 'util/game/updater'
 import Button from 'components/ui/button'
+import { bindAll } from 'util/data/helpers'
 
 export default class FpsOptions extends Component {
 	constructor(props) {
 		super(props)
-		this._play = true
-		this.pause = this.pause.bind(this)
-		this.step = this.step.bind(this)
+		this.playing = true
+		bindAll(this, ['pause', 'step'])
 	}
 
 	pause() {
-		this._play = !this._play
-		updater.toggle(this._play)
+		this.playing = !this.playing
+		updater.toggle(this.playing)
 	}
 
 	step() {

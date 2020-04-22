@@ -7,12 +7,28 @@ import hierarchy from 'util/game/hierarchy'
 import SvgWrap from 'components/ui/svgwrap'
 import cache from 'util/data/cache'
 
+import grid from 'img/grid.png'
+
 export default class Stage extends Component {
 	constructor(props) {
 		super(props)
-		bindAll(this, ['updateStageFromAnimation', '_setState', 'resize'])
+		bindAll(this, ['updateStageFromAnimation', 'updateStage', 'resize'])
 		animator.setStageCallback(this.updateStageFromAnimation)
 		window.addEventListener('resize', this.resize)
+	}
+
+	componentDidMount() {
+		hierarchy.add(this.props.children)
+		this.updateStage()
+		this.resize()
+	}
+
+	componentDidUpdate(prevProps, prevState) {
+		if (this.props.children === prevProps.children) {
+			return
+		}
+		hierarchy.update(this.props.children)
+		this.updateStage()
 	}
 
 	resize() {
@@ -33,7 +49,7 @@ export default class Stage extends Component {
 		})
 	}
 
-	_setState() {
+	updateStage() {
 		let ents = hierarchy.getEntities()
 		let grads = hierarchy.getGradients()
 		this.setState({
@@ -42,25 +58,12 @@ export default class Stage extends Component {
 		})
 	}
 
-	componentDidMount() {
-		hierarchy.add(this.props.children)
-		this._setState()
-		this.resize()
-	}
-
-	componentDidUpdate(prevProps, prevState) {
-		if (this.props.children === prevProps.children) {
-			return
-		}
-		hierarchy.update(this.props.children)
-		this._setState()
-	}
-
 	render({ class: additionalClass }, { ents, grads, offsetWidth, offsetHeight }) {
 		return (
 			<div
 				class={classnames(style.stage, additionalClass)}
 				ref={elem => this.stage = elem}
+				style={`background-image: url(${grid});background-position: center;background-size: 10%;`}
 			>
 				{ ents && grads &&
 					<svg
@@ -93,18 +96,18 @@ export default class Stage extends Component {
 								})
 							}
 						</defs>
-						{ ents.map(v => {
-							if (Object.keys(v.paths).length > 0) {
+						{ ents.map(ent => {
+							if (Object.keys(ent.paths).length > 0) {
 								return (
 									<SvgWrap
-										id={v.id}
+										id={ent.id}
 										stageHeight={offsetHeight}
 										stageWidth={offsetWidth}
-										height={v.height}
-										width={v.width}
-										{...v.transform}
+										height={ent.height}
+										width={ent.width}
+										{...ent.transform}
 									>
-										{ Object.keys(v.paths).map(k => (<path {...v.paths[k]} />)) }
+										{ Object.keys(ent.paths).map(k => (<path {...ent.paths[k]} />)) }
 									</SvgWrap>
 								)
 							}

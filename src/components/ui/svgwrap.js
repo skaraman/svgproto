@@ -6,40 +6,29 @@ export default class SVGWrap extends Component {
 
 	render({
 		children,
-		x,
-		y,
-		rotate,
-		scale,
-		origin = [0, 0],
+		x: ecks = 0,
+		y: why = 0,
+		rotate = 0,
+		scale = 1,
 		anchor = [0, 0],
 		stageHeight,
 		stageWidth,
 		width,
 		height
 	}, { align = true }) {
-		let transform = ''
-		let rotation = ''
-		let translateX = ''
-		let translateY = ''
-		let scalar = ''
+		let transform = '', rotation = '', translateEcks = '', translateWhy = '', scalar = ''
 		if (isDefined(rotate)) {
 			rotation = `rotate(${rotate}deg)`
 		}
-		if (isDefined(x)) {
-			// let [xOrigin] = origin
-			// let [xAnchor] = anchor
-			// let realX = ((stageWidth / 2) +
-			// 		((stageWidth / 2) * xOrigin)) -
-			// 	((width / 2) - ((width / 2) * xAnchor))
-			translateX = `translateX(${x}px)`
+		if (isDefined(why)) {
+			let [, whyAnchor] = anchor
+			let realWhy = (why + ((height / 2) * scale * whyAnchor))
+			translateWhy = `translateY(${realWhy}px)`
 		}
-		if (isDefined(y)) {
-			// let [, yOrigin] = origin
-			// let [, yAnchor] = anchor
-			// let realY = ((stageHeight / 2) +
-			// 		((stageHeight / 2) * yOrigin)) -
-			// 	((height / 2) - ((height / 2) * yAnchor))
-			translateY = `translateY(${y}px)`
+		if (isDefined(ecks)) {
+			let [ecksAnchor] = anchor
+			let realEcks = (ecks + ((width / 2) * scale * ecksAnchor))
+			translateEcks = `translateX(${realEcks}px)`
 		}
 		if (isDefined(scale)) {
 			scalar = `scale(${scale})`
@@ -59,7 +48,7 @@ export default class SVGWrap extends Component {
 				>
 					<g
 						class={style.translateXY}
-						style={{transform: `${translateX} ${translateY}`}}
+						style={{transform: `${translateEcks} ${translateWhy}`}}
 					>
 						<g
 							class={style.scaleRotate}

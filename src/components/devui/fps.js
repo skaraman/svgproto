@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'
 import style from './fps.css'
 import updater from 'util/game/updater'
-import { intParse } from 'util/data/helpers'
+import { intParse, bindAll } from 'util/data/helpers'
 
 const second = 1000
 const limiter = 2
@@ -9,13 +9,18 @@ const limiter = 2
 export default class FpsMeter extends Component {
 	constructor(props) {
 		super(props)
-		updater.register('fpsmeter', this.update, this)
+		updater.register('fpsmeter', this._update, this)
+		bindAll(this, ['setPerformanceState'])
 		this.fps = 0
 		this.calls = 0
 		this.updateTime = 0
 	}
 
-	update(dt) {
+	componentDidMount() {
+		this.setPerformanceState()
+	}
+
+	_update(dt) {
 		this.fps++
 		this.updateTime += dt
 		if (this.updateTime >= second * limiter) this.setPerformanceState()
@@ -29,10 +34,6 @@ export default class FpsMeter extends Component {
 		this.fps = 0
 		this.calls = 0
 		this.updateTime = 0
-	}
-
-	componentDidMount() {
-		this.setPerformanceState()
 	}
 
 	render({}, { fps }) {
