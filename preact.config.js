@@ -3,9 +3,10 @@ const WorkerPlugin = require('worker-plugin')
 const aliases = {
 	img: 'src/assets/img',
 	svg: 'src/assets/svg',
+	data: 'src/assets/data',
+	icons: 'src/assets/icons',
 	components: 'src/components',
 	scenes: 'src/scenes',
-	data: 'src/assets/data',
 	util: 'src/utilities'
 }
 
@@ -16,7 +17,6 @@ function setAliases(config) {
 }
 
 export default function (config, env, helpers) {
-
 	helpers.getLoadersByName(config, 'postcss-loader').forEach(({ loader }) => {
 		loader.options = {
 			config: {
@@ -24,7 +24,6 @@ export default function (config, env, helpers) {
 			}
 		}
 	})
-
 	setAliases(config)
 	config.plugins.push(new WorkerPlugin)
 	config.module.rules[4].include.push(path.resolve(__dirname, 'src/scenes'))

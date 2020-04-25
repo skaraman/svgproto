@@ -1,5 +1,6 @@
-.header {
-	position: relative;
+ts-header-wrap {
+	position: absolute;
+	display: flex;
 	left: 0;
 	top: 0;
 	width: 100%;
@@ -8,43 +9,69 @@
 	background: rgba(16, 142, 8, 0.3);
 	box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 	z-index: 1001;
+
+	& ts-header {
+		display: flex;
+		align-items: center;
+		padding: 0 15px;
+		font-size: 24px;
+		color: rgba(27, 27, 27, 1);
+	}
+
+	& ts-nav {
+		display: flex;
+		background: #004A03;
+
+		& ts-button {
+			display: flex;
+			height: 56px;
+			line-height: 56px;
+			padding: 0 15px;
+			min-width: 50px;
+			text-align: center;
+			background: rgba(255, 255, 255, 0);
+			text-decoration: none;
+			color: white;
+			will-change: background-color;
+			&.active {
+				background: rgba(0, 0, 0, 0.4);
+			}
+		}
+		& ts-button:hover, & ts-button:active {
+			background: rgba(0, 0, 0, 0.2);
+		}
+	}
+
+	& .openButton, & .closeButton  {
+		background: rgba(255, 255, 255, 0.3);
+		display: inline-block;
+		height: 100%;
+		width: 15px;
+	}
 }
 
-.header h1 {
-	float: left;
-	margin: 0;
-	padding: 0 15px;
-	font-size: 24px;
-	line-height: 56px;
-	font-weight: 400;
-	color: rgba(27, 27, 27, 1);
+.open {
+	animation: slideOpen 200ms ease-in-out forwards;
 }
 
-.header nav {
-	font-size: 100%;
-	position: absolute;
-	right: 0;
-	background: #004A03;
+.close {
+	animation: slideClose 200ms ease-in-out forwards;
 }
 
-.header nav a {
-	display: inline-block;
-	height: 56px;
-	line-height: 56px;
-	padding: 0 15px;
-	min-width: 50px;
-	text-align: center;
-	background: rgba(255, 255, 255, 0);
-	text-decoration: none;
-	color: white;
-	will-change: background-color;
+@keyframes slideOpen {
+	from {
+		left: -673px;
+	}
+	to {
+		left: 0;
+	}
 }
 
-.header nav a:hover,
-.header nav a:active {
-	background: rgba(0, 0, 0, 0.2);
-}
-
-.header nav a.active {
-	background: rgba(0, 0, 0, 0.4);
+@keyframes slideClose {
+	from {
+		left: 0;
+	}
+	to {
+		left: -673px;
+	}
 }

@@ -1,0 +1,17 @@
+ts-checkbox {
+	display: flex;
+	width: 16px;
+	height: 16px;
+	border: 1px solid black;
+	background: rgba(255, 255, 255, 1);
+	align-items: center;
+
+	& img {
+		display: none;
+		width: 14px;
+		height: 14px;
+		&.checked {
+			display: flex;
+		}
+	}
+}

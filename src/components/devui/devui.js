@@ -1,25 +1,76 @@
 import { h, Component } from 'preact'
 import style from './devui.css'
+import classnames from 'classnames'
 import { bindAll } from 'util/data/helpers'
-import { Link } from 'preact-router/match';
+import Button from 'components/ui/button'
 import FpsMeter from 'components/devui/fps'
 import FpsOptions from 'components/devui/fpsOptions'
 import cache from 'util/data/cache'
 
 class DevUI extends Component {
+	constructor() {
+		super()
+		bindAll(this, ['toggleView'])
+		this.open = false
+	}
 
-	render({}, {}) {
+	toggleView() {
+		if (this.open) {
+			this.setState({
+				animation: style.close
+			})
+		}
+		else {
+			this.setState({
+				animation: style.open
+			})
+		}
+	}
+
+	navHome() {
+
+	}
+
+	navMainMenu() {
+
+	}
+
+	navDemoScene() {
+
+	}
+
+	render({}, { currentPage, animation }) {
 		return (
-			<header class={style.header}>
-				<h1>SVG Proto</h1>
-				<nav>
-					<Link activeClassName={style.active} href="/">Loading</Link>
-					<Link activeClassName={style.active} href="/testscene">Test Scene</Link>
-					<Link activeClassName={style.active} href="/mainmenu">MainMenu</Link>
-				</nav>
+			<ts-header-wrap class={classnames(style.header, animation)}>
+				<Button
+					class={style.closeButton}
+					onClick={this.toggleView}
+				/>
+				<ts-header>SVG&nbsp;Proto</ts-header>
 				<FpsMeter />
 				<FpsOptions />
-			</header>
+				<ts-nav>
+					<Button
+						class={currentPage === '/' && style.active}
+						text={'Loading'}
+						onClick={this.navHome}
+					/>
+					<Button
+						class={currentPage === '/demoscene' && style.active}
+						text={'Demo Scene'}
+						onClick={this.navDemoScene}
+					/>
+					<Button
+						class={currentPage === '/mainmenu' && style.active}
+						text={'MainMenu'}
+						onClick={this.navMainMenu}
+					/>
+				</ts-nav>
+				<Button
+					class={style.openButton}
+					onClick={this.toggleView}
+				/>
+			</ts-header-wrap>
 		)
 	}
 }

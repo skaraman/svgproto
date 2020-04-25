@@ -2,10 +2,11 @@ import { h } from 'preact'
 import style from './button.css'
 
 const Button = ({
-	text = 'Button',
-	onClick = () => console.log('onClick')
+	text,
+	onClick = () => console.log('onClick'),
+	class: additionalClass
 }) => (
-	<ts-button class={style.button} onClick={onClick}>
+	<ts-button class={additionalClass} onClick={onClick}>
 		{
 			text
 		}

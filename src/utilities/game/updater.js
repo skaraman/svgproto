@@ -1,15 +1,15 @@
 class Updater {
 	constructor() {
-		this.perf = window.performance
-		if (!this.perf) {
+		if (!performance) {
 			console.error('bad browser')
 			return
 		}
 		this.lastupdate = 0
 		this.callbacks = {}
+		this.unpausableCallbacks = {}
 		this.pause = false
 		this._step = false
-		this._notRealtimeStep = true
+		this._notRealtimeStep = false
 		this._update()
 	}
 
@@ -27,29 +27,42 @@ class Updater {
 	}
 
 	toggle(activate = null) {
-		if (activate === null) activate = this.pause
+		if (activate === null) {
+			activate = this.pause
+		}
+		if (this.pause) {
+			this.wasPaused = true
+		}
 		this.pause = !activate
 		this._update()
 	}
 
 	register(id, callback, target, type = 'update') {
-		if (type === 'update') {
-			this.callbacks[id] = {
-				callback,
-				target
-			}
-		}
-		if (type === 'preUpdate') {
-			this.preCallbacks[id] = {
-				callback,
-				target
-			}
-		}
-		if (type === 'postUpdate') {
-			this.postCallbacks[id] = {
-				callback,
-				target
-			}
+		switch (type) {
+			case 'update':
+				this.callbacks[id] = {
+					callback,
+					target
+				}
+				break;
+			case 'preUpdate':
+				this.preCallbacks[id] = {
+					callback,
+					target
+				}
+				break
+			case 'postUpdate':
+				this.postCallbacks[id] = {
+					callback,
+					target
+				}
+				break
+			case 'unpausable':
+				this.unpausableCallbacks[id] = {
+					callback,
+					target
+				}
+				break
 		}
 	}
 
@@ -58,17 +71,25 @@ class Updater {
 	}
 
 	_update() {
-		if (this.pause && !this._step) return
-		let deltatime = this.perf.now() - this.lastupdate
-		if (this._step && this._notRealtimeStep) deltatime = 16
+		let deltatime = performance.now() - this.lastupdate
+		this._unpausableUpdate(deltatime)
+		if (this.pause && !this._step) {
+			return
+		}
+		if (this._step || this.wasPaused || (this._notRealtimeStep && deltatime > 16)) {
+			deltatime = 16
+			this.wasPaused = false
+		}
 		this._preUpdate(deltatime)
-		this.lastupdate = this.perf.now()
+		this.lastupdate = performance.now()
 		for (let cbIndex in this.callbacks) {
 			let cb = this.callbacks[cbIndex]
 			cb.callback.apply(cb.target, [deltatime])
 		}
 		this._postUpdate(deltatime)
-		if (this._step) this._step = false
+		if (this._step) {
+			this._step = false
+		}
 		window.requestAnimationFrame(this._update.bind(this))
 	}
 
@@ -83,6 +104,13 @@ class Updater {
 		for (let cbIndex in this.postCallbacks) {
 			let cb = this.postCallbacks[cbIndex]
 			cb.callback.apply(cb.target, [deltatime])
+		}
+	}
+
+	_unpausableUpdate(deltatime) {
+		for (let cbIndex in this.unpausableCallbacks) {
+			let cb = this.unpausableCallbacks[cbIndex]
+			cb.callback.apply(cb.target, [deltaTime])
 		}
 	}
 }

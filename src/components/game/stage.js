@@ -18,6 +18,10 @@ export default class Stage extends Component {
 	}
 
 	componentDidMount() {
+		let isDev = cache.META_DATA.isDev
+		if (isDev) {
+			this.setDev()
+		}
 		hierarchy.add(this.props.children)
 		this.updateStage()
 		this.resize()
@@ -29,6 +33,12 @@ export default class Stage extends Component {
 		}
 		hierarchy.update(this.props.children)
 		this.updateStage()
+	}
+
+	setDev() {
+		this.setState({
+			isDev: true
+		})
 	}
 
 	resize() {
@@ -58,12 +68,12 @@ export default class Stage extends Component {
 		})
 	}
 
-	render({ class: additionalClass }, { ents, grads, offsetWidth, offsetHeight }) {
+	render({ class: additionalClass }, { ents, grads, offsetWidth, offsetHeight, isDev }) {
 		return (
 			<div
 				class={classnames(style.stage, additionalClass)}
 				ref={elem => this.stage = elem}
-				style={`background-image: url(${grid});background-position: center;background-size: 10%;`}
+				style={isDev ? `background-image: url(${grid});background-position: center;background-size: 10%;`: ''}
 			>
 				{ ents && grads &&
 					<svg

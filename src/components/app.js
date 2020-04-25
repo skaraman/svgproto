@@ -80,23 +80,23 @@ export default class App extends Component {
 
 	render(props, { isDev, ready }) {
 		return (
-			<div id='app'>
+			<ts-app id='app'>
 				{
 					isDev && <DevUI />
 				}
 				<BlackScreen />
 				<Router onChange={this.handleRoute} >
 					<Loading path={ENTRY_URL['/']} />
-					<Demo ready={ready} path={RELOAD_URLS['/demo']} />
 					<MainMenu ready={ready} path={RELOAD_URLS['/mainmenu']} />
 					<Settings ready={ready} path={RELOAD_URLS['/settings']} />
+					<Demo ready={ready} path={RELOAD_URLS['/demo']} />
 					<PocaDemo ready={ready} path={RELOAD_URLS['/pocademo']} />
 				</Router>
 				<DnD />
 				{
 					isDev && <Terminal />
 				}
-			</div>
+			</ts-app>
 		)
 	}
 }

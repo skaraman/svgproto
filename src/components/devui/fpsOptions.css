@@ -1,4 +1,5 @@
-.options {
-    color: white;
-    display: inline;
+ts-fpsoptions {
+	color: white;
+	display: flex;
+	align-items: center;
 }

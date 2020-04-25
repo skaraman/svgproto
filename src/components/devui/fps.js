@@ -28,19 +28,17 @@ export default class FpsMeter extends Component {
 
 	setPerformanceState() {
 		this.setState({
-			fps: intParse(this.fps / limiter),
-			calls: intParse(this.calls / limiter)
+			fps: intParse(this.fps / limiter)
 		})
 		this.fps = 0
-		this.calls = 0
 		this.updateTime = 0
 	}
 
 	render({}, { fps }) {
 		return (
-			<div class={style.fps}>
-				<p>FPS: {fps}</p>{/*<p>Calls: </p>*/}
-			</div>
+			<ts-fps class={style.fps}>
+				FPS:&nbsp;{fps}
+			</ts-fps>
 		)
 	}
 }
