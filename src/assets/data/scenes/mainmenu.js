@@ -1,4 +1,4 @@
-const mainMenuScene = {
+const mainMenu = {
 	objects: {
 		colorChar: {
 			stand: 'fillers/colorChar/stand',
@@ -66,4 +66,4 @@ const mainMenuScene = {
 	}
 }
 
-export default mainMenuScene
+export default mainMenu

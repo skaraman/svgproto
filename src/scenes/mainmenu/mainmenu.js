@@ -6,22 +6,24 @@ import cache from 'util/data/cache'
 import input from 'util/game/input'
 import dispatch from 'util/data/dispatch'
 import updater from 'util/game/updater'
-import { bindAll } from 'util/data/helpers'
 import Button from 'components/ui/button'
 import Stage from 'components/game/stage'
-import mainMenuScene from 'data/scenes/mainmenu'
+import mainMenu from 'data/scenes/mainmenu'
 import physics from 'util/game/physics'
 import { initilize } from './scripts'
+import { bindAll } from 'util/data/helpers'
+import dev from 'components/hoc/dev'
 
+@dev
 export default class MainMenu extends Component {
 	constructor(props) {
 		super(props)
-		bindAll(this, ['exit', 'play', 'testscene', 'pocademo', 'settings', 'initilizeScene', 'getStatics'])
 		input.register('keydown', 'mainMenuKeydown', this._keydown, this)
 		updater.register('mainMenuUpdate', this._update, this)
 		this.deltaTime = 0
-		this.data = mainMenuScene
+		this.data = mainMenu
 		this.getStatics()
+		bindAll(this, [initilize])
 	}
 
 	componentDidMount() {
@@ -34,35 +36,6 @@ export default class MainMenu extends Component {
 		if (this.props.ready && this.props.ready !== prevProps.ready) {
 			this.initilizeScene()
 		}
-	}
-
-	getStatics(reload) {
-		this.statics = cache.getStatics()
-		// only for reload
-		if (!this.statics) {
-			this.reloadNotice = dispatch.on('reading complete', this.getStatics, this)
-			return
-		}
-		else if (this.reloadNotice) {
-			this.reloadNotice.off()
-			delete this.reloadNotice
-			this.initilizeScene()
-		}
-		// - only for reload
-	}
-
-	initilizeScene() {
-		// only for reload
-		if (!this.statics) {
-			this.getStatics(true)
-			return
-		}
-		// - only for reload
-		let entities = initilize(this.statics)
-		this.setState({
-			entities
-		})
-		dispatch.send('fadeOutBS')
 	}
 
 	_update(dt) {
@@ -93,30 +66,59 @@ export default class MainMenu extends Component {
 		console.log('mainMenuKeydown', event)
 	}
 
-	settings() {
+	getStatics = (reload) => {
+		this.statics = cache.getStatics()
+		// only for reload
+		if (!this.statics) {
+			this.reloadNotice = dispatch.on('reading complete', this.getStatics, this)
+			return
+		}
+		else if (this.reloadNotice) {
+			this.reloadNotice.off()
+			delete this.reloadNotice
+			this.initilizeScene()
+		}
+		// - only for reload
+	}
+
+	initilizeScene = () => {
+		// only for reload
+		if (!this.statics) {
+			this.getStatics(true)
+			return
+		}
+		// - only for reload
+		let entities = initilize(this.statics)
+		this.setState({
+			entities
+		})
+		dispatch.send('fadeOutBS')
+	}
+
+	settings = () => {
 		this.exit()
 		route('/settings')
 	}
 
-	testscene() {
-		cache.META_DATA.exitRoute = '/testscene'
-		cache.META_DATA.manifest = 'testScene'
+	demo = () => {
+		cache.META_DATA.exitRoute = '/demo'
+		cache.META_DATA.manifest = 'demo'
 		dispatch.send('fadeInBS', () => {
-			this._exit()
+			this.exit()
 			route('/')
 		})
 	}
 
-	pocademo() {
+	pocademo = () => {
 		cache.META_DATA.exitRoute = '/pocademo'
 		cache.META_DATA.manifest = 'pocaDemo'
 		dispatch.send('fadeInBS', () => {
-			this._exit()
+			this.exit()
 			route('/')
 		})
 	}
 
-	play(event) {
+	play = (event) => {
 		event.stopPropagation()
 		animator.play({
 			entityId: 'colorChar',
@@ -126,44 +128,50 @@ export default class MainMenu extends Component {
 		// this.playMotions = true
 	}
 
-	stop(event) {
+	stop = (event) => {
 		event.stopPropagation()
 		animator.kill('colorChar', 'powerUp')
 	}
 
-	exit() {
+	exit = () => {
 		updater.unregister('mainMenuUpdate')
 		input.unregister('keydown', 'mainMenuKeydown')
 		animator.kill('testAnimation')
 	}
 
-	render({ ready }, { entities }) {
+	render({ ready }, { entities, isDev }) {
 		return (ready && entities &&
-			<div class={style.mainWrap}>
-				<div class={style.mainMenu}>
-					<div class={style.mainMenuText}>Main Menu</div>
-					<Button
-						text='Play Test Animation'
-						onClick={this.play}
-					/>
+			<div class={ style.mainWrap } >
+				<div class={ style.mainMenu } >
+					<div class={ style.mainMenuText } >
+						Main Menu
+					</div>
 					<Button
 						text='Settings'
-						onClick={this.settings}
+						onClick={ this.settings }
 					/>
 					<Button
-						text='Test Scene'
-						onClick={this.testscene}
+						text='Demo'
+						onClick={ this.demo }
 					/>
 					<Button
 						text='Poca Demo'
-						onClick={this.pocademo}
+						onClick={ this.pocademo }
 					/>
-					<p>copyright and trademark stuff</p>
 				</div>
+				<ts-text>copyright and trademark stuff</ts-text>
 				{ entities &&
-					<Stage class={style.stage}>
-						{entities}
+					<Stage class={ style.stage } >
+						{ entities }
 					</Stage>
+				}
+				{ isDev &&
+					<div class={ style.animationMenu } >
+						<Button
+							text='Play Test Animation'
+							onClick={ this.play }
+						/>
+					</div>
 				}
 			</div>
 		)

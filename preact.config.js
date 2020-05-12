@@ -1,8 +1,8 @@
 const path = require('path')
 const WorkerPlugin = require('worker-plugin')
 const aliases = {
-	img: 'src/assets/img',
-	svg: 'src/assets/svg',
+	imgs: 'src/assets/imgs',
+	svgs: 'src/assets/svgs',
 	data: 'src/assets/data',
 	icons: 'src/assets/icons',
 	components: 'src/components',

@@ -3,10 +3,15 @@ import style from './button.css'
 
 const Button = ({
 	text,
-	onClick = () => console.log('onClick'),
-	class: additionalClass
+	onMouseDown,
+	onMouseUp,
+	class: aClass
 }) => (
-	<ts-button class={additionalClass} onClick={onClick}>
+	<ts-button
+		class={aClass}
+		onMouseDown={onMouseDown}
+		onMouseUp={onMouseUp}
+	>
 		{
 			text
 		}

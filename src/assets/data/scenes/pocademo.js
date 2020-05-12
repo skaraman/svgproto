@@ -1,4 +1,4 @@
-const pocaDemoScene = {
+const pocaDemo = {
 	"objects": {
 		"poca": {
 			"full_1": "poca/full_1",
@@ -118,4 +118,4 @@ const pocaDemoScene = {
 	}
 }
 
-export default pocaDemoScene
+export default pocaDemo

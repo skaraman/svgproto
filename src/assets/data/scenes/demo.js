@@ -1,4 +1,4 @@
-const demoScene = {
+const demo = {
 	'objects': {
 		'esperanza': {
 			'stand': 'esperanza/stand',
@@ -90,4 +90,4 @@ const demoScene = {
 	}
 }
 
-export default demoScene
+export default demo

@@ -1,9 +1,7 @@
-import { bindAll } from 'util/data/helpers'
 import dispatch from 'util/data/dispatch'
 
 class Files {
 	constructor() {
-		bindAll(this, ['read', 'write'])
 		this.fs = self.webkitRequestFileSystemSync(
 			self.TEMPORARY,
 			undefined
@@ -33,11 +31,11 @@ class Files {
 		postMessage({ msg: 'readingComplete', data: { name, text }})
 	}
 
-	write({ name, text }) {
+	write({ name, text, overwrite = true }) {
 		let fileEntry = this.fs.root.getFile(name, { create: true })
 		let file = fileEntry.file()
 		let testText = this.reader.readAsText(file)
-		if (testText) {
+		if (testText && overwrite) {
 			fileEntry.remove()
 			this.write({ name, text })
 			return

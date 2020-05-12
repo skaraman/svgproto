@@ -5,7 +5,6 @@ import dispatch from 'util/data/dispatch'
 import updater from 'util/game/updater'
 import input from 'util/game/input'
 import animator from 'util/game/animator'
-import { bindAll } from 'util/data/helpers'
 import Stage from 'components/game/stage'
 
 export default class Demo extends Component {
@@ -15,7 +14,6 @@ export default class Demo extends Component {
 		input.register('keydown', 'testsceneKeydown', this._keydown, this)
 		input.register('keyup', 'testsceneKeyup', this._keyup, this)
 		// input.register('keypress', 'testsceneKeypress', this.keypress, this)
-		bindAll(this, ['updateTime', 'setAnimationState'])
 		this.deltaTime = 0
 		cache.GAME_DATA.testscene = cache.GAME_DATA.testscene || {}
 		// TODO: rig up player input control
@@ -101,14 +99,14 @@ export default class Demo extends Component {
 	//     console.log('testsceneKeypress', event)
 	// }
 
-	updateTime() {
+	updateTime = () => {
 		this.setState({
 			time: Date.now()
 		})
 		this.deltaTime = 0
 	}
 
-	setAnimationState(svg, fitToSize) {
+	setAnimationState = (svg, fitToSize) => {
 		let stateSvg = this.state.actors[svg.id]
 		let state = this.state
 		let actors = this.state.actors

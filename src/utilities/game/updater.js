@@ -44,7 +44,7 @@ class Updater {
 					callback,
 					target
 				}
-				break;
+				break
 			case 'preUpdate':
 				this.preCallbacks[id] = {
 					callback,

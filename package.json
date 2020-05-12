@@ -11,8 +11,9 @@
 		"start": "per-env",
 		"start:production": "npm run -s serve",
 		"start:development": "npm run -s dev",
-		"build": "preact build --no-prerender --no-sw",
+		"build": "preact build --no-prerender --no-sw --template src/index.html",
 		"serve": "preact build && preact serve",
+		"template": "preact watch --template src/index.html",
 		"dev": "preact watch"
 	},
 	"devDependencies": {

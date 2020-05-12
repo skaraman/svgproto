@@ -1,4 +1,4 @@
-import { h, Component } from 'preact'
+import { h, Component, Fragment } from 'preact'
 import { route } from 'preact-router'
 import style from './loading.css'
 import input from 'util/game/input'
@@ -6,9 +6,10 @@ import updater from 'util/game/updater'
 import dispatch from 'util/data/dispatch'
 import animator from 'util/game/animator'
 import cache from 'util/data/cache'
-import { bindAll, resetRefreshStorage } from 'util/data/helpers'
+import { bindAll } from 'util/data/helpers'
 import Stage from 'components/game/stage'
 import { setup } from 'util/data/setup'
+import { initilize } from './scripts'
 
 let loader = setup('loader', ['loadingComplete'])
 
@@ -22,18 +23,18 @@ export default class Loading extends Component {
 			dispatch.on('loadingComplete', this._loadingComplete, this),
 			dispatch.on('fs success', this._fsReady, this)
 		]
-		bindAll(this, ['exit', 'attemptLoadingDone'])
 		this.deltaTime = 0
 		this.notRealTime = true
 		this.it = 0
 		this.loadingTextArr = [
 			'Loading...',
-			'Loading ..',
-			'Loading  .',
+			`Loading ..`,
+			`Loading  .`,
 			'Loading   ',
 			'Loading.  ',
 			'Loading.. '
 		]
+		bindAll(this, [initilize])
 	}
 
 	componentDidMount() {
@@ -44,26 +45,10 @@ export default class Loading extends Component {
 		}
 		// first loading loop doesn't have any cached SVGs, this should be used as the Initial
 		// black screen during which company logos and loading scenes/aniamtions can be loaded
-		if (this.statics && this.statics.loadingCircle) {
-			// all subbsequent loading loops should show an animated loading screen
-			let entity = this.statics.loadingCircle['1']
-			this.state = {
-				actors: {
-					loadingCircle: {
-						entity,
-						width: '200px',
-						right: '50px',
-						bottom: '50px',
-						rotation: 0
-					}
-				}
-			}
-			animator.play({
-				entityId: 'loadingCircle',
-				name: 'loadingAnimation',
-				type: 'loop'
-			})
-		}
+		let entities = initilize()
+		this.setState({
+			entities
+		})
 		this.loader.postMessage({ msg: 'load', data: cache.META_DATA.manifest })
 	}
 
@@ -104,7 +89,7 @@ export default class Loading extends Component {
 		this.attemptLoadingDone()
 	}
 
-	attemptLoadingDone() {
+	attemptLoadingDone = () => {
 		if (this.fsr === true && this.lc === true) {
 			cache.setSVGS(this.SVGS)
 			this.statics = this.SVGS.statics
@@ -113,7 +98,7 @@ export default class Loading extends Component {
 		}
 	}
 
-	exit() {
+	exit = () => {
 		input.unregister('keydown', 'loadingKeydown')
 		updater.unregister('loadingUpdate')
 		animator.kill('loadingAnimation')
@@ -124,27 +109,19 @@ export default class Loading extends Component {
 		route(cache.META_DATA.exitRoute + window.location.search)
 	}
 
-	render({}, { loadingText, loadingCircle }) {
+	render({}, { loadingText, entities }) {
 		return (
-			<div class={style.loading}>
+			<ts-loading>
 				{
-					loadingCircle &&
-					<div class={style.stage}>
-						<Stage
-							origin={{x:0, y:0}}
-							right={loadingCircle.right}
-							bottom={loadingCircle.bottom}
-							width={loadingCircle.width}
-							rotation={loadingCircle.rotation}
-						>
-							{loadingCircle.svg}
-						</Stage>
-					</div>
+					entities &&
+					<Stage class={ style.stage } >
+						{ entities }
+					</Stage>
 				}
-				<div class={style.effects}>
-					<p>{loadingText}</p>
-				</div>
-			</div>
+				<ts-effects>
+					<ts-text>{loadingText}</ts-text>
+				</ts-effects>
+			</ts-loading>
 		)
 	}
 }

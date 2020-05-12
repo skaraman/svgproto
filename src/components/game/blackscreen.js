@@ -2,7 +2,6 @@ import { h, Component } from 'preact'
 import style from './blackscreen.css'
 import dispatch from 'util/data/dispatch'
 import updater from 'util/game/updater'
-import { bindAll } from 'util/data/helpers'
 
 export default class BlackScreen extends Component {
 	constructor(props) {
@@ -11,7 +10,6 @@ export default class BlackScreen extends Component {
 			dispatch.on('fadeInBS', this._fadeIn, this),
 			dispatch.on('fadeOutBS', this._fadeOut, this)
 		]
-		bindAll(this, ['reg', 'unreg'])
 		this.opacity = 1
 		this.state = {
 			opacity: this.opacity
@@ -55,11 +53,11 @@ export default class BlackScreen extends Component {
 		this.fade = 'out'
 	}
 
-	reg() {
+	reg = () => {
 		updater.register('blackscreenUpdate', this._update, this)
 	}
 
-	unreg() {
+	unreg = () => {
 		updater.unregister('blackscreenUpdate')
 	}
 

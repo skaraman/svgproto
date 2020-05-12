@@ -6,6 +6,7 @@
 	flex-direction: column;
 
 	& .mainMenu {
+		display: flex;
 		top: 0;
 		left: 0;
 		z-index: 15;
@@ -32,5 +33,14 @@
 
 	& .box {
 		width: 300px;
+	}
+
+	& .animationMenu {
+		position: absolute;
+		left: 30px;
+		bottom: 60px;
+		min-width: 100px;
+		min-height: 100px;
+		background-color: rgba(50, 250, 0, 0.4);
 	}
 }

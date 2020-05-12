@@ -1,78 +1,134 @@
-import { h, Component } from 'preact'
+import { h, Component, Fragment } from 'preact'
 import style from './devui.css'
 import classnames from 'classnames'
-import { bindAll } from 'util/data/helpers'
 import Button from 'components/ui/button'
-import FpsMeter from 'components/devui/fps'
-import FpsOptions from 'components/devui/fpsOptions'
+import Fps from 'components/devui/fps'
+import DropDown from 'components/ui/dropdown'
 import cache from 'util/data/cache'
+import input from 'util/game/input'
+import { isNaZN } from 'util/data/helpers'
 
-class DevUI extends Component {
-	constructor() {
-		super()
-		bindAll(this, ['toggleView'])
-		this.open = false
+export default class DevUI extends Component {
+	open = false
+	initialMove = true
+	startX = 0
+	startY = 0
+
+	_moveDevUi(event) {
+		let { clientX, clientY } = event
+		let { x = 0, y = 0 } = this.state
+		if (this.initialMove) {
+			this.startX = clientX - x
+			this.startY = clientY - y
+			this.initialMove = false
+		}
+		x = (clientX - this.startX)
+		y = (clientY - this.startY)
+		this.setState({
+			x,
+			y
+		})
 	}
 
-	toggleView() {
+	drag = (event) => {
+		event.stopPropagation()
+		input.register('mousemove', 'devUIMouseMove', this._moveDevUi, this)
+	}
+
+	dragStop = (event) => {
+		event.stopPropagation()
+		input.unregister('mousemove', 'devUIMouseMove')
+		this.initialMove = true
+	}
+
+	toggleView = (event) => {
+		event.stopPropagation()
+		let {x, y} = this.state;
+		if (isNaZN(x) || isNaZN(y)) {
+			this.setState({
+				x: 0,
+				y: 0
+			})
+			return
+		}
 		if (this.open) {
 			this.setState({
-				animation: style.close
+				animation: style.closeAnim
 			})
+			this.open = false
 		}
 		else {
 			this.setState({
-				animation: style.open
+				animation: style.openAnim
 			})
+			this.open = true
 		}
 	}
 
-	navHome() {
+	navHome = () => {}
 
-	}
+	navMainMenu = () => {}
 
-	navMainMenu() {
+	navDemo = () => {}
 
-	}
-
-	navDemoScene() {
-
-	}
-
-	render({}, { currentPage, animation }) {
+	render({ currentPage }, { animation, x = 0, y = 0 }) {
 		return (
-			<ts-header-wrap class={classnames(style.header, animation)}>
+			<ts-devui-wrap
+				class={ animation }
+				onMouseDown={this.drag}
+				onMouseUp={this.dragStop}
+				style={`transform: translate(${x}px, ${y}px`}
+			>
 				<Button
-					class={style.closeButton}
-					onClick={this.toggleView}
+					class={ style.closeButton }
+					onMouseUp={ this.toggleView }
+					onMouseDown={ event => event.stopPropagation() }
 				/>
-				<ts-header>SVG&nbsp;Proto</ts-header>
-				<FpsMeter />
-				<FpsOptions />
-				<ts-nav>
-					<Button
-						class={currentPage === '/' && style.active}
-						text={'Loading'}
-						onClick={this.navHome}
-					/>
-					<Button
-						class={currentPage === '/demoscene' && style.active}
-						text={'Demo Scene'}
-						onClick={this.navDemoScene}
-					/>
-					<Button
-						class={currentPage === '/mainmenu' && style.active}
-						text={'MainMenu'}
-						onClick={this.navMainMenu}
-					/>
-				</ts-nav>
+				<ts-devui-header>SVG&nbsp;Proto</ts-devui-header>
+				<DevOptions />
+				<DevScenes currentPage={ currentPage } />
 				<Button
-					class={style.openButton}
-					onClick={this.toggleView}
+					class={ style.openButton }
+					onMouseUp={ this.toggleView }
+					onMouseDown={ event => event.stopPropagation() }
 				/>
-			</ts-header-wrap>
+			</ts-devui-wrap>
 		)
 	}
 }
 
-export default DevUI
+function DevOptions () {
+	return (
+		<DropDown
+			class={ style.devOptions }
+			label={ 'Options' }
+		>
+			<Fps />
+		</DropDown>
+	)
+}
+
+function DevScenes({ currentPage }) {
+	return (
+		<DropDown
+			class={ style.devScenes }
+			label={ 'Scenes' }
+		>
+			<Button
+				class={ currentPage === '/' && style.active }
+				text={ 'Loading' }
+				onClick={ this.navHome }
+			/>
+			<Button
+				class={ currentPage === '/demoscene' && style.active }
+				text={ 'Demo' }
+				onClick={ this.navDemo }
+			/>
+			<Button
+				class={ currentPage === '/mainmenu' && style.active }
+				text={ 'MainMenu' }
+				onClick={ this.navMainMenu }
+			/>
+		</DropDown>
+	)
+}

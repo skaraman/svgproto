@@ -11,7 +11,7 @@ import Settings from 'scenes/settings/settings'
 import PocaDemo from 'scenes/pocademo/pocademo'
 import cache from 'util/data/cache'
 import dispatch from 'util/data/dispatch'
-import { bindAll, refreshStorageCheck, queryParams } from 'util/data/helpers'
+import { refreshStorageCheck, queryParams } from 'util/data/helpers'
 
 const ENTRY_URL = {
 		'/': '/'
@@ -32,11 +32,12 @@ export default class App extends Component {
 			isDev
 		}
 		cache.META_DATA.isDev = isDev
-		cache.META_DATA.manifest = 'mainMenuScene'
+		cache.META_DATA.manifest = 'mainMenu'
 		cache.META_DATA.exitRoute = RELOAD_URLS['/mainmenu']
 		this.on = [
 			dispatch.on('fsSuccess', this._handleFSSuccess, this)
 		]
+		document.body.className = ''
 	}
 
 	_handleFSSuccess() {
@@ -80,17 +81,17 @@ export default class App extends Component {
 
 	render(props, { isDev, ready }) {
 		return (
-			<ts-app id='app'>
+			<ts-app id='app' >
 				{
-					isDev && <DevUI />
+					isDev && <DevUI currentPage={ this.currentUrl } />
 				}
 				<BlackScreen />
-				<Router onChange={this.handleRoute} >
-					<Loading path={ENTRY_URL['/']} />
-					<MainMenu ready={ready} path={RELOAD_URLS['/mainmenu']} />
-					<Settings ready={ready} path={RELOAD_URLS['/settings']} />
-					<Demo ready={ready} path={RELOAD_URLS['/demo']} />
-					<PocaDemo ready={ready} path={RELOAD_URLS['/pocademo']} />
+				<Router onChange={ this.handleRoute } >
+					<Loading path={ ENTRY_URL['/'] } />
+					<MainMenu ready={ ready } path={ RELOAD_URLS['/mainmenu'] } />
+					<Settings ready={ ready } path={ RELOAD_URLS['/settings'] } />
+					<Demo ready={ ready } path={ RELOAD_URLS['/demo'] } />
+					<PocaDemo ready={ ready } path={ RELOAD_URLS['/pocademo'] } />
 				</Router>
 				<DnD />
 				{

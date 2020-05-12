@@ -1,14 +1,21 @@
 import { h, Component } from 'preact'
 import style from './checkbox.css'
 import circleCheck from 'icons/circle-check.svg'
+import Icon from 'components/ui/icon'
 
 const Checkbox = ({
-	checked = false,
-	onClick = () => console.log('onClick'),
-	class: additionalClass
+	checked,
+	onClick,
+	class: aClass
 }) => (
-	<ts-checkbox class={additionalClass} onClick={onClick} >
-		<img src={circleCheck} class={checked && style.checked} />
+	<ts-checkbox
+		class={aClass}
+		onClick={onClick}
+	>
+		<Icon
+			image={circleCheck}
+			class={checked && style.checked}
+		/>
 	</ts-checkbox>
 )
 

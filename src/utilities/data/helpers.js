@@ -1,5 +1,23 @@
 import * as rematrix from 'rematrix'
 
+export function intParse(value) {
+	return ~~value
+}
+
+export function isDefined(value) {
+	return value !== undefined && value !== null
+}
+
+export function isNaZN(value) {
+	return isDefined(value) && !isNaN(value) && (value > 0 || value < 0)
+}
+
+export function bindAll(ring, o) {
+	for (let odx = 0; odx < o.length; odx++) {
+		o[odx] = o[odx].bind(ring)
+	}
+}
+
 export function queryParams() {
 	let sn = location.search.replace('?', '').split('&').map(sv => {
 		let sp = sv.split('=')
@@ -21,20 +39,6 @@ export function queryParams() {
 		}
 	}
 	return res
-}
-
-export function bindAll(ring, o) {
-	for (let odx = 0; odx < o.length; odx++) {
-		ring[o[odx]] = ring[o[odx]].bind(ring)
-	}
-}
-
-export function intParse(value) {
-	return ~~value
-}
-
-export function isDefined(value) {
-	return value !== undefined && value !== null
 }
 
 export function arraysToUniqueObj() {

@@ -54,7 +54,7 @@ class Loader {
 					continue svgLoop
 				}
 				let location = svgSet[svgKey]
-				let svg = this.loadedSVGs[setKey][svgKey] = require(`!!simple-svg-loader!svg/${location}.svg`).default({})
+				let svg = this.loadedSVGs[setKey][svgKey] = require(`!!simple-svg-loader!svgs/${location}.svg`).default({})
 				this.loadedSVGs[setKey][svgKey].id = setKey
 				this.statics[setKey][svgKey] = {}
 				if (!this.statics[setKey].defaultId) {

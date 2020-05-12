@@ -1,14 +1,14 @@
-import loadingScene from 'data/scenes/loading'
-import mainMenuScene from 'data/scenes/mainmenu'
+import loading from 'data/scenes/loading'
+import mainMenu from 'data/scenes/mainmenu'
 
-import demoScene from 'data/scenes/demo'
-import pocaDemoScene from 'data/scenes/pocademo'
+import demo from 'data/scenes/demo'
+import pocaDemo from 'data/scenes/pocademo'
 
 const manifest = {
-	loadingScene,
-	mainMenuScene,
-	demoScene,
-	pocaDemoScene
+	loading,
+	mainMenu,
+	demo,
+	pocaDemo
 }
 
 export default manifest

@@ -1,4 +1,4 @@
-const loadingScene = {
+const loading = {
 	objects: {
 		loadingCircle: {
 			1: 'loading/l1',
@@ -106,4 +106,4 @@ const loadingScene = {
 	}
 }
 
-export default loadingScene
+export default loading

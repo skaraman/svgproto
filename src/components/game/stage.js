@@ -1,27 +1,21 @@
 import { h, Component } from 'preact'
 import style from './stage.css'
 import classnames from 'classnames'
-import { bindAll } from 'util/data/helpers'
 import animator from 'util/game/animator'
 import hierarchy from 'util/game/hierarchy'
 import SvgWrap from 'components/ui/svgwrap'
 import cache from 'util/data/cache'
+import dev from 'components/hoc/dev'
 
-import grid from 'img/grid.png'
-
+@dev
 export default class Stage extends Component {
 	constructor(props) {
 		super(props)
-		bindAll(this, ['updateStageFromAnimation', 'updateStage', 'resize'])
 		animator.setStageCallback(this.updateStageFromAnimation)
 		window.addEventListener('resize', this.resize)
 	}
 
 	componentDidMount() {
-		let isDev = cache.META_DATA.isDev
-		if (isDev) {
-			this.setDev()
-		}
 		hierarchy.add(this.props.children)
 		this.updateStage()
 		this.resize()
@@ -35,13 +29,7 @@ export default class Stage extends Component {
 		this.updateStage()
 	}
 
-	setDev() {
-		this.setState({
-			isDev: true
-		})
-	}
-
-	resize() {
+	resize = () => {
 		let { offsetHeight, offsetWidth } = this.stage
 		this.setState({
 			offsetHeight,
@@ -49,7 +37,7 @@ export default class Stage extends Component {
 		})
 	}
 
-	updateStageFromAnimation(svg) {
+	updateStageFromAnimation = (svg) => {
 		let stateSvg = this.state[svg.id]
 		this.setState({
 			[svg.id]: {
@@ -59,7 +47,7 @@ export default class Stage extends Component {
 		})
 	}
 
-	updateStage() {
+	updateStage = () => {
 		let ents = hierarchy.getEntities()
 		let grads = hierarchy.getGradients()
 		this.setState({
@@ -68,12 +56,12 @@ export default class Stage extends Component {
 		})
 	}
 
-	render({ class: additionalClass }, { ents, grads, offsetWidth, offsetHeight, isDev }) {
+	render({ class: aClass }, { ents, grads, offsetWidth, offsetHeight, isDev }) {
 		return (
 			<div
-				class={classnames(style.stage, additionalClass)}
+				class={classnames(style.stage, aClass)}
 				ref={elem => this.stage = elem}
-				style={isDev ? `background-image: url(${grid});background-position: center;background-size: 10%;`: ''}
+				style={isDev && style.devGrid}
 			>
 				{ ents && grads &&
 					<svg

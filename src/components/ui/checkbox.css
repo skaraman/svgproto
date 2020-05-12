@@ -6,7 +6,7 @@ ts-checkbox {
 	background: rgba(255, 255, 255, 1);
 	align-items: center;
 
-	& img {
+	& ts-img {
 		display: none;
 		width: 14px;
 		height: 14px;
