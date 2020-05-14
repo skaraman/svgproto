@@ -1,6 +1,12 @@
 import { interpolate } from 'flubber'
 import polyfill from 'util/data/polyfill'
-import { lerpColor, lerpGradient, objectAssignAll, intParse, isDefined } from 'util/data/helpers'
+import {
+	lerpColor,
+	lerpGradient,
+	objectAssignAll,
+	intParse,
+	isDefined
+} from 'util/data/helpers'
 
 import mainManifest from 'data/scenes/_manifest'
 
@@ -19,7 +25,12 @@ class Loader {
 				break
 			}
 		})
-		this.SVGS = { loadedSVGs: {}, bakes: {}, statics: {}, getStatics: this.getStatics }
+		this.SVGS = {
+			loadedSVGs: {},
+			bakes: {},
+			statics: {},
+			getStatics: this.getStatics
+		}
 	}
 
 	load(manifest) {

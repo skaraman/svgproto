@@ -1,46 +1,49 @@
-.mainWrap {
+ts-mainmenu-wrap {
 	position: relative;
 	height: 100%;
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
+	background: var(--mainmenu_wrap_background);
 
-	& .mainMenu {
+	& ts-mainmenu {
 		display: flex;
 		top: 0;
 		left: 0;
 		z-index: 15;
 		padding: 56px 20px;
-		color: #00C34E;
+		color: var(--mainmenu_header_font_color);
 
 		& ts-button {
-			color: #000000;
+			color: var(--mainmenu_button_font_color);
 		}
 	}
 
-	& .mainMenuText {
+	& ts-button {
+		width: fit-content;
+	}
+
+	& ts-mainmenu-header {
 		font-size: 22px;
+		margin-right: 6px;
 	}
 
 	& .stage {
-		background: #444;
+		background-color: var(--mainmenu_stage_background);
 		height: 100%;
 		position: relative;
 		top: auto;
 		left: auto;
 		overflow: hidden;
 	}
+}
 
-	& .box {
-		width: 300px;
-	}
-
-	& .animationMenu {
-		position: absolute;
-		left: 30px;
-		bottom: 60px;
-		min-width: 100px;
-		min-height: 100px;
-		background-color: rgba(50, 250, 0, 0.4);
-	}
+ts-mainmenu-devui {
+	z-index: var(--dev-zindex);
+	position: absolute;
+	left: 30px;
+	bottom: 60px;
+	min-width: 100px;
+	min-height: 100px;
+	background-color: var(--mainmenu_devui_background);
 }

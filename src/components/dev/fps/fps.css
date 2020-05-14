@@ -1,0 +1,16 @@
+ts-fps {
+	display: flex;
+	align-items: center;
+	padding: 0 5px;
+	color: var(--devui_font_color);
+}
+
+ts-fpsoptions {
+	color: var(--devui_font_color);
+	display: flex;
+	align-items: center;
+
+	& ts-button {
+		margin-left: 5px;
+	}
+}

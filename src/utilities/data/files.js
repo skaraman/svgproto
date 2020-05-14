@@ -28,19 +28,46 @@ class Files {
 		let fileEntry = this.fs.root.getFile(name, {})
 		let file = fileEntry.file()
 		let text = this.reader.readAsText(file)
-		postMessage({ msg: 'readingComplete', data: { name, text }})
+		postMessage({
+			msg: 'readingComplete',
+			data: {
+				name,
+				text
+			}
+		})
 	}
 
-	write({ name, text, overwrite = true }) {
-		let fileEntry = this.fs.root.getFile(name, { create: true })
-		let file = fileEntry.file()
+	write({
+		name,
+		text,
+		overwrite = true
+	}) {
+		let fileEntry, file
+		try {
+			fileEntry = this.fs.root.getFile(
+				name,
+				{ create: true }
+			)
+			file = fileEntry.file()
+		}
+		catch (e) {
+			setTimeout(() => this.write({
+				name,
+				text,
+				overwrite
+			}), 500)
+			return
+		}
 		let testText = this.reader.readAsText(file)
 		if (testText && overwrite) {
 			fileEntry.remove()
 			this.write({ name, text })
 			return
 		}
-		let blob = new Blob([text], { type: 'text/plain' })
+		let blob = new Blob(
+			[text],
+			{ type: 'text/plain' }
+		)
 		let fileWriter = fileEntry.createWriter()
 		fileWriter.write(blob)
 	}

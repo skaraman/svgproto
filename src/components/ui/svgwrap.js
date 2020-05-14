@@ -15,7 +15,9 @@ export default class SVGWrap extends Component {
 		stageWidth,
 		width,
 		height
-	}, { align = true }) {
+	}, {
+		align = true
+	}) {
 		let transform = '', rotation = '', translateEcks = '', translateWhy = '', scalar = ''
 		if (isDefined(rotate)) {
 			rotation = `rotate(${rotate}deg)`
@@ -23,38 +25,38 @@ export default class SVGWrap extends Component {
 		if (isDefined(why)) {
 			let [, whyAnchor] = anchor
 			let realWhy = (why + ((height / 2) * scale * whyAnchor))
-			translateWhy = `translateY(${realWhy}px)`
+			translateWhy = `translateY(${ realWhy }px)`
 		}
 		if (isDefined(ecks)) {
 			let [ecksAnchor] = anchor
 			let realEcks = (ecks + ((width / 2) * scale * ecksAnchor))
-			translateEcks = `translateX(${realEcks}px)`
+			translateEcks = `translateX(${ realEcks }px)`
 		}
 		if (isDefined(scale)) {
-			scalar = `scale(${scale})`
+			scalar = `scale(${ scale })`
 		}
 		return (
 			<g
-				class={align ? style.align : false}
-				ref={elem => this.alignLayer = elem}
+				class={ align ? style.align : false }
+				ref={ elem => this.alignLayer = elem }
 			>
 				<svg
-					x={-width/2}
-					y={-height/2}
-					width={width}
-					height={height}
-					class={style.svgWrap}
-					viewBox={`0 0 ${width} ${height}`}
+					x={ -width/2 }
+					y={ -height/2 }
+					width={ width }
+					height={ height }
+					class={ style.svgWrap }
+					viewBox={`0 0 ${ width } ${ height }`}
 				>
 					<g
-						class={style.translateXY}
-						style={{transform: `${translateEcks} ${translateWhy}`}}
+						class={ style.translateXY }
+						style={ {transform: `${ translateEcks } ${ translateWhy }`} }
 					>
 						<g
-							class={style.scaleRotate}
-							style={{transform: `${scalar} ${rotation}`}}
+							class={ style.scaleRotate }
+							style={ {transform: `${ scalar } ${ rotation }`} }
 						>
-							{children}
+							{ children }
 						</g>
 					</g>
 				</svg>

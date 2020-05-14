@@ -1,17 +1,17 @@
-.setttingsrap {
-  position: relative;
+ts-settings-wrap {
+	position: relative;
 }
 
-.settings {
-  padding: 56px 20px;
-  min-height: 100%;
-  width: 100%;
+ts-settings {
+	padding: 56px 20px;
+	min-height: 100%;
+	width: 100%;
 }
 
-.settingsText {
-  font-size: 22px;
+ts-settings-header {
+	font-size: 22px;
 }
 
-.stage {
-  background: #444;
+ts-settings-subheader {
+	font-size: 18px;
 }

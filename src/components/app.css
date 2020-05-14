@@ -1,0 +1,89 @@
+:root {
+
+	--default_font_color: black;
+	--default_background: 33, 33, 33;
+
+	--basic1: 8, 142, 121;
+	--basic2: 0, 128, 124;
+	--basic3: 0, 114, 121;
+	--basic4: 20, 100, 113;
+	--basic5: 38, 86, 103;
+	--basic6: 47, 72, 88;
+
+	--alternate1: 85, 34, 131;
+	--alternate2: 170, 36, 125;
+	--alternate3: 224, 72, 105;
+	--alternate4: 255, 127, 85;
+	--alternate5: 255, 188, 82;
+	--alternate6: 249, 248, 113;
+
+	--shadow1: 0, 0, 0, 0.1;
+	--shadow2: 0, 0, 0, 0.2;
+	--shadow3: 0, 0, 0, 0.3;
+	--shadow4: 0, 0, 0, 0.4;
+	--shadow5: 0, 0, 0, 0.5;
+	--shadow6: 0, 0, 0, 0.6;
+	--shadow7: 0, 0, 0, 0.7;
+	--shadow8: 0, 0, 0, 0.8;
+	--shadow9: 0, 0, 0, 0.9;
+
+	--dev-zindex: 1001;
+
+}
+
+.basic {
+	--devui_wrap_background: rgba(var(--basic2), 0.5);
+	--devui_wrap_shadow: rgba(var(--shadow1));
+	--devui_font_color: white;
+	--devui_border_color: white;
+	--devui_options_background:  rgba(var(--basic4), 0.8);
+	--devui_scenes_background: rgba(var(--basic4), 0.8);
+	--devui_scenes_disabled: rgba(var(--shadow7));
+	--devui_scenes_background_hover: rgba(var(--basic5), 0.6);
+	--devui_toggle_background: rgba(var(--basic1), 0.6);
+
+	--button_background:  rgb(var(--basic3));
+	--button_font_color: white;
+
+	--checkbox_border_color: white;
+	--checkbox_background: var(--basic6);
+	--checkbox_check_color: white;
+
+	--dropdown_font_color: white;
+	--dropdown_icon_color: white;
+
+	--mainmenu_wrap_background: rgb(32, 32, 32);
+	--mainmenu_header_font_color: rgb(var(--basic2));
+	--mainmenu_button_font_color: black;
+	--mainmenu_stage_background: rgb(68, 68, 68);
+	--mainmenu_devui_background: rgba(var(--basic2), 0.5)
+}
+
+.alternate {
+	--devui_wrap_background: rgba(var(--alternate2), 0.5);
+	--devui_wrap_shadow: rgba(var(--shadow1));
+	--devui_font_color: black;
+	--devui_border_color: black;
+	--devui_options_background:  rgba(var(--alternate4), 0.8);
+	--devui_scenes_background: rgba(var(--alternate4), 0.8);
+	--devui_scenes_disabled: rgba(var(--shadow7));
+	--devui_scenes_background_hover: rgba(var(--alternate5), 0.6);
+	--devui_toggle_background: rgba(var(--alternate1), 0.6);
+
+	--button_background:  rgb(var(--alternate3));
+	--button_font_color: black;
+
+	--checkbox_border_color: black;
+	--checkbox_background: var(--alternate6);
+	--checkbox_check_color: black;
+
+	--dropdown_font_color: black;
+	--dropdown_icon_color: black;
+
+	--mainmenu_wrap_background: rgb(32, 32, 32);
+	--mainmenu_header_font_color: rgb(var(--alternate2));
+	--mainmenu_button_font_color: black;
+	--mainmenu_stage_background: rgb(68, 68, 68);
+	--mainmenu_devui_background: rgba(var(--alternate2), 0.5)
+
+}

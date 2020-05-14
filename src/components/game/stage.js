@@ -56,56 +56,72 @@ export default class Stage extends Component {
 		})
 	}
 
-	render({ class: aClass }, { ents, grads, offsetWidth, offsetHeight, isDev }) {
+	render({
+		class: aClass
+	}, {
+		ents,
+		grads,
+		offsetWidth,
+		offsetHeight,
+		isDev
+	}) {
 		return (
 			<div
-				class={classnames(style.stage, aClass)}
-				ref={elem => this.stage = elem}
-				style={isDev && style.devGrid}
+				class={ classnames(
+					style.stage,
+					aClass,
+					isDev && style.devGrid
+				)}
+				ref={ elem => this.stage = elem }
 			>
 				{ ents && grads &&
 					<svg
-						class={style.svgStage}
-						viewBox={`0 0 ${offsetWidth} ${offsetHeight}`}
+						class={ style.svgStage }
+						viewBox={ `0 0 ${ offsetWidth } ${ offsetHeight }` }
 					>
 						<defs>
-							{ grads.map((v) => {
-									if (v.grads) {
-										return Object.values(v.grads).map(grad => {
-											let { color1, color2, color1Offset, color2Offset, ...rest } = grad
-											let colors = [
-												{ color: color1, offset: 0 },
-												{ color: color2, offset: 1 }
-											]
-											return (
-												<linearGradient {...rest} >
-													{
-														colors.map(c => (
-															<stop
-																offset={c.offset}
-																stop-color={c.color}
-															/>
-														))
-													}
-												</linearGradient>
-											)
-										})
-									}
-								})
-							}
+							{ grads.map(item => {
+								if (item.grads) {
+									return Object.values(item.grads).map(grad => {
+										let {
+											color1,
+											color2,
+											color1Offset,
+											color2Offset,
+											...rest
+										} = grad
+										let colors = [
+											{ color: color1, offset: 0 },
+											{ color: color2, offset: 1 }
+										]
+										return (
+											<linearGradient { ...rest } >
+												{ colors.map(color => (
+													<stop
+														offset={ color.offset }
+														stop-color={ color.color }
+													/>
+												))}
+											</linearGradient>
+										)
+									})
+								}
+							})}
 						</defs>
 						{ ents.map(ent => {
 							if (Object.keys(ent.paths).length > 0) {
 								return (
 									<SvgWrap
-										id={ent.id}
-										stageHeight={offsetHeight}
-										stageWidth={offsetWidth}
-										height={ent.height}
-										width={ent.width}
-										{...ent.transform}
+										id={ ent.id }
+										stageHeight={ offsetHeight }
+										stageWidth={ offsetWidth }
+										height={ ent.height }
+										width={ ent.width }
+										{ ...ent.transform }
 									>
-										{ Object.keys(ent.paths).map(k => (<path {...ent.paths[k]} />)) }
+										{ Object.keys(ent.paths).map(k => (
+											<path { ...ent.paths[k] } />
+										))}
 									</SvgWrap>
 								)
 							}

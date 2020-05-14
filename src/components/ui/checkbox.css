@@ -2,8 +2,8 @@ ts-checkbox {
 	display: flex;
 	width: 16px;
 	height: 16px;
-	border: 1px solid black;
-	background: rgba(255, 255, 255, 1);
+	border: 1px solid var(--checkbox_border_color);
+	background: var(--checkbox_background);
 	align-items: center;
 
 	& ts-img {
@@ -11,7 +11,11 @@ ts-checkbox {
 		width: 14px;
 		height: 14px;
 		&.checked {
-			display: flex;
+			display: block;
+		}
+		
+		& path {
+			fill: var(--checkbox_check_color);
 		}
 	}
 }

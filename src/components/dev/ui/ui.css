@@ -1,0 +1,121 @@
+ts-devui-wrap {
+	position: absolute;
+	display: flex;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 56px;
+	padding: 0;
+	background: var(--devui_wrap_background);
+	box-shadow: 0 0 5px var(--devui_wrap_shadow);
+	z-index: var(--dev-zindex);
+	left: -100%;
+
+	& ts-devui-header {
+		display: flex;
+		align-items: center;
+		margin: 0 15px;
+		font-size: 24px;
+		color: var(--devui_font_color);
+	}
+
+	& .devOptions {
+		color: var(--devui_font_color);
+		display: flex;
+		margin-left: 0 5px;
+
+		& ts-dropdown-children {
+			flex-direction: column;
+			position: absolute;
+			top: 56px;
+			background: var(--devui_options_background);
+			padding: 10px;
+			border: 1px solid var(--devui_border_color);
+			text-shadow: 1px 1px 1px var(--devui_wrap_shadow);
+		}
+	}
+
+	& .devScenes {
+		color: var(--devui_font_color);
+		display: flex;
+		padding: 0 5px;
+		position: relative;
+
+		& path {
+			fill: var(--devui_svg_icon_fill);
+		}
+
+		& ts-dropdown-children {
+			position: absolute;
+			top: 0;
+			left: 100px;
+		}
+
+		& ts-button {
+			border-radius: 0;
+			border: 1px solid var(--devui_border_color);
+			display: flex;
+			height: 40px;
+			padding: 0 5px;
+			width: fit-content;
+			text-align: center;
+			align-items: center;
+			align-content: center;
+			background: var(--devui_scenes_background);
+			text-decoration: none;
+			color: var(--devui_font_color);
+			text-shadow: 1px 1px 1px var(devui_wrap_shadow);
+			&.active,
+			&.active ts-button:hover,
+			& ts-button:active {
+				background: var(--devui_scenes_disabled) !important;
+				color: grey;
+			}
+		}
+		& ts-button:hover, & ts-button:active {
+			background: var(--devui_scenes_background_hover);
+		}
+	}
+
+ & .theme {
+	 color: var(--devui_font_color);
+ }
+
+	& .openButton, & .closeButton  {
+		background: var(--devui_toggle_background);
+		display: inline-block;
+		height: 100%;
+		width: 15px;
+	}
+
+	& .openButton {
+		right: -20px;
+		position: absolute;
+	}
+}
+
+.openAnim {
+	animation: slideOpen 200ms ease-in-out forwards;
+}
+
+.closeAnim {
+	animation: slideClose 200ms ease-in-out forwards;
+}
+
+@keyframes slideOpen {
+	from {
+		left: -100%;
+	}
+	to {
+		left: 0;
+	}
+}
+
+@keyframes slideClose {
+	from {
+		left: 0;
+	}
+	to {
+		left: -100%;
+	}
+}

@@ -8,8 +8,11 @@ import animator from 'util/game/animator'
 import cache from 'util/data/cache'
 import { bindAll } from 'util/data/helpers'
 import Stage from 'components/game/stage'
+import { Howl } from 'howler'
 import { setup } from 'util/data/setup'
-import { initilize } from './scripts'
+import {
+	initilize
+} from './scripts'
 
 let loader = setup('loader', ['loadingComplete'])
 
@@ -34,7 +37,7 @@ export default class Loading extends Component {
 			'Loading.  ',
 			'Loading.. '
 		]
-		bindAll(this, [initilize])
+		// bindAll(this, [initilize])
 	}
 
 	componentDidMount() {

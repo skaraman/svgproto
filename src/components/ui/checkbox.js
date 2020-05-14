@@ -1,21 +1,24 @@
-import { h, Component } from 'preact'
+import { h } from 'preact'
 import style from './checkbox.css'
-import circleCheck from 'icons/circle-check.svg'
+import CircleCheck from 'icons/circle-check.svg'
 import Icon from 'components/ui/icon'
 
 const Checkbox = ({
 	checked,
-	onClick,
+	onMouseUp = event => event.stopPropagation(),
+	onMouseDown = event => event.stopPropagation(),
 	class: aClass
 }) => (
 	<ts-checkbox
-		class={aClass}
-		onClick={onClick}
+		class={ aClass }
+		onMouseUp={ onMouseUp }
+		onMouseDown={ onMouseDown }
 	>
 		<Icon
-			image={circleCheck}
-			class={checked && style.checked}
-		/>
+			class={ checked && style.checked }
+		>
+			<CircleCheck />
+		</Icon>
 	</ts-checkbox>
 )
 

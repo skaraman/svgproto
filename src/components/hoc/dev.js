@@ -8,7 +8,7 @@ export default function dev(target) {
 }
 
 function componentDidMount() {
-	let isDev = cache.META_DATA.isDev
+	let { isDev } = cache.META_DATA
 	isDev && this.setState({ isDev })
 	this.oldComponentDidMount && this.oldComponentDidMount();
 }

@@ -1,7 +1,7 @@
 import { h, Component, Fragment } from 'preact'
 import { Router } from 'preact-router'
-import DevUI from 'components/devui/devui'
-import Terminal from 'components/devui/terminal'
+import DevUI from 'components/dev/ui/ui'
+import Terminal from 'components/dev/terminal/terminal'
 import BlackScreen from 'components/game/blackscreen'
 import DnD from 'components/game/donotdestroy'
 import MainMenu from 'scenes/mainmenu/mainmenu'
@@ -12,6 +12,8 @@ import PocaDemo from 'scenes/pocademo/pocademo'
 import cache from 'util/data/cache'
 import dispatch from 'util/data/dispatch'
 import { refreshStorageCheck, queryParams } from 'util/data/helpers'
+import { Howl } from 'howler'
+import style from './app.css'
 
 const ENTRY_URL = {
 		'/': '/'
@@ -37,7 +39,8 @@ export default class App extends Component {
 		this.on = [
 			dispatch.on('fsSuccess', this._handleFSSuccess, this)
 		]
-		document.body.className = ''
+		const empty = new Howl({src: ['']})
+		empty.play()
 	}
 
 	_handleFSSuccess() {
@@ -68,6 +71,7 @@ export default class App extends Component {
 				this.setState({
 					ready: true
 				})
+				setTheme(cache.THEME._current)
 			}
 		}
 		else {
@@ -75,9 +79,11 @@ export default class App extends Component {
 			this.setState({
 				ready: true
 			})
+			setTheme(cache.THEME._current)
 		}
 		this.currentUrl = url
 	}
+
 
 	render(props, { isDev, ready }) {
 		return (
@@ -100,4 +106,8 @@ export default class App extends Component {
 			</ts-app>
 		)
 	}
+}
+
+export function setTheme(theme) {
+	document.body.className = style[theme]
 }

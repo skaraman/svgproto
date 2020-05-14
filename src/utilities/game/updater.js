@@ -7,9 +7,9 @@ class Updater {
 		this.lastupdate = 0
 		this.callbacks = {}
 		this.unpausableCallbacks = {}
-		this.pause = false
-		this._step = false
-		this._notRealtimeStep = false
+		this.isPaused = false
+		this.stepEnabled = false
+		this.notRealtimeStep = false
 		this._update()
 	}
 
@@ -22,18 +22,21 @@ class Updater {
 	}
 
 	step() {
-		this._step = true
+		this.stepEnabled = true
 		this._update()
 	}
 
 	toggle(activate = null) {
 		if (activate === null) {
-			activate = this.pause
+			activate = this.isPaused
 		}
-		if (this.pause) {
+		if (this.isPaused) {
 			this.wasPaused = true
 		}
-		this.pause = !activate
+		if (this.isPaused !== activate) {
+			return
+		}
+		this.isPaused = !activate
 		this._update()
 	}
 
@@ -73,10 +76,10 @@ class Updater {
 	_update() {
 		let deltatime = performance.now() - this.lastupdate
 		this._unpausableUpdate(deltatime)
-		if (this.pause && !this._step) {
+		if (this.isPaused && !this.stepEnabled) {
 			return
 		}
-		if (this._step || this.wasPaused || (this._notRealtimeStep && deltatime > 16)) {
+		if (this.stepEnabled || this.wasPaused || (this.notRealtimeStep && deltatime > 16)) {
 			deltatime = 16
 			this.wasPaused = false
 		}
@@ -87,8 +90,8 @@ class Updater {
 			cb.callback.apply(cb.target, [deltatime])
 		}
 		this._postUpdate(deltatime)
-		if (this._step) {
-			this._step = false
+		if (this.stepEnabled) {
+			this.stepEnabled = false
 		}
 		window.requestAnimationFrame(this._update.bind(this))
 	}

@@ -14,7 +14,9 @@ export function isNaZN(value) {
 
 export function bindAll(ring, o) {
 	for (let odx = 0; odx < o.length; odx++) {
-		o[odx] = o[odx].bind(ring)
+		ring[o[odx].name] = function () {
+			o[odx].apply(ring, [...arguments])
+		}
 	}
 }
 
@@ -67,16 +69,34 @@ export function objectAssignAll(target, source) {
 	return target
 }
 
+function _objectSpread(target) {
+	for (let i = 1; i < arguments.length; i++) {
+		let source = arguments[i] != null ? arguments[i] : {};
+		if (i % 2) {
+			ownKeys(Object(source), true).forEach(function (key) {
+				_defineProperty(target, key, source[key]);
+			});
+		} else if (Object.getOwnPropertyDescriptors) {
+			Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+		} else {
+			ownKeys(Object(source)).forEach(function (key) {
+				Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+			});
+		}
+	}
+	return target;
+}
+
 // HEX color
 export function lerpColor(color1, color2, amount) {
 	if (!color1.startsWith('#') && !color2.startsWith('#')) {
 		if (color1 === 'none' || color2 === 'none') return 'none'
 		// console.log('use #HEXfmt', color1, color2)
 		if (!color1.startsWith('#')) {
-			color1 = colorMap[color1.toLowerCase()]
+			color1 = colors[color1.toLowerCase()]
 		}
 		if (!color2.startsWith('#')) {
-			color2 = colorMap[color2.toLowerCase()]
+			color2 = colors[color2.toLowerCase()]
 		}
 	}
 	if (color1.length === 4) {
@@ -175,7 +195,7 @@ export function _fixGrads(grad1, grad2) {
 	}
 }
 
-const colorMap = {
+const colors = {
 	aliceblue: '#f0f8ff',
 	antiquewhite: '#faebd7',
 	aqua: '#00ffff',

@@ -15,7 +15,16 @@ class Cache {
 
 	_setDefaults() {
 		this.GAME_DATA = {}
-		this.USER_PREFERENCES = {}
+		this.USER_PREFERENCES = {
+			audio: {},
+			gameplay: {},
+			keybindings: {}
+		}
+		this.THEME = {
+			_current: 'basic',
+			basic: 'basic',
+			alternate: 'alternate'
+		}
 		this.META_DATA = {}
 		this.SVGS = {}
 		this.SAVES = {}

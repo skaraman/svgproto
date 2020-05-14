@@ -1,10 +1,14 @@
 const path = require('path')
 const WorkerPlugin = require('worker-plugin')
+const preactCliSvgLoader = require('preact-cli-svg-loader')
 const aliases = {
 	imgs: 'src/assets/imgs',
 	svgs: 'src/assets/svgs',
 	data: 'src/assets/data',
 	icons: 'src/assets/icons',
+	sfx: 'src/assets/sounds/fx',
+	music: 'src/assets/sounds/music',
+	speech: 'src/assets/sounds/speech',
 	components: 'src/components',
 	scenes: 'src/scenes',
 	util: 'src/utilities'
@@ -17,6 +21,7 @@ function setAliases(config) {
 }
 
 export default function (config, env, helpers) {
+	preactCliSvgLoader(config, helpers);
 	helpers.getLoadersByName(config, 'postcss-loader').forEach(({ loader }) => {
 		loader.options = {
 			config: {

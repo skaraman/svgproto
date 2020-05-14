@@ -1,3 +1,4 @@
+
 export function initilize(statics) {
 	if (statics && statics.loadingCircle) {
 		// all subbsequent loading loops should show an animated loading screen
