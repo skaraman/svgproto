@@ -5,6 +5,7 @@ import { isDefined } from 'util/data/helpers'
 export default class SVGWrap extends Component {
 
 	render({
+		id,
 		children,
 		x: ecks = 0,
 		y: why = 0,
@@ -37,6 +38,7 @@ export default class SVGWrap extends Component {
 		}
 		return (
 			<g
+				id= { id }
 				class={ align ? style.align : false }
 				ref={ elem => this.alignLayer = elem }
 			>

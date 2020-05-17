@@ -10,7 +10,9 @@ import Slider from 'components/ui/slider.js'
 import {
 	initilize,
 	save,
-	cancel
+	cancel,
+	volumeUpdate,
+	toggleMute
 } from './settingsScripts'
 
 export default class Settings extends Component {
@@ -26,7 +28,9 @@ export default class Settings extends Component {
 		bindAll(this, [
 			initilize,
 			save,
-			cancel
+			cancel,
+			volumeUpdate,
+			toggleMute
 		])
 	}
 
@@ -43,37 +47,36 @@ export default class Settings extends Component {
 		isMute
 	}) {
 		return (
-			<ts-settings-wrap class={ style.settingsWrap } >
-				<ts-settings-inner class={ style.settings } >
-					<ts-settings-header
-						class={ style.settingsText }
-					>
+			<ts-settings-wrap>
+				<ts-settings-inner>
+					<ts-settings-header>
 						Settings
 					</ts-settings-header>
 					<ts-settings-subheader>
 						Audio
 					</ts-settings-subheader>
 					<Button
-						icon={ isMute ? Unmute : Mute }
+						Image={ isMute ? Unmute : Mute }
 						onMouseUp={ this.toggleMute }
 					/>
 					<Slider
 						label={ 'Volume' }
 						startingPos={ volumeLevel || 0 }
+						onUpdate={ this.volumeUpdate }
 					/>
 					<ts-settings-subheader>
 						Keybindings
 					</ts-settings-subheader>
+					<Button
+						text={ 'Save' }
+						onMouseUp={ this.save }
+					/>
+					<Button
+						text={ 'Cancel' }
+						onMouseUp={ this.cancel }
+					/>
+					<p>copyright and trademark stuff</p>
 				</ts-settings-inner>
-				<Button
-					text={ 'Save' }
-					onMouseUp={ this.save }
-				/>
-				<Button
-					text={ 'Cancel' }
-					onMouseUp={ this.cancel }
-				/>
-				<p>copyright and trademark stuff</p>
 			</ts-settings-wrap>
 		)
 	}

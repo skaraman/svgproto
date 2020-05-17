@@ -12,13 +12,17 @@ export default class Stage extends Component {
 	constructor(props) {
 		super(props)
 		animator.setStageCallback(this.updateStageFromAnimation)
-		window.addEventListener('resize', this.resize)
 	}
 
 	componentDidMount() {
+		window.addEventListener('resize', this.resize)
 		hierarchy.add(this.props.children)
 		this.updateStage()
 		this.resize()
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener('resize', this.resize)
 	}
 
 	componentDidUpdate(prevProps, prevState) {

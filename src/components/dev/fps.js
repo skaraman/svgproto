@@ -4,8 +4,8 @@ import { bindAll } from 'util/data/helpers'
 import Button from 'components/ui/button'
 import Checkbox from 'components/ui/checkbox'
 import {
-	initMeter,
-	destroyMeter,
+	componentDidMount,
+	componentWillUnmount,
 	initOptions,
 	update,
 	updateDisplayFPS,
@@ -25,19 +25,11 @@ export class FpsMeter extends Component {
 	constructor() {
 		super()
 		bindAll(this, [
-			initMeter,
-			destroyMeter,
+			componentDidMount,
+			componentWillUnmount,
 			update,
 			updateDisplayFPS
 		])
-	}
-
-	componentDidMount() {
-		this.initMeter()
-	}
-
-	componentWillUnmount() {
-		this.destroyMeter()
 	}
 
 	render({}, { displayFPS }) {

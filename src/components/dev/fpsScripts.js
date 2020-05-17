@@ -5,7 +5,7 @@ import updater from 'util/game/updater'
 const second = 1000
 const limiter = 2
 
-export function initMeter() {
+export function componentDidMount() {
 	updater.register(
 		'fpsmeter',
 		this.update,
@@ -14,7 +14,7 @@ export function initMeter() {
 	this.updateDisplayFPS()
 }
 
-export function destroyMeter() {
+export function componentWillUnmount() {
 	updater.unregister('fpsmeter')
 }
 

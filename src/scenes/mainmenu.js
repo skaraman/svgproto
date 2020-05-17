@@ -77,28 +77,30 @@ export default class MainMenu extends Component {
 					</Stage>
 				}
 				<ts-mainmenu-inner>
-					<ts-mainmenu-header>
-						Main Menu
-					</ts-mainmenu-header>
-					<Button
-						text={ 'Settings' }
-						onMouseUp={ this.settings }
-					/>
-					<Button
-						text={ 'Demo' }
-						onMouseUp={ this.demo }
-					/>
-					<Button
-						text={ 'Poca Demo' }
-						onMouseUp={ this.pocademo }
-					/>
-					<Button
-						Image={ isMute ? Unmute : Mute }
-						onMouseUp={ this.toggleMute }
-					/>
-					<ts-mainmenu-copyright>
-						{ copyright }
-					</ts-mainmenu-copyright>
+					<ts-mainmenu-skew>
+						<ts-mainmenu-header>
+							Main Menu
+						</ts-mainmenu-header>
+						<Button
+							text={ 'Settings' }
+							onMouseUp={ this.settings }
+						/>
+						<Button
+							text={ 'Demo' }
+							onMouseUp={ this.demo }
+						/>
+						<Button
+							text={ 'Poca Demo' }
+							onMouseUp={ this.pocademo }
+						/>
+						<Button
+							Image={ isMute ? Unmute : Mute }
+							onMouseUp={ this.toggleMute }
+						/>
+						<ts-mainmenu-copyright>
+							{ copyright }
+						</ts-mainmenu-copyright>
+					</ts-mainmenu-skew>
 				</ts-mainmenu-inner>
 				{ isDev &&
 					<MainMenuDevUI />

@@ -35,7 +35,6 @@
 
 
 	--dev-zindex: 1001;
-
 }
 
 .basic {
@@ -59,10 +58,13 @@
 	--dropdown_font_color: white;
 	--dropdown_icon_color: white;
 
+	--slider_backing_background: rgba(0, 0, 0, 0.35);
+	--slider_box_shadow_color: rgba(66, 74, 88, 1);
+
 	--mainmenu_background: rgba(var(--basic6), 0.6);
 	--mainmenu_font_color: rgb(var(--basic2));
 	--mainmenu_button_font_color: black;
-	--mainmenu_stage_background: rgb(var(--basic9));
+	--mainmenu_stage_background: rgb(var(--basic6));
 	--mainmenu_devui_background: rgba(var(--basic2), 0.5);
 
 	--settings_background: rgba(var(--basic6));
