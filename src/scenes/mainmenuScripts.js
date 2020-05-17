@@ -4,9 +4,12 @@ import animator from 'util/game/animator'
 import input from 'util/game/input'
 import updater from 'util/game/updater'
 import dispatch from 'util/data/dispatch'
-import mainMenu from 'data/scenes/mainmenu'
-import { route } from 'preact-router'
 import physics from 'util/game/physics'
+import hierarchy from 'util/game/hierarchy'
+import { isDefined } from 'util/data/helpers'
+import audio from 'util/game/audio'
+
+import sceneData from 'data/scenes/mainmenu'
 
 export function init() {
 	input.register(
@@ -24,13 +27,23 @@ export function init() {
 }
 
 export function initilizeScene() {
-	// only for reload
+	// only for reloadß
 	if (!this.statics) {
 		this.getStatics(true)
 		return
 	}
 	// - only for reload
-	let { isMute } = cache.USER_PREFERENCES.audio
+	// autoplay policy bs
+	let {
+		isMute,
+		musicPlaying
+	} = cache.USER_PREFERENCES.audio
+	if (!isDefined(isMute)) {
+		isMute = true
+	}
+	if (!isDefined(musicPlaying)) {
+		musicPlaying = false
+	}
 	let entitiesList = [{
 		id: 'colorChar',
 		x: -150,
@@ -51,9 +64,11 @@ export function initilizeScene() {
 	}
 	this.setState({
 		entities,
-		isMute: isMute || true
+		isMute,
+		musicPlaying
 	})
-	cache.USER_PREFERENCES.audio.isMute = isMute || true
+	cache.USER_PREFERENCES.audio.isMute = isMute
+	cache.USER_PREFERENCES.audio.musicPlaying = musicPlaying
 	dispatch.send('fadeOutBS')
 }
 
@@ -61,7 +76,11 @@ export function getStatics() {
 	this.statics = cache.getStatics()
 	// only for reload
 	if (!this.statics) {
-		this.reloadNotice = dispatch.on('reading complete', this.getStatics, this)
+		this.reloadNotice = dispatch.on(
+			'reading complete',
+			this.getStatics,
+			this
+		)
 		return
 	}
 	else if (this.reloadNotice) {
@@ -88,33 +107,29 @@ export function stopAnimation(event) {
 }
 
 export function toggleMute() {
-	let { isMute } = this.state
-	if (isMute) {
-		this.setState({
-			isMute: false
-		})
-		Howler.ctx.resume()
-		Howler.mute(false)
-		playLoadingSound()
-	}
-	else {
-		this.setState({
-			isMute: true
-		})
-		Howler.mute(true)
+	let isMute = audio.toggleMute()
+	this.setState({
+		isMute
+	})
+	let { musicPlaying } = this.state
+	if (!musicPlaying){
+		this.playMusic()
 	}
 }
 
-export function playLoadingSound() {
-	const sound = new Howl({
-		src: ['/assets/sounds/music/starcatcher.mp3']
+export function playMusic() {
+	let musicPlaying = audio.play(
+		sceneData.sounds.musics.main,
+		'music'
+	)
+	cache.USER_PREFERENCES.audio.musicPlaying = musicPlaying
+	this.setState({
+		musicPlaying
 	})
-	sound.play()
 }
 
 export function update(dt) {
 	if (this.playMotions) {
-		this.data = mainMenu
 		this.deltaTime += (dt / 4)
 		let width, x, y, rotation
 		width = ((this.deltaTime % 3000)) % 400
@@ -141,7 +156,7 @@ export function keydown(event) {
 
 export function settings () {
 	this.exit()
-	route('/settings')
+	dispatch.send('route', '/settings')
 }
 
 export function demo() {
@@ -149,7 +164,7 @@ export function demo() {
 	cache.META_DATA.manifest = 'demo'
 	dispatch.send('fadeInBS', () => {
 		this.exit()
-		route('/')
+		dispatch.send('route', '/')
 	})
 }
 
@@ -158,7 +173,7 @@ export function pocademo() {
 	cache.META_DATA.manifest = 'pocaDemo'
 	dispatch.send('fadeInBS', () => {
 		this.exit()
-		route('/')
+		dispatch.send('route', '/')
 	})
 }
 
@@ -166,4 +181,5 @@ export function exit() {
 	updater.unregister('mainMenuUpdate')
 	input.unregister('keydown', 'mainMenuKeydown')
 	animator.kill('testAnimation')
+	hierarchy.removeAll()
 }

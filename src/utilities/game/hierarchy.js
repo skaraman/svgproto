@@ -39,6 +39,10 @@ class Hierarchy {
 		throw 'no update'
 	}
 
+	removeAll() {
+		this.init()
+	}
+
 	getGradients() {
 		return this.gradients
 	}

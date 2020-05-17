@@ -8,8 +8,9 @@ import Mute from 'icons/mute.svg'
 import Unmute from 'icons/unmute.svg'
 import Slider from 'components/ui/slider.js'
 import {
-	cancel,
-	initilize
+	initilize,
+	save,
+	cancel
 } from './settingsScripts'
 
 export default class Settings extends Component {
@@ -23,8 +24,9 @@ export default class Settings extends Component {
 			this
 		)
 		bindAll(this, [
-			cancel,
-			initilize
+			initilize,
+			save,
+			cancel
 		])
 	}
 
@@ -42,7 +44,7 @@ export default class Settings extends Component {
 	}) {
 		return (
 			<ts-settings-wrap class={ style.settingsWrap } >
-				<ts-settings class={ style.settings } >
+				<ts-settings-inner class={ style.settings } >
 					<ts-settings-header
 						class={ style.settingsText }
 					>
@@ -62,16 +64,16 @@ export default class Settings extends Component {
 					<ts-settings-subheader>
 						Keybindings
 					</ts-settings-subheader>
-					<Button
-						text={ 'Save' }
-						onClick={ this.save }
-					/>
-					<Button
-						text={ 'Cancel' }
-						onClick={ this.cancel }
-					/>
-					<p>copyright and trademark stuff</p>
-				</ts-settings>
+				</ts-settings-inner>
+				<Button
+					text={ 'Save' }
+					onMouseUp={ this.save }
+				/>
+				<Button
+					text={ 'Cancel' }
+					onMouseUp={ this.cancel }
+				/>
+				<p>copyright and trademark stuff</p>
 			</ts-settings-wrap>
 		)
 	}

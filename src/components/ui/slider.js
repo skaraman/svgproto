@@ -26,6 +26,7 @@ export default class Slider extends Component {
 	}
 
 	componentWillUnmount() {
+		clearTimeout(this.focusTimeout);
 		window.removeEventListener('mouseup', this.onMouseup)
 		window.removeEventListener('mousemove', this.onMousemove)
 		window.removeEventListener('touchend', this.onMouseup)

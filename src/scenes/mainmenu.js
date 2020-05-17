@@ -14,7 +14,7 @@ import {
 	toggleMute,
 	playAnimation,
 	stopAnimation,
-	playLoadingSound,
+	playMusic,
 	update,
 	keydown,
 	settings,
@@ -22,6 +22,8 @@ import {
 	pocademo,
 	exit
 } from './mainmenuScripts'
+
+const copyright = 'copyright and trademark stuff'
 
 @dev
 export default class MainMenu extends Component {
@@ -32,7 +34,7 @@ export default class MainMenu extends Component {
 			getStatics,
 			initilizeScene,
 			toggleMute,
-			playLoadingSound,
+			playMusic,
 			update,
 			keydown,
 			settings,
@@ -54,6 +56,10 @@ export default class MainMenu extends Component {
 		}
 	}
 
+	componentWillUnmount() {
+		this.exit()
+	}
+
 	render({
 		ready
 	}, {
@@ -62,9 +68,16 @@ export default class MainMenu extends Component {
 		isMute
 	}) {
 		return (ready && entities &&
-			<ts-mainmenu-wrap class={ style.mainWrap } >
-				<ts-mainmenu class={ style.mainMenu } >
-					<ts-mainmenu-header class={ style.mainMenuText } >
+			<ts-mainmenu-wrap>
+				{ entities &&
+					<Stage
+						class={ style.stage }
+					>
+						{ entities }
+					</Stage>
+				}
+				<ts-mainmenu-inner>
+					<ts-mainmenu-header>
 						Main Menu
 					</ts-mainmenu-header>
 					<Button
@@ -79,19 +92,14 @@ export default class MainMenu extends Component {
 						text={ 'Poca Demo' }
 						onMouseUp={ this.pocademo }
 					/>
-				</ts-mainmenu>
-				<Button
-					Image={ isMute ? Unmute : Mute }
-					onMouseUp={ this.toggleMute }
-				/>
-				<ts-mainmenu-copyright>
-					copyright and trademark stuff
-				</ts-mainmenu-copyright>
-				{ entities &&
-					<Stage class={ style.stage } >
-						{ entities }
-					</Stage>
-				}
+					<Button
+						Image={ isMute ? Unmute : Mute }
+						onMouseUp={ this.toggleMute }
+					/>
+					<ts-mainmenu-copyright>
+						{ copyright }
+					</ts-mainmenu-copyright>
+				</ts-mainmenu-inner>
 				{ isDev &&
 					<MainMenuDevUI />
 				}

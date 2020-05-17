@@ -1,5 +1,4 @@
 import { h, Component, Fragment } from 'preact'
-import { route } from 'preact-router'
 import style from './loading.css'
 import input from 'util/game/input'
 import updater from 'util/game/updater'
@@ -12,7 +11,7 @@ import { Howl } from 'howler'
 import { setup } from 'util/data/setup'
 import {
 	initilize
-} from './scripts'
+} from './loadingScripts'
 
 let loader = setup('loader', ['loadingComplete'])
 
@@ -109,7 +108,7 @@ export default class Loading extends Component {
 			this.on[o].off()
 		}
 		this.on = []
-		route(cache.META_DATA.exitRoute + window.location.search)
+		dispatch.send('route', cache.META_DATA.exitRoute, location.search)
 	}
 
 	render({}, { loadingText, entities }) {

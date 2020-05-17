@@ -14,7 +14,7 @@
 		"build": "preact build --no-prerender --no-sw --template src/index.html",
 		"serve": "preact build && preact serve",
 		"dev-notemp": "preact watch",
-		"dev": "preact watch --template src/index.html"
+		"dev": "preact watch --no-sw --template src/index.html"
 	},
 	"devDependencies": {
 		"postcss-loader": "^3.0.0",
@@ -28,6 +28,7 @@
 	"dependencies": {
 		"classnames": "^2.2.6",
 		"flubber": "^0.4.2",
+		"history": "^4.10.1",
 		"howler": "^2.1.3",
 		"preact": "^10.4.0",
 		"preact-cli-svg-loader": "^1.1.0",

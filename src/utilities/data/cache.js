@@ -14,6 +14,11 @@ class Cache {
 	}
 
 	_setDefaults() {
+		this.LOCATION = {
+			pathname: '/',
+			search: '',
+			previous: ''
+		}
 		this.GAME_DATA = {}
 		this.USER_PREFERENCES = {
 			audio: {},

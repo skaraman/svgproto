@@ -2,7 +2,7 @@ import { h, Component, Fragment } from 'preact'
 import style from './ui.css'
 import classnames from 'classnames'
 import Button from 'components/ui/button'
-import Fps from 'components/dev/fps/fps'
+import Fps from 'components/dev/fps'
 import DropDown from 'components/ui/dropdown'
 import { bindAll } from 'util/data/helpers'
 import draggable from 'components/hoc/draggable'
@@ -22,7 +22,7 @@ export default class DevUI extends Component {
 	}
 
 	render({
-		currentPage
+		currentPath
 	}, {
 		dragBound,
 		animation,
@@ -44,7 +44,7 @@ export default class DevUI extends Component {
 					SVG&nbsp;Proto
 				</ts-devui-header>
 				<DevOptions />
-				<DevScenes currentPage={ currentPage } />
+				<DevScenes currentPath={ currentPath } />
 				<Button
 					class={ style.theme }
 					text={ 'Theme' }
@@ -70,24 +70,24 @@ function DevOptions () {
 	)
 }
 
-function DevScenes({ currentPage }) {
+function DevScenes({ currentPath }) {
 	return (
 		<DropDown
 			class={ style.devScenes }
 			label={ 'Scenes' }
 		>
 			<Button
-				class={ currentPage === '/' && style.active }
+				class={ currentPath === '/' && style.active }
 				text={ 'Loading' }
 				onMouseUp={ this._navHome }
 			/>
 			<Button
-				class={ currentPage === '/demoscene' && style.active }
+				class={ currentPath === '/demoscene' && style.active }
 				text={ 'Demo' }
 				onMouseUp={ this._navDemo }
 			/>
 			<Button
-				class={ currentPage === '/mainmenu' && style.active }
+				class={ currentPath === '/mainmenu' && style.active }
 				text={ 'MainMenu' }
 				onMouseUp={ this._navMainMenu }
 			/>

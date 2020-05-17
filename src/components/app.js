@@ -1,14 +1,14 @@
 import { h, Component, Fragment } from 'preact'
-import { Router } from 'preact-router'
-import DevUI from 'components/dev/ui/ui'
-import Terminal from 'components/dev/terminal/terminal'
+import Router from 'components/util/router'
+import DevUI from 'components/dev/ui'
+import Terminal from 'components/dev/terminal'
 import BlackScreen from 'components/game/blackscreen'
 import DnD from 'components/game/donotdestroy'
-import MainMenu from 'scenes/mainmenu/mainmenu'
-import Demo from 'scenes/demo/demo'
-import Loading from 'scenes/loading/loading'
-import Settings from 'scenes/settings/settings'
-import PocaDemo from 'scenes/pocademo/pocademo'
+import MainMenu from 'scenes/mainmenu'
+import Demo from 'scenes/demo'
+import Loading from 'scenes/loading'
+import Settings from 'scenes/settings'
+import PocaDemo from 'scenes/pocademo'
 import cache from 'util/data/cache'
 import dispatch from 'util/data/dispatch'
 import { refreshStorageCheck, queryParams } from 'util/data/helpers'
@@ -26,6 +26,8 @@ const RELOAD_URLS = {
 	'/pocademo': '/pocademo'
 }
 
+let delayedRoute
+
 export default class App extends Component {
 	constructor(props) {
 		super(props)
@@ -39,8 +41,9 @@ export default class App extends Component {
 		this.on = [
 			dispatch.on('fsSuccess', this._handleFSSuccess, this)
 		]
-		const empty = new Howl({src: ['']})
-		empty.play()
+		// const empty = new Howl({src: ['']})
+		// empty.play()
+		setTheme(cache.THEME._current)
 	}
 
 	_handleFSSuccess() {
@@ -49,55 +52,69 @@ export default class App extends Component {
 		}
 	}
 
-	handleRoute = event => {
+	handleRoute = (event) => {
 		let bypass = false
-		if (this.delayedRoute) {
-			event = this.delayedRoute
-			delete this.delayedRoute
+		if (delayedRoute) {
+			event = delayedRoute
+			delayedRoute = null
 			bypass = true
 		}
-		let url = event.url
-		let indexOfTest = event.url.indexOf('?')
-		if (indexOfTest >= 0) {
-			url = url.substr(0, indexOfTest)
-		}
-		if (RELOAD_URLS[url] && event.previous === undefined) {
+		let { previous, path, search = '' } = event
+		if (RELOAD_URLS[path] && !previous) {
 			cache.META_DATA.isReload = true
 			if (!bypass) {
-				this.delayedRoute = event
+				delayedRoute = event
 				return
 			}
 			else {
 				this.setState({
-					ready: true
+					ready: true,
+					currentPath: path + search
 				})
-				setTheme(cache.THEME._current)
 			}
 		}
 		else {
 			cache.META_DATA.isReload = false
 			this.setState({
-				ready: true
+				ready: true,
+				currentPath: path + search
 			})
-			setTheme(cache.THEME._current)
 		}
-		this.currentUrl = url
 	}
 
 
-	render(props, { isDev, ready }) {
+	render({}, {
+		isDev,
+		ready,
+		currentPath
+	}) {
 		return (
 			<ts-app id='app' >
 				{
-					isDev && <DevUI currentPage={ this.currentUrl } />
+					isDev && <DevUI currentPath={ currentPath } />
 				}
 				<BlackScreen />
-				<Router onChange={ this.handleRoute } >
+				<Router
+					currentPath={ currentPath }
+					onChange={ this.handleRoute }
+				>
 					<Loading path={ ENTRY_URL['/'] } />
-					<MainMenu ready={ ready } path={ RELOAD_URLS['/mainmenu'] } />
-					<Settings ready={ ready } path={ RELOAD_URLS['/settings'] } />
-					<Demo ready={ ready } path={ RELOAD_URLS['/demo'] } />
-					<PocaDemo ready={ ready } path={ RELOAD_URLS['/pocademo'] } />
+					<MainMenu
+						ready={ ready }
+						path={ RELOAD_URLS['/mainmenu'] }
+					/>
+					<Settings
+						ready={ ready }
+						path={ RELOAD_URLS['/settings'] }
+					/>
+					<Demo
+						ready={ ready }
+						path={ RELOAD_URLS['/demo'] }
+					/>
+					<PocaDemo
+						ready={ ready }
+						path={ RELOAD_URLS['/pocademo'] }
+					/>
 				</Router>
 				<DnD />
 				{

@@ -63,6 +63,11 @@ const mainMenu = {
 				]
 			}
 		}
+	},
+	sounds: {
+		musics: {
+			main: '/assets/sounds/music/starcatcher.mp3'
+		}
 	}
 }
 

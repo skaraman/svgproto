@@ -15,6 +15,7 @@ const aliases = {
 }
 
 function setAliases(config) {
+	config.devtool = 'source-map'
 	for (let idx in aliases) {
 		config.resolve.alias[idx] = path.resolve(__dirname, aliases[idx])
 	}

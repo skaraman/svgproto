@@ -9,6 +9,11 @@
 	--basic4: 20, 100, 113;
 	--basic5: 38, 86, 103;
 	--basic6: 47, 72, 88;
+	--basic7: 155, 174, 187;
+	--basic8: 103, 121, 135;
+	--basic9: 85, 62, 76;
+	--basic10: 135, 110, 125;
+
 
 	--alternate1: 85, 34, 131;
 	--alternate2: 170, 36, 125;
@@ -26,6 +31,8 @@
 	--shadow7: 0, 0, 0, 0.7;
 	--shadow8: 0, 0, 0, 0.8;
 	--shadow9: 0, 0, 0, 0.9;
+
+
 
 	--dev-zindex: 1001;
 
@@ -52,11 +59,13 @@
 	--dropdown_font_color: white;
 	--dropdown_icon_color: white;
 
-	--mainmenu_wrap_background: rgb(32, 32, 32);
-	--mainmenu_header_font_color: rgb(var(--basic2));
+	--mainmenu_background: rgba(var(--basic6), 0.6);
+	--mainmenu_font_color: rgb(var(--basic2));
 	--mainmenu_button_font_color: black;
-	--mainmenu_stage_background: rgb(68, 68, 68);
-	--mainmenu_devui_background: rgba(var(--basic2), 0.5)
+	--mainmenu_stage_background: rgb(var(--basic9));
+	--mainmenu_devui_background: rgba(var(--basic2), 0.5);
+
+	--settings_background: rgba(var(--basic6));
 }
 
 .alternate {
