@@ -8,38 +8,25 @@ import Mute from 'icons/mute.svg'
 import Unmute from 'icons/unmute.svg'
 import Slider from 'components/ui/slider.js'
 import {
-	initilize,
+	componentDidMount,
 	save,
 	cancel,
 	volumeUpdate,
-	toggleMute
+	toggleMute,
+	keydown
 } from './settingsScripts'
 
 export default class Settings extends Component {
 	constructor(props) {
 		super(props)
-		this.input = input
-		this.input.register(
-			'keydown',
-			'settingsKeydown',
-			this.keydown,
-			this
-		)
 		bindAll(this, [
-			initilize,
+			componentDidMount,
 			save,
 			cancel,
 			volumeUpdate,
-			toggleMute
+			toggleMute,
+			keydown
 		])
-	}
-
-	componentDidMount() {
-		this.initilize()
-	}
-
-	keydown(event) {
-		console.log('settingsKeydown', event)
 	}
 
 	render({}, {

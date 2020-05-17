@@ -3,16 +3,6 @@ ts-mainmenu-wrap {
 	position: relative;
 	height: 100%;
 
-	& ts-mainmenu-skew {
-		transform:
-			perspective(500px)
-			rotateX(0deg)
-			rotateY(20deg)
-			translateX(1px)
-			scaleX(.85)
-			scaleY(1);
-	}
-
 	& ts-mainmenu-inner {
 		display: flex;
 		position: absolute;
@@ -23,8 +13,11 @@ ts-mainmenu-wrap {
 		z-index: 15;
 		color: var(--mainmenu_font_color);
 		padding: 55px;
-
 		flex-direction: column;
+
+		& ts-skew-inner {
+			flex-direction: column;
+		}
 
 		& ts-mainmenu-header {
 			display: block;
@@ -62,4 +55,39 @@ ts-mainmenu-devui {
 	min-width: 100px;
 	min-height: 100px;
 	background-color: var(--mainmenu_devui_background);
+}
+
+.skewAnimation {
+	animation: skewAround 3s infinite forwards;
+}
+
+@keyframes skewAround {
+	0% {
+		transform:
+			perspective(500px)
+			rotateX(3deg)
+			rotateY(20deg)
+			rotateZ(0deg);
+	}
+	33% {
+		transform:
+			perspective(500px)
+			rotateX(-3deg)
+			rotateY(20deg)
+			rotateZ(0deg);
+	}
+	66% {
+		transform:
+			perspective(500px)
+			rotateX(5deg)
+			rotateY(20deg)
+			rotateZ(0deg);
+	}
+	100% {
+		transform:
+			perspective(500px)
+			rotateX(3deg)
+			rotateY(20deg)
+			rotateZ(0deg);
+	}
 }

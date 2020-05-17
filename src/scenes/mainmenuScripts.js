@@ -12,22 +12,33 @@ import audio from 'util/game/audio'
 import sceneData from 'data/scenes/mainmenu'
 
 export function init() {
-	input.register(
-		'keydown',
-		'mainMenuKeydown',
-		this.keydown,
-		this
-	)
-	updater.register(
-		'mainMenuUpdate',
-		this.update,
-		this
-	)
-	this.getStatics()
+	if (this.props.ready) {
+		input.register(
+			'keydown',
+			'mainMenuKeydown',
+			this.keydown,
+			this
+		)
+		updater.register(
+			'mainMenuUpdate',
+			this.update,
+			this
+		)
+		this.getStatics()
+	}
 }
 
-export function initilizeScene() {
-	// only for reloadß
+export function componentDidUpdate(prevProps) {
+	if (
+		this.props.ready &&
+		this.props.ready !== prevProps.ready
+	) {
+		this.initScene()
+	}
+}
+
+export function initScene() {
+	// only for reload
 	if (!this.statics) {
 		this.getStatics(true)
 		return
@@ -46,14 +57,26 @@ export function initilizeScene() {
 	}
 	let entitiesList = [{
 		id: 'colorChar',
-		x: -150,
+		ref: 'colorChar',
+		x: -200,
 		anchor: [0, -1],
 		scale: 0.8
 	}]
+	let stressNumber = 200
+	for (let i = 0; i < stressNumber; i++) {
+		entitiesList.push({
+			id: 'colorChar' + i,
+			ref: 'colorChar',
+			x: -300 + ((i + 1) * 10),
+			anchor: [0, -1],
+			scale: 0.8
+		})
+	}
+
 	let entities = {}
 	for (let act of entitiesList) {
-		let { id = act, ...rest } = act
-		let entity = this.statics[id]
+		let { id, ref, ...rest } = act
+		let entity = this.statics[ref]
 		entities[id] = {
 			id,
 			entity,
@@ -82,12 +105,11 @@ export function getStatics() {
 			this
 		)
 		return
-	}
-	else if (this.reloadNotice) {
+	} else if (this.reloadNotice) {
 		this.reloadNotice.off()
 		delete this.reloadNotice
 	}
-	this.initilizeScene()
+	this.initScene()
 	// - only for reload
 }
 
@@ -112,7 +134,7 @@ export function toggleMute() {
 		isMute
 	})
 	let { musicPlaying } = this.state
-	if (!musicPlaying){
+	if (!musicPlaying) {
 		this.playMusic()
 	}
 }
@@ -154,8 +176,7 @@ export function keydown(event) {
 	console.log('mainMenuKeydown', event)
 }
 
-export function settings () {
-	this.exit()
+export function settings() {
 	dispatch.send('route', '/settings')
 }
 
@@ -163,7 +184,6 @@ export function demo() {
 	cache.META_DATA.exitRoute = '/demo'
 	cache.META_DATA.manifest = 'demo'
 	dispatch.send('fadeInBS', () => {
-		this.exit()
 		dispatch.send('route', '/')
 	})
 }
@@ -172,12 +192,11 @@ export function pocademo() {
 	cache.META_DATA.exitRoute = '/pocademo'
 	cache.META_DATA.manifest = 'pocaDemo'
 	dispatch.send('fadeInBS', () => {
-		this.exit()
 		dispatch.send('route', '/')
 	})
 }
 
-export function exit() {
+export function componentWillUnmount() {
 	updater.unregister('mainMenuUpdate')
 	input.unregister('keydown', 'mainMenuKeydown')
 	animator.kill('testAnimation')

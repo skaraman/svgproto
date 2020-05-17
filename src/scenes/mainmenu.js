@@ -4,23 +4,29 @@ import Button from 'components/ui/button'
 import Stage from 'components/game/stage'
 import Mute from 'icons/mute.svg'
 import Unmute from 'icons/unmute.svg'
+import Skew from 'components/ui/skew'
 import { bindAll } from 'util/data/helpers'
 import dev from 'components/hoc/dev'
 import draggable from 'components/hoc/draggable'
 import {
-	init,
+	componentDidUpdate,
+	componentWillUnmount,
 	getStatics,
-	initilizeScene,
+	init,
+	initScene,
+
 	toggleMute,
-	playAnimation,
-	stopAnimation,
 	playMusic,
+
 	update,
 	keydown,
 	settings,
 	demo,
 	pocademo,
-	exit
+
+	playAnimation,
+	stopAnimation
+
 } from './mainmenuScripts'
 
 const copyright = 'copyright and trademark stuff'
@@ -30,34 +36,23 @@ export default class MainMenu extends Component {
 	constructor(props) {
 		super(props)
 		bindAll(this, [
-			init,
+			componentDidUpdate,
+			componentWillUnmount,
 			getStatics,
-			initilizeScene,
+			init,
+			initScene,
 			toggleMute,
 			playMusic,
 			update,
 			keydown,
 			settings,
 			demo,
-			pocademo,
-			exit
+			pocademo
 		])
 	}
 
 	componentDidMount() {
-		if (this.props.ready) {
-			this.init()
-		}
-	}
-
-	componentDidUpdate(prevProps) {
-		if (this.props.ready && this.props.ready !== prevProps.ready) {
-			this.initilizeScene()
-		}
-	}
-
-	componentWillUnmount() {
-		this.exit()
+		this.init()
 	}
 
 	render({
@@ -77,7 +72,9 @@ export default class MainMenu extends Component {
 					</Stage>
 				}
 				<ts-mainmenu-inner>
-					<ts-mainmenu-skew>
+					<Skew
+						animation={ style.skewAnimation }
+					>
 						<ts-mainmenu-header>
 							Main Menu
 						</ts-mainmenu-header>
@@ -100,7 +97,7 @@ export default class MainMenu extends Component {
 						<ts-mainmenu-copyright>
 							{ copyright }
 						</ts-mainmenu-copyright>
-					</ts-mainmenu-skew>
+					</Skew>
 				</ts-mainmenu-inner>
 				{ isDev &&
 					<MainMenuDevUI />
@@ -124,7 +121,7 @@ class MainMenuDevUI extends Component {
 		xPos,
 		yPos
 	}) {
-		return ( dragBound &&
+		return (dragBound &&
 			<ts-mainmenu-devui
 				onMouseDown={ this.drag }
 				onMouseUp={ this.dragStop }

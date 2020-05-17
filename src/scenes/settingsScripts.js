@@ -3,8 +3,13 @@ import cache from 'util/data/cache'
 import input from 'util/game/input'
 import audio from 'util/game/audio'
 
-
-export function initilize() {
+export function componentDidMount() {
+	input.register(
+		'keydown',
+		'settingsKeydown',
+		this.keydown,
+		this
+	)
 	let {
 		volumeLevel,
 		isMute
@@ -15,15 +20,20 @@ export function initilize() {
 	})
 }
 
+export function componentWillUnmount() {
+	input.unregister('keydown', 'settingsKeydown')
+}
 
 export function cancel() {
-	input.unregister('keydown', 'settingsKeydown')
 	dispatch.send('route', '/mainmenu')
 }
 
-
 export function save() {
-
+	console.log('save')
+	debugger
+	// cache.USER_PREFERENCES = {
+	// 	...this.state
+	// }
 }
 
 export function toggleMute() {
@@ -32,11 +42,15 @@ export function toggleMute() {
 		isMute
 	})
 	let { musicPlaying } = this.state
-	if (!musicPlaying){
+	if (!musicPlaying) {
 		this.playMusic()
 	}
 }
 
 export function volumeUpdate() {
 	console.log('volumeUpdate')
+}
+
+export function keydown(event) {
+	console.log('settingsKeydown', event)
 }

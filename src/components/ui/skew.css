@@ -1,0 +1,7 @@
+ts-skew-wrap {
+	display: flex;
+
+	& ts-skew-inner {
+		display: flex;
+	}
+}
