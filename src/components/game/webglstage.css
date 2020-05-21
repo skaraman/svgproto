@@ -1,0 +1,12 @@
+ts-stage {
+
+	& ts-button {
+		position: absolute;
+		z-index: 1000;
+		top: 10px;
+		left: 200px;
+	}
+	& ts-button:nth-child(2) {
+		left: 300px;
+	}
+}

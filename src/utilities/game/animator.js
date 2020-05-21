@@ -89,7 +89,7 @@ class Animator {
 				ani.entity.width = ~~split[2]
 				ani.entity.height = ~~split[3]
 			}
-			this.stageCallback(ani.entity)
+			this.stageCallback()
 			ani.loopIndex += this.rtMultiplier
 			if (ani.loopIndex >= ani.bakes[ani.frameIndex].length) {
 				ani.frameIndex++

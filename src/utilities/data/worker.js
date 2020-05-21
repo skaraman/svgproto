@@ -1,14 +1,14 @@
 import dispatch from 'util/data/dispatch'
 
-export function setup(type, messages) {
-	let worker;
+export function worker(type, messages) {
+	let wrkr;
 	if (type === 'loader') {
-		worker = new Worker('util/data/loader', { type: 'module' })
+		wrkr = new Worker('util/data/loader', { type: 'module' })
 	}
 	if (type === 'files') {
-		worker = new Worker('util/data/files', { type: 'module' })
+		wrkr = new Worker('util/data/files', { type: 'module' })
 	}
-	worker.onmessage = event => {
+	wrkr.onmessage = event => {
 		if (event.data && !event.data.msg) {
 			return
 		}
@@ -18,5 +18,5 @@ export function setup(type, messages) {
 			}
 		}
 	}
-	return worker
+	return wrkr
 }

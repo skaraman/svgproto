@@ -1,10 +1,18 @@
-const mainMenu = {
+import { getNumAssets } from 'util/data/helpers'
+
+let mainMenu = {
 	objects: {
 		colorChar: {
 			stand: 'fillers/colorChar/stand',
 			bend1: 'fillers/colorChar/bend1',
-			bend3: 'fillers/colorChar/bend3',
 			bend2: 'fillers/colorChar/bend2',
+			bend3: 'fillers/colorChar/bend3',
+		},
+		colorCharX: {
+			stand: 'fillers/colorChar/stand',
+			bend1: 'fillers/colorChar/bend1',
+			bend2: 'fillers/colorChar/bend2',
+			bend3: 'fillers/colorChar/bend3',
 		}
 	},
 	animations: {
@@ -14,22 +22,22 @@ const mainMenu = {
 				sequence: [{
 						from: 'stand',
 						to: 'bend1',
-						fps: 60
+						frames: 30
 					},
 					{
 						from: 'bend1',
 						to: 'bend2',
-						fps: 60
+						frames: 30
 					},
 					{
 						from: 'bend2',
 						to: 'bend3',
-						fps: 60
+						frames: 30
 					},
 					{
 						from: 'bend3',
 						to: 'stand',
-						fps: 60
+						frames: 30
 					}
 				]
 			},
@@ -39,7 +47,7 @@ const mainMenu = {
 				sequence: [{
 					from: 0,
 					to: 360,
-					fps: 60
+					time: 1000
 				}]
 			},
 			scale: {
@@ -48,17 +56,43 @@ const mainMenu = {
 				sequence: [{
 						from: 1,
 						to: 1.5,
-						fps: 60
+						time: 1000
 					},
 					{
 						from: 1.5,
 						to: 0.5,
-						fps: 60
+						time: 1000
 					},
 					{
 						from: 0.5,
 						to: 1.5,
-						fps: 60
+						time: 1000
+					}
+				]
+			}
+		},
+		colorCharX: {
+			powerUp: {
+				type: 'animation',
+				sequence: [{
+						from: 'stand',
+						to: 'bend1',
+						frames: 30
+					},
+					{
+						from: 'bend1',
+						to: 'bend2',
+						frames: 30
+					},
+					{
+						from: 'bend2',
+						to: 'bend3',
+						frames: 30
+					},
+					{
+						from: 'bend3',
+						to: 'stand',
+						frames: 30
 					}
 				]
 			}
@@ -70,5 +104,8 @@ const mainMenu = {
 		}
 	}
 }
+
+mainMenu.loaderAssets = getNumAssets(mainMenu) // num of object svgs and total fps between sequences
+console.log(mainMenu.loaderAssets)
 
 export default mainMenu

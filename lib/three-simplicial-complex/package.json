@@ -1,0 +1,18 @@
+{
+	"name": "three-simplicial-complex",
+	"version": "0.0.1",
+	"description": "render simplicial complexes with ThreeJS",
+	"main": "index.js",
+	"license": "MIT",
+	"dependencies": {
+		"inherits": "^2.0.1"
+	},
+	"devDependencies": {
+		"array-range": "^1.0.1",
+		"domready": "^1.0.7",
+		"extrude-polyline": "^1.0.1",
+		"icosphere": "^1.0.0",
+		"three": "^0.69.0",
+		"three-orbit-viewer": "^69.2.1"
+	}
+}

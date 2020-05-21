@@ -41,14 +41,8 @@ export default class Stage extends Component {
 		})
 	}
 
-	updateStageFromAnimation = (svg) => {
-		let stateSvg = this.state[svg.id]
-		this.setState({
-			[svg.id]: {
-				...stateSvg,
-				svg
-			}
-		})
+	updateStageFromAnimation = () => {
+		this.updateStage()
 	}
 
 	updateStage = () => {
@@ -59,6 +53,7 @@ export default class Stage extends Component {
 			grads
 		})
 	}
+
 
 	render({
 		class: aClass
@@ -88,16 +83,9 @@ export default class Stage extends Component {
 								if (item.grads) {
 									return Object.values(item.grads).map(grad => {
 										let {
-											color1,
-											color2,
-											color1Offset,
-											color2Offset,
+											colors,
 											...rest
 										} = grad
-										let colors = [
-											{ color: color1, offset: 0 },
-											{ color: color2, offset: 1 }
-										]
 										return (
 											<linearGradient { ...rest } >
 												{ colors.map(color => (

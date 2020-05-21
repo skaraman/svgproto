@@ -30,6 +30,16 @@ export default function (config, env, helpers) {
 			}
 		}
 	})
+	helpers.getLoadersByName(config, 'glsl-shader-loader').forEach(({ loader }) => {
+		loader.rules = [{
+			test: '/\.(frag|vert|glsl)$/,'
+		}]
+		loader.options = {
+			config: {
+				path: path.resolve(__dirname, 'postcss.config.js')
+			}
+		}
+	})
 	setAliases(config)
 	config.plugins.push(new WorkerPlugin)
 	config.module.rules[4].include.push(path.resolve(__dirname, 'src/scenes'))

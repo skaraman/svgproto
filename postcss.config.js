@@ -5,7 +5,6 @@ module.exports = {
 		'postcss-preset-env': {
 			stage: 0,
 			browsers: pkg.browserslist
-		},
-		'postcss-hexrgba': require('postcss-hexrgba')
+		}
 	}
 }

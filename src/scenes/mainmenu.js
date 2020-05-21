@@ -2,6 +2,7 @@ import { h, Component } from 'preact'
 import style from './mainmenu.css'
 import Button from 'components/ui/button'
 import Stage from 'components/game/stage'
+import WebglStage from 'components/game/webglstage'
 import Mute from 'icons/mute.svg'
 import Unmute from 'icons/unmute.svg'
 import Skew from 'components/ui/skew'
@@ -14,22 +15,18 @@ import {
 	getStatics,
 	init,
 	initScene,
-
 	toggleMute,
 	playMusic,
-
 	update,
 	keydown,
 	settings,
 	demo,
 	pocademo,
-
 	playAnimation,
 	stopAnimation
-
 } from './mainmenuScripts'
 
-const copyright = 'copyright and trademark stuff'
+const COPYRIGHT = 'copyright and trademark stuff'
 
 @dev
 export default class MainMenu extends Component {
@@ -65,16 +62,12 @@ export default class MainMenu extends Component {
 		return (ready && entities &&
 			<ts-mainmenu-wrap>
 				{ entities &&
-					<Stage
-						class={ style.stage }
-					>
+					<Stage class={ style.stage } >
 						{ entities }
 					</Stage>
 				}
 				<ts-mainmenu-inner>
-					<Skew
-						animation={ style.skewAnimation }
-					>
+					<Skew animation={ style.skewAnimation } >
 						<ts-mainmenu-header>
 							Main Menu
 						</ts-mainmenu-header>
@@ -95,7 +88,7 @@ export default class MainMenu extends Component {
 							onMouseUp={ this.toggleMute }
 						/>
 						<ts-mainmenu-copyright>
-							{ copyright }
+							{ COPYRIGHT }
 						</ts-mainmenu-copyright>
 					</Skew>
 				</ts-mainmenu-inner>

@@ -62,7 +62,7 @@ export function initScene() {
 		anchor: [0, -1],
 		scale: 0.8
 	}]
-	let stressNumber = 200
+	let stressNumber = 29
 	for (let i = 0; i < stressNumber; i++) {
 		entitiesList.push({
 			id: 'colorChar' + i,
@@ -72,6 +72,14 @@ export function initScene() {
 			scale: 0.8
 		})
 	}
+	entitiesList.push({
+		id: 'colorCharX',
+		ref: 'colorCharX',
+		x: 0,
+		y: 100,
+		anchor: [0, -1],
+		scale: 0.8
+	})
 
 	let entities = {}
 	for (let act of entitiesList) {

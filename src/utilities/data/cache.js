@@ -1,7 +1,7 @@
-import { setup } from 'util/data/setup'
+import { worker } from 'util/data/worker'
 import dispatch from 'util/data/dispatch'
 
-let files = setup('files', ['readingComplete', 'fsSuccess'])
+let files = worker('files', ['readingComplete', 'fsSuccess'])
 
 class Cache {
 	constructor() {
@@ -96,6 +96,14 @@ class Cache {
 		dispatch.send('reading complete', data)
 	}
 
+	getMeshes() {
+		let meshes = this.SVGS.meshes
+		if (!meshes && cache.META_DATA.isReload) {
+			this.files.postMessage({ msg: 'read', data: 'meshes.txt' })
+		}
+		return meshes
+	}
+
 	getStatics() {
 		let statics = this.SVGS.statics
 		if (!statics && cache.META_DATA.isReload) {
@@ -115,6 +123,12 @@ class Cache {
 	setSVGS(svgs) {
 		this.setStatics(svgs.statics)
 		this.setBakes(svgs.bakes)
+		this.setMeshes(svgs.meshes)
+	}
+
+	setMeshes(meshes) {
+		this.SVGS.meshes = meshes
+		this.files.postMessage({ msg: 'write', data: { name: 'meshes.txt', text: JSON.stringify(meshes) }})
 	}
 
 	setStatics(statics) {

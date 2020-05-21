@@ -5,7 +5,8 @@ import {
 	lerpGradient,
 	objectAssignAll,
 	intParse,
-	isDefined
+	isDefined,
+	createMesh
 } from 'util/data/helpers'
 
 import mainManifest from 'data/scenes/_manifest'
@@ -28,6 +29,7 @@ class Loader {
 		this.SVGS = {
 			loadedSVGs: {},
 			bakes: {},
+			meshes: {},
 			statics: {},
 			getStatics: this.getStatics
 		}
@@ -35,20 +37,82 @@ class Loader {
 
 	load(manifest) {
 		this.manifestData = mainManifest[manifest]
+		this.loadingStats = {
+			progress: 0,
+			total: this.manifestData.loaderAssets
+		}
 		this.bakes = {}
 		this.loadedSVGs = {}
 		this.statics = {}
+		this.meshes = {}
 		this.svgs = this.manifestData.objects
 		this.manifestAnimData = this.manifestData.animations
 		this.loadSVGs()
 		this.bakeSVGs()
+		// this.createMeshes()
 		this.saveToCache()
+	}
+
+	reportProgress() {
+		this.loadingStats.progress++
+		postMessage({ msg: 'loadingProgress', data: this.loadingStats })
 	}
 
 	saveToCache() {
 		this.SVGS.bakes = objectAssignAll(this.SVGS.bakes, this.bakes)
 		this.SVGS.statics = objectAssignAll(this.SVGS.statics, this.statics)
+		this.SVGS.meshes = objectAssignAll(this.SVGS.meshes, this.meshes)
 		postMessage({ msg: 'loadingComplete', data: this.SVGS })
+	}
+
+	createMeshes() {
+		// debugger
+		for (let cdx in this.statics) {
+			let character = this.statics[cdx]
+			this.meshes[cdx] = this.meshes[cdx] || {}
+			for (let sdx in character) {
+				if (sdx === 'defaultId') {
+					continue
+				}
+				let statik = character[sdx]
+				this.meshes[cdx][sdx] = this.meshes[cdx][sdx] || {}
+				for (let pdx in statik.paths) {
+					let path = statik.paths[pdx]
+					let grad = statik.grads[cdx + '_' + pdx]
+					this.meshes[cdx][sdx][pdx] = JSON.parse(JSON.stringify(createMesh(path.d, grad)))
+
+				}
+				this.reportProgress()
+			}
+		}
+		// debugger
+		// for (let cdx in this.bakes) {
+		// 	let character = this.bakes[cdx]
+		// 	this.meshes.bakes[cdx] = this.meshes.bakes[cdx] || {}
+		// 	for (let anx in character) {
+		// 		let animation = character[anx]
+		// 		this.meshes.bakes[cdx][anx] = this.meshes.bakes[cdx][anx] || {}
+		// 		for (let sgx = 0; sgx < animation.length; sgx++) {
+		// 			let segment = animation[sgx]
+		// 			this.meshes.bakes[cdx][anx][sgx] = this.meshes.bakes[cdx][anx][sgx] || []
+		// 			for (let fdx = 0; fdx < segment.length; fdx++) {
+		// 				let frame = segment[fdx]
+		// 				this.meshes.bakes[cdx][anx][sgx][fdx] = this.meshes.bakes[cdx][anx][sgx][fdx] || []
+		// 				for (let pathname in frame) {
+		// 					if (pathname === 'viewBox') {
+		// 						continue
+		// 					}
+		// 					let path = frame[pathname]
+		// 					let grad = path.fill
+		// 					this.meshes.bakes[cdx][anx][sgx][fdx][pathname] = createMesh(path.d, grad)
+		// 				}
+		// 			this.reportProgress()
+		// 			}
+		// 		}
+		// 	}
+		// }
+		// debugger
+		this.meshes
 	}
 
 	loadSVGs() {
@@ -83,7 +147,7 @@ class Loader {
 							if (fill && fill.startsWith('url(#')) {
 								// bind this gradient to it's svg parent
 								this.pathToGradMap[fill.replace('url(#', '').replace(')', '')]  = `${setKey}_${id}`
-								fill = `url(#${setKey}_${id}`
+								fill = `url(#${setKey}_${id})`
 							}
 							svg.pathsById[id] = {
 								id,
@@ -110,6 +174,13 @@ class Loader {
 								let grad = gradients[gradIndex]
 								// bind this gradient to it's svg parent
 								grad.props.id = this.pathToGradMap[grad.props.id]
+								let colors = []
+								for (let colorChild of grad.props.children) {
+									colors.push({
+										color: colorChild.props['stop-color'],
+										offset: colorChild.props.offset
+									})
+								}
 								svg.gradientsById[grad.props.id] = {
 									id: grad.props.id,
 									x1: grad.props.x1,
@@ -117,10 +188,7 @@ class Loader {
 									y1: grad.props.y1,
 									y2: grad.props.y2,
 									gradientUnits: grad.props.gradientUnits,
-									color1: grad.props.children[0].props['stop-color'],
-									color1Offset: grad.props.children[0].props['offset'],
-									color2: grad.props.children[1].props['stop-color'],
-									color2Offset: grad.props.children[1].props['offset']
+									colors
 								}
 							}
 							this.statics[setKey][svgKey].grads = svg.gradientsById
@@ -133,9 +201,11 @@ class Loader {
 				svg.height = parseInt(height)
 				svg.pathsById = {}
 				svg.gradientsById = {}
+				svg.meshById = {}
 				this.pathToGradMap = {}
 				reduceSvgChildrenToPaths(svg.props.children)
 				reduceSvgGradients(svg.props.children)
+				this.reportProgress()
 			}
 		}
 	}
@@ -151,7 +221,7 @@ class Loader {
 				}
 				this.bakes[setKey][animName] = []
 				for (let frameIndex = 0; frameIndex < sequence.length; frameIndex++) {
-					let { from: fromName, to: toName, fps: timeframe } = sequence[frameIndex]
+					let { from: fromName, to: toName, frames: timeframe } = sequence[frameIndex]
 					let fromChildren = Object.values(this.loadedSVGs[setKey][fromName].pathsById)
 					let fromViewBox = {
 						x: this.loadedSVGs[setKey][fromName].width,
@@ -180,6 +250,7 @@ class Loader {
 								}
 								if (!this.statics[setKey][fromName].viewBox) {
 									this.statics[setKey][fromName].paths = this.statics[setKey][fromName].paths || {}
+
 									this.statics[setKey][fromName].paths[fromId] = {
 										fill: fromFill,
 										d: fromPath,
@@ -255,11 +326,12 @@ class Loader {
 						}
 					}
 					let bakedFrames = []
-					for (let pathName in pathsToBake) {
-						let { fromPath, toPath, fromFill, toFill, additional, remainder, index } = pathsToBake[pathName]
-						let morph = interpolate(fromPath, toPath, { maxSegmentLength: detail })
-						// for the prefered amount of shapeframes between the keyframes
-						for (let timeframeIndex = 0; timeframeIndex < timeframe; timeframeIndex++) {
+					for (let timeframeIndex = 0; timeframeIndex < timeframe; timeframeIndex++) {
+						this.reportProgress()
+						for (let pathName in pathsToBake) {
+							let { fromPath, toPath, fromFill, toFill, additional, remainder, index } = pathsToBake[pathName]
+							let morph = interpolate(fromPath, toPath, { maxSegmentLength: detail })
+							// for the prefered amount of shapeframes between the keyframes
 							bakedFrames[timeframeIndex] = bakedFrames[timeframeIndex] || {}
 							let percentage = (1 / (timeframe - 1)) * timeframeIndex,
 								newPath, viewBox, fill, fromGrad = false,
@@ -316,7 +388,7 @@ class Loader {
 									if (timeframeIndex < lim) {
 										percentage = 0
 									} else {
-										percentage = (timeframeIndex - (lim)) / (lim)
+										percentage = (timeframeIndex - lim) / (lim)
 									}
 								}
 								if (toPath.endsWith('-0.1 0 z')) {

@@ -1,4 +1,7 @@
 import * as rematrix from 'rematrix'
+import * as Three from 'three'
+import svgMesh3d from 'svg-mesh-3d'
+const createGeometry = require('three-simplicial-complex')(Three)
 
 export function intParse(value) {
 	return ~~value
@@ -6,6 +9,10 @@ export function intParse(value) {
 
 export function isDefined(value) {
 	return value !== undefined && value !== null
+}
+
+export function isFunction(value) {
+	return typeof value === 'function'
 }
 
 export function isNaZN(value) {
@@ -43,6 +50,35 @@ export function queryParams() {
 	return res
 }
 
+export function boxUnwrapUVs(geometry) {
+	for (var i = 0; i < geometry.faces.length; i++) {
+			var face = geometry.faces[i];
+			var faceUVs = geometry.faceVertexUvs[0][i] || [
+				new Three.Vector2(),
+				new Three.Vector2(),
+				new Three.Vector2()
+			]
+			var va = geometry.vertices[geometry.faces[i].a]
+			var vb = geometry.vertices[geometry.faces[i].b]
+			var vc = geometry.vertices[geometry.faces[i].c]
+			var vab = new Three.Vector3().copy(vb).sub(va)
+			var vac = new Three.Vector3().copy(vc).sub(va)
+			//now we have 2 vectors to get the cross product of...
+			var vcross = new Three.Vector3().copy(vab).cross(vac);
+			//Find the largest axis of the plane normal...
+			vcross.set(Math.abs(vcross.x), Math.abs(vcross.y), Math.abs(vcross.z))
+			var majorAxis = vcross.x > vcross.y ? (vcross.x > vcross.z ? 'x' : vcross.y > vcross.z ? 'y' : vcross.y > vcross.z) : vcross.y > vcross.z ? 'y' : 'z'
+			//Take the other two axis from the largest axis
+			var uAxis = majorAxis == 'x' ? 'y' : majorAxis == 'y' ? 'x' : 'x'
+			var vAxis = majorAxis == 'x' ? 'z' : majorAxis == 'y' ? 'z' : 'y'
+			faceUVs[0].set(va[uAxis], va[vAxis])
+			faceUVs[1].set(vb[uAxis], vb[vAxis])
+			faceUVs[2].set(vc[uAxis], vc[vAxis])
+			geometry.faceVertexUvs[0][i] = faceUVs
+	 }
+	geometry.elementsNeedUpdate = geometry.uvsNeedUpdate = geometry.verticesNeedUpdate = true
+}
+
 export function arraysToUniqueObj() {
 	if (!arguments) return null
 	var output = {}
@@ -71,20 +107,20 @@ export function objectAssignAll(target, source) {
 
 function _objectSpread(target) {
 	for (let i = 1; i < arguments.length; i++) {
-		let source = arguments[i] != null ? arguments[i] : {};
+		let source = arguments[i] != null ? arguments[i] : {}
 		if (i % 2) {
 			ownKeys(Object(source), true).forEach(function (key) {
-				_defineProperty(target, key, source[key]);
+				_defineProperty(target, key, source[key])
 			});
 		} else if (Object.getOwnPropertyDescriptors) {
-			Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+			Object.defineProperties(target, Object.getOwnPropertyDescriptors(source))
 		} else {
 			ownKeys(Object(source)).forEach(function (key) {
-				Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-			});
+				Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key))
+			})
 		}
 	}
-	return target;
+	return target
 }
 
 // HEX color
@@ -135,15 +171,15 @@ export function lerpGradient(grad1, grad2, amount, idmod = '') {
 	let y2 = ((grad2.y2 - grad1.y2) * amount) + (grad1.y2 * 1)
 	let id = grad1.id + (idmod ? '_' + idmod : '')
 	let color1 = null
-	if (grad1.color1) color1 = lerpColor(
-		grad1.color1 || '#000000',
-		grad2.color1 || '#000000',
+	if (grad1.colors[0]) color1 = lerpColor(
+		grad1.colors[0].color || '#000000',
+		grad2.colors[0].color || '#000000',
 		amount
 	)
 	let color2 = null
-	if (grad2.color2) color2 = lerpColor(
-		grad1.color2 || '#000000',
-		grad2.color2 || '#000000',
+	if (grad2.colors[1]) color2 = lerpColor(
+		grad1.colors[1].color || '#000000',
+		grad2.colors[1].color || '#000000',
 		amount
 	)
 	let fillobj = {
@@ -151,8 +187,10 @@ export function lerpGradient(grad1, grad2, amount, idmod = '') {
 		x2,
 		y1,
 		y2,
-		color1,
-		color2,
+		colors: [
+			{color:color1, offset:0},
+			{color:color2, offset:1}
+		],
 		id,
 		gradientUnits: 'userSpaceOnUse'
 	}
@@ -195,7 +233,77 @@ export function _fixGrads(grad1, grad2) {
 	}
 }
 
-const colors = {
+function generateTextureGradient(width, height, { y1, x1, y2, x2, colors }) {
+	width *= 1
+	height *= 1
+	const canvas = new self.OffscreenCanvas(1, 256)
+	let context = canvas.getContext('2d')
+	context.rect(0, 0, 1, 256)
+	let gradient = context.createLinearGradient(x1, y1, x2, y2)
+	for (let color of colors) {
+		debugger
+		gradient.addColorStop(color.offset,  color.color)
+	}
+	context.fillStyle = gradient
+	context.fill()
+	return canvas
+}
+
+export function createMesh(path, grad) {
+	let [,,width, height] = path.viewBox.split(' ')
+	var meshData = svgMesh3d(path, {
+		scale: 5,
+		simplify: 0,
+		randomization: 10,
+		normalize: true
+	})
+	var geometry = createGeometry(meshData)
+	boxUnwrapUVs(geometry)
+	var texture = new Three.CanvasTexture(
+		generateTextureGradient(
+			width,
+			height,
+			grad
+		)
+	)
+	var material = new Three.MeshBasicMaterial({
+		side: Three.DoubleSide,
+		map: texture,
+		wireframe: false
+	})
+	return new Three.Mesh(geometry, material)
+}
+
+export function getNumAssets(data) {
+	let numAssets = 0
+	for (let gdx in data) {
+		if (gdx === 'objects') {
+			for (let odx in data[gdx]) {
+				let object = data[gdx][odx]
+				for (let svg in object) {
+					numAssets++
+				}
+			}
+			numAssets *= 2
+		}
+		// if (gdx === 'animations') {
+		// 	for (let cdx in data[gdx]) {
+		// 		let character = data[gdx][cdx]
+		// 		for (let adx in character) {
+		// 			let animation  = character[adx]
+		// 			if (animation.type === 'animation') {
+		// 				for (let segment of animation.sequence) {
+		// 					numAssets += segment.frames
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+	}
+	return numAssets
+}
+
+export const colors = {
 	aliceblue: '#f0f8ff',
 	antiquewhite: '#faebd7',
 	aqua: '#00ffff',
@@ -337,4 +445,150 @@ const colors = {
 	yellow: '#ffff00',
 	yellowgreen: '#a9cd32',
 	transparent: 'rgba(0, 0, 0, 0)'
+}
+
+export const KeysToCodes = {
+	0 : 48,
+	1 : 49,
+	2 : 50,
+	3 : 51,
+	4 : 52,
+	5 : 53,
+	6 : 54,
+	7 : 55,
+	8 : 56,
+	9 : 57,
+	a : 97,
+	b : 98,
+	c : 99,
+	d : 100,
+	e : 101,
+	f : 102,
+	g : 103,
+	h : 104,
+	i : 105,
+	j : 106,
+	k : 107,
+	l : 108,
+	m : 109,
+	n : 110,
+	o : 111,
+	p : 112,
+	q : 113,
+	r : 114,
+	s : 115,
+	t : 116,
+	u : 117,
+	v : 118,
+	w : 119,
+	x : 120,
+	y : 121,
+	z : 122,
+	A : 65,
+	B : 66,
+	C : 67,
+	D : 68,
+	E : 69,
+	F : 70,
+	G : 71,
+	H : 72,
+	I : 73,
+	J : 74,
+	K : 75,
+	L : 76,
+	M : 77,
+	N : 78,
+	O : 79,
+	P : 80,
+	Q : 81,
+	R : 82,
+	S : 83,
+	T : 84,
+	U : 85,
+	V : 86,
+	W : 87,
+	X : 88,
+	Y : 89,
+	Z : 90,
+	ENTER : 13,
+	LEFT_ARROW: 37,
+	RIGHT_ARROW: 39,
+	UP_ARROW: 38,
+	DOWN_ARROW: 40,
+	SPACE: 32,
+	SHIFT: 16,
+	TAB: 9
+}
+
+export const CodesToKeys = {
+	48 : '0',
+	49 : '1',
+	50 : '2',
+	51 : '3',
+	52 : '4',
+	53 : '5',
+	54 : '6',
+	55 : '7',
+	56 : '8',
+	57 : '9',
+	97 : 'a',
+	98 : 'b',
+	99 : 'c',
+	100 : 'd',
+	101 : 'e',
+	102 : 'f',
+	103 : 'g',
+	104 : 'h',
+	105 : 'i',
+	106 : 'j',
+	107 : 'k',
+	108 : 'l',
+	109 : 'm',
+	110 : 'n',
+	111 : 'o',
+	112 : 'p',
+	113 : 'q',
+	114 : 'r',
+	115 : 's',
+	116 : 't',
+	117 : 'u',
+	118 : 'v',
+	119 : 'w',
+	120 : 'x',
+	121 : 'y',
+	122 : 'z',
+	65 : 'A',
+	66 : 'B',
+	67 : 'C',
+	68 : 'D',
+	69 : 'E',
+	70 : 'F',
+	71 : 'G',
+	72 : 'H',
+	73 : 'I',
+	74 : 'J',
+	75 : 'K',
+	76 : 'L',
+	77 : 'M',
+	78 : 'N',
+	79 : 'O',
+	80 : 'P',
+	81 : 'Q',
+	82 : 'R',
+	83 : 'S',
+	84 : 'T',
+	85 : 'U',
+	86 : 'V',
+	87 : 'W',
+	88 : 'X',
+	89 : 'Y',
+	90 : 'Z',
+	13 : 'ENTER',
+	37 : 'LEFT_ARROW',
+	39 : 'RIGHT_ARROW',
+	38 : 'UP_ARROW',
+	40 : 'DOWN_ARROW',
+	32 : 'SPACE',
+	6 : 'SHIFT',
+	9 : 'TAB'
 }

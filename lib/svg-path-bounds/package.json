@@ -1,0 +1,13 @@
+{
+	"name": "svg-path-bounds",
+	"version": "0.0.1",
+	"license": "MIT",
+	"description": "Get bounding box of an svg path data",
+	"main": "index.js",
+	"dependencies": {
+		"abs-svg-path": "^0.1.1",
+		"is-svg-path": "^1.0.1",
+		"normalize-svg-path": "^1.0.0",
+		"parse-svg-path": "^0.1.2"
+	}
+}
